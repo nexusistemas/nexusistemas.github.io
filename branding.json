@@ -1,9 +1,9 @@
 {
-  "client_logo_base64": "/assets/nexus/nexus-icon.png",
-  "client_name": "NEXUS TEST",
-  "company_name": "NEXUS TEST",
-  "delivery_menu_url": "https://nexusistemas.github.io/nexus-test/cardapio",
-  "logo_url": "/assets/nexus/nexus-icon.png",
+  "client_logo_base64": "/assets/logos/SIR BEEF 2.png",
+  "client_name": "SIR BEEF",
+  "company_name": "SIR BEEF",
+  "delivery_menu_url": "https://nexusistemas.github.io/cardapio-teste/cardapio",
+  "logo_url": "/assets/logos/SIR BEEF 2.png",
   "modules": {
     "module_counter": true,
     "module_delivery": true,
@@ -16,8 +16,8 @@
   },
   "primary_color": "#d4af37",
   "secondary_color": "",
-  "table_menu_url": "https://nexusistemas.github.io/nexus-test/mesa",
-  "table_token_prefix": "NEXUSTEST",
+  "table_menu_url": "https://nexusistemas.github.io/cardapio-teste/mesa",
+  "table_token_prefix": "TESTE",
   "tables": [
     {
       "id": 1,
@@ -31,8 +31,8 @@
       "status": "LIVRE",
       "waiter_call": false,
       "qr_token": "",
-      "current_total": 0,
-      "updated_at": "21:15"
+      "current_total": 45,
+      "updated_at": "20:46"
     },
     {
       "id": 2,
@@ -47,7 +47,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 3,
@@ -62,7 +62,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 4,
@@ -77,7 +77,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 5,
@@ -92,7 +92,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 6,
@@ -107,7 +107,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 7,
@@ -122,7 +122,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 8,
@@ -137,7 +137,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 9,
@@ -152,7 +152,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 10,
@@ -167,7 +167,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 11,
@@ -182,7 +182,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 12,
@@ -197,7 +197,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 13,
@@ -212,7 +212,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 14,
@@ -227,7 +227,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 15,
@@ -238,11 +238,11 @@
       "is_kiosk": false,
       "is_custom": false,
       "active": true,
-      "status": "LIVRE",
+      "status": "OCUPADA",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-15",
-      "current_total": 0,
-      "updated_at": "21:15"
+      "qr_token": "TESTE-MESA-15",
+      "current_total": 106,
+      "updated_at": "20:46"
     },
     {
       "id": 16,
@@ -255,9 +255,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-16",
+      "qr_token": "TESTE-MESA-16",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 17,
@@ -270,9 +270,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-17",
+      "qr_token": "TESTE-MESA-17",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 18,
@@ -285,9 +285,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-18",
+      "qr_token": "TESTE-MESA-18",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 19,
@@ -300,9 +300,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-19",
+      "qr_token": "TESTE-MESA-19",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 20,
@@ -315,9 +315,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-20",
+      "qr_token": "TESTE-MESA-20",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 21,
@@ -330,9 +330,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-21",
+      "qr_token": "TESTE-MESA-21",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 22,
@@ -345,9 +345,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-22",
+      "qr_token": "TESTE-MESA-22",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 23,
@@ -360,9 +360,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-23",
+      "qr_token": "TESTE-MESA-23",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 24,
@@ -375,9 +375,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-24",
+      "qr_token": "TESTE-MESA-24",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 25,
@@ -390,9 +390,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-25",
+      "qr_token": "TESTE-MESA-25",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 26,
@@ -405,9 +405,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-26",
+      "qr_token": "TESTE-MESA-26",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 27,
@@ -420,9 +420,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-27",
+      "qr_token": "TESTE-MESA-27",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 28,
@@ -435,9 +435,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-28",
+      "qr_token": "TESTE-MESA-28",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 29,
@@ -450,9 +450,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-29",
+      "qr_token": "TESTE-MESA-29",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     },
     {
       "id": 30,
@@ -465,10 +465,10 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUSTEST-MESA-30",
+      "qr_token": "TESTE-MESA-30",
       "current_total": 0,
-      "updated_at": "21:15"
+      "updated_at": "20:46"
     }
   ],
-  "updated_at": "2026-11-06T21:15:59-03:00"
+  "updated_at": "2026-11-06T21:16:32-03:00"
 }
