@@ -3,16 +3,17 @@
   "apk_fixed_url": "https://nexusistemas.github.io/apk",
   "apk_version_code": 73,
   "apk_version_name": "5.0.3",
-  "cardapio_fixed_url": "https://nexusistemas.github.io/cardapio-teste/cardapio",
+  "cardapio_fixed_url": "https://nexusistemas.github.io/nexus-test/cardapio",
   "hostname_url": "http://gui",
   "lan_ips": [
-    "192.168.0.2"
+    "192.168.0.69",
+    "192.168.18.53"
   ],
-  "lan_no_port_url": "http://192.168.0.2",
-  "lan_url": "http://192.168.0.2:8080",
-  "mesa_fixed_url": "https://nexusistemas.github.io/cardapio-teste/mesa",
-  "pdv_fixed_url": "https://nexusistemas.github.io/cardapio-teste/pdv",
-  "rastreio_fixed_url": "https://nexusistemas.github.io/cardapio-teste/rastreio",
-  "tunnel_url": "https://say-mailman-baby-restrictions.trycloudflare.com",
-  "updated_at": "2026-11-06T20:56:24-03:00"
+  "lan_no_port_url": "http://192.168.0.69",
+  "lan_url": "http://192.168.0.69:8080",
+  "mesa_fixed_url": "https://nexusistemas.github.io/nexus-test/mesa",
+  "pdv_fixed_url": "https://nexusistemas.github.io/nexus-test/pdv",
+  "rastreio_fixed_url": "https://nexusistemas.github.io/nexus-test/rastreio",
+  "tunnel_url": "https://assembled-conferencing-hospitality-replies.trycloudflare.com",
+  "updated_at": "2026-11-06T21:04:07-03:00"
 }
