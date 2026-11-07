@@ -1,19 +1,19 @@
 {
   "apk_file_name": "NexuSistemas-SuperApp.apk",
-  "apk_timestamp": 1793989987,
+  "apk_timestamp": 1793989986,
   "base_version_code": 73,
-  "built_at": "06/11/2026 15:33:07",
+  "built_at": "06/11/2026 15:33:06",
   "cloud_download_url": "https://nexusistemas.github.io/cardapio-teste/apk/NexuSistemas-SuperApp.apk",
   "cloud_raw_url": "https://raw.githubusercontent.com/nexusistemas/cardapio-teste/main/apk/NexuSistemas-SuperApp.apk",
-  "download_path": "/NexuSistemas-SuperApp.apk?t=1793989987",
-  "download_url": "http://192.168.0.69:8080/NexuSistemas-SuperApp.apk?t=1793989987",
-  "external_tunnel_url": "https://assembled-conferencing-hospitality-replies.trycloudflare.com",
+  "download_path": "/NexuSistemas-SuperApp.apk?t=1793989986",
+  "download_url": "http://192.168.0.2:8080/NexuSistemas-SuperApp.apk?t=1793989986",
+  "external_tunnel_url": "https://say-mailman-baby-restrictions.trycloudflare.com",
   "file_size_bytes": 6183743,
   "force_update": false,
-  "lan_ip": "192.168.0.69:8080",
+  "lan_ip": "192.168.0.2:8080",
   "manual_force": false,
-  "release_notes": "v5.0.4 (Build #73): Marca padrao NexuSistemas (nexusistemas.db), limpeza de executaveis legados, fix selecao de impressoras no PDV e fix cabecalho estavel no Cardapio/Mesa QR.",
-  "version": "5.0.4",
+  "release_notes": "v5.0.3 (Build #73): Servidor na Bandeja do Windows (System Tray) com Privilegio ADM + Links Cardapio-Teste (/cardapio e /mesa) + Auto-Update OTA dos Servidores dos Clientes com Reinicio Automatico.",
+  "version": "5.0.3",
   "version_code": 73,
-  "version_name": "5.0.4"
+  "version_name": "5.0.3"
 }
