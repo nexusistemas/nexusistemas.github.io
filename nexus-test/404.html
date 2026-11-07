@@ -62,7 +62,8 @@
     }
     .brand img {
       height: 52px;
-      width: auto;
+      width: 52px;
+      flex-shrink: 0;
       filter: drop-shadow(0 2px 8px rgba(212,175,55,0.35));
     }
     .brand-title {
@@ -443,15 +444,15 @@
 <header>
   <div class="header-inner">
     <div class="brand">
-      <img id="brandLogoImg" src="/assets/nexus/nexus-icon.png" onerror="this.src='/assets/logos/SIR BEEF 2.png'" alt="Logo Cliente" style="border-radius:12px;object-fit:contain;background:transparent;" />
+      <img id="brandLogoImg" src="/assets/nexus/nexus-icon.png" onerror="this.onerror=null;this.style.display='none'" alt="" style="width:52px;height:52px;flex-shrink:0;border-radius:12px;object-fit:contain;background:transparent;" />
       <div>
-        <div class="brand-title" id="brandTitleText">SIR BEEF</div>
-        <div class="brand-sub" id="brandSubText">Hamburgueria & Boutique das Carnes</div>
+        <div class="brand-title" id="brandTitleText">NexuSistemas</div>
+        <div class="brand-sub" id="brandSubText">Cardápio Digital Oficial</div>
       </div>
     </div>
 
     <div class="header-actions">
-      <img src="/assets/nexus/nexus-text.png" alt="NexuSistemas" title="Tecnologia NexuSistemas" onerror="this.style.display='none'" style="height:22px;width:auto;object-fit:contain;background:transparent;opacity:0.9;" />
+      <img src="/assets/nexus/nexus-text.png" alt="NexuSistemas" title="Tecnologia NexuSistemas" onerror="this.onerror=null;this.style.display='none'" style="height:22px;width:auto;object-fit:contain;background:transparent;opacity:0.9;" />
       <button class="btn" onclick="openMyOrdersModal()">📦 Acompanhar Meu Pedido / Comanda</button>
       <button class="btn btn-gold" onclick="openCheckoutModal()">🛒 Minha Sacola (<span id="headerCartCount">0</span>)</button>
     </div>
@@ -725,30 +726,64 @@
   let isMesaTokenValidated = true;
   let hostTablesList = [];
   window.systemBrandingConfig = {
-    client_name: 'SIR BEEF',
-    client_subtitle: 'Hamburgueria & Boutique das Carnes',
+    client_name: 'NexuSistemas',
+    client_subtitle: 'Cardápio Digital Oficial',
     client_logo_base64: '',
     primary_color: '#d4af37',
     secondary_color: '#f3d87d',
     bg_color: '#0b0b0e',
     panel_color: '#131318',
     card_color: '#17171f',
-    table_token_prefix: 'SIRBEEF',
+    table_token_prefix: 'TESTE',
     module_delivery: true,
     module_tables: true,
     module_boutique: true,
     module_coupons_loyalty: true
   };
 
+  window.getGitHubPagesRepoBasePrefix = function() {
+    if (!window.location.hostname.toLowerCase().includes('github.io')) return '';
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    const firstSeg = pathParts[0] || '';
+    if (firstSeg && !['mesa', 'cardapio', 'rastreio', 'pdv', 'index.html', 'mesa.html'].includes(firstSeg.toLowerCase())) {
+      return '/' + firstSeg;
+    }
+    return '/cardapio-teste';
+  };
+
   window.resolveMenuAssetUrl = function(rawUrl) {
     const s = String(rawUrl || '').trim();
     if (!s) return '';
     if (s.startsWith('data:') || s.startsWith('http://') || s.startsWith('https://')) return s;
-    if (window.location.hostname.toLowerCase().includes('github.io') && window.__liveTunnelBase) {
-      return window.__liveTunnelBase.replace(/\/$/, '') + (s.startsWith('/') ? s : ('/' + s));
+    const cleanRel = s.startsWith('/') ? s : ('/' + s);
+    if (window.location.hostname.toLowerCase().includes('github.io')) {
+      const repoPrefix = window.getGitHubPagesRepoBasePrefix();
+      if (cleanRel.startsWith('/assets/nexus/') || cleanRel === '/favicon.ico') {
+        return repoPrefix + cleanRel;
+      }
+      if (window.__liveTunnelBase) {
+        return window.__liveTunnelBase.replace(/\/$/, '') + cleanRel;
+      }
+      return repoPrefix + cleanRel;
     }
-    return s;
+    return cleanRel;
   };
+
+  // Ajusta imediatamente todos os assets estáticos /assets/nexus/* quando hospedado em subdiretório do GitHub Pages
+  (function fixStaticNexusAssetsOnGitHubPages() {
+    if (!window.location.hostname.toLowerCase().includes('github.io')) return;
+    document.querySelectorAll('img[src^="/assets/nexus/"]').forEach(img => {
+      const resolved = window.resolveMenuAssetUrl(img.getAttribute('src'));
+      if (resolved && img.getAttribute('src') !== resolved) {
+        img.setAttribute('src', resolved);
+        img.setAttribute('data-loaded-src', resolved);
+      }
+    });
+    const fav = document.getElementById('dynamicFaviconLink');
+    if (fav && fav.getAttribute('href')) {
+      fav.setAttribute('href', window.resolveMenuAssetUrl(fav.getAttribute('href')));
+    }
+  })();
 
   // Roteador Automático 4G / GitHub Pages -> Túnel HTTPS Cloudflare em Tempo Real
   (function setupGitHubPagesLiveTunnelBridge() {
@@ -2242,20 +2277,41 @@
     if (cfg.panel_color) root.style.setProperty('--panel', cfg.panel_color);
     if (cfg.card_color) root.style.setProperty('--card', cfg.card_color);
 
-    const cName = cfg.client_name || 'SIR BEEF';
+    const rawName = String(cfg.company_name || cfg.client_name || 'NexuSistemas').trim();
+    const cName = (!rawName || rawName.toUpperCase() === 'SIR BEEF' || rawName.toUpperCase() === 'SIRBEEF') ? 'NexuSistemas' : rawName;
     const cSub = cfg.client_subtitle || 'Cardápio Digital Oficial';
     document.title = `${cName} — Cardápio Digital | Tecnologia NexuSistemas`;
 
     const titleEl = document.getElementById('brandTitleText');
-    if (titleEl) titleEl.textContent = cName;
+    if (titleEl && titleEl.textContent !== cName) titleEl.textContent = cName;
     const subEl = document.getElementById('brandSubText');
-    if (subEl) subEl.textContent = cSub;
+    if (subEl && subEl.textContent !== cSub) subEl.textContent = cSub;
 
     const logoEl = document.getElementById('brandLogoImg');
     if (logoEl) {
-      logoEl.src = (cfg.client_logo_base64 && cfg.client_logo_base64.startsWith('data:image'))
-        ? cfg.client_logo_base64
-        : '/assets/nexus/nexus-icon.png';
+      const rawLogo = String(cfg.client_logo_base64 || cfg.company_logo || cfg.logo_url || '/assets/nexus/nexus-icon.png').trim();
+      const cleanLogo = (!rawLogo || rawLogo.toUpperCase().includes('SIR BEEF') || rawLogo.toUpperCase().includes('SIRBEEF'))
+        ? '/assets/nexus/nexus-icon.png'
+        : rawLogo;
+      const targetSrc = cleanLogo.startsWith('data:image')
+        ? cleanLogo
+        : window.resolveMenuAssetUrl(cleanLogo);
+      if (targetSrc && logoEl.getAttribute('data-loaded-src') !== targetSrc) {
+        logoEl.setAttribute('data-loaded-src', targetSrc);
+        logoEl.style.display = 'block';
+        logoEl.onerror = function() {
+          const fallbackSrc = window.resolveMenuAssetUrl('/assets/nexus/nexus-icon.png');
+          if (this.getAttribute('data-fallback-used') !== '1' && fallbackSrc && this.src !== fallbackSrc) {
+            this.setAttribute('data-fallback-used', '1');
+            this.setAttribute('data-loaded-src', fallbackSrc);
+            this.src = fallbackSrc;
+          } else {
+            this.onerror = null;
+            this.style.display = 'none';
+          }
+        };
+        logoEl.src = targetSrc;
+      }
     }
     const chkHdr = document.getElementById('checkoutBrandHeaderTitle');
     if (chkHdr) chkHdr.textContent = `🛒 FINALIZAR PEDIDO — ${cName}`;
@@ -2265,7 +2321,7 @@
 
     // Validação do token da mesa quando em modo /mesa?m=15&token=...
     if (isMesaSelfServicePage && qrMesaTokenParam) {
-      const prefix = String(cfg.table_token_prefix || 'SIRBEEF').trim().toUpperCase();
+      const prefix = String(cfg.table_token_prefix || 'TESTE').trim().toUpperCase();
       const pad = String(selectedTableNum).padStart(2, '0');
       const expectedPad = `${prefix}-MESA-${pad}`.toUpperCase();
       const expectedRaw = `${prefix}-MESA-${selectedTableNum}`.toUpperCase();
@@ -2277,6 +2333,7 @@
   }
 
   function connectWebBrandingSocket() {
+    if (window.location.hostname.toLowerCase().includes('github.io')) return;
     try {
       const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const ws = new WebSocket(`${proto}//${window.location.host}/ws`);
@@ -2294,6 +2351,17 @@
       };
     } catch (e) {}
   }
+
+  // Re-fixa os assets /assets/nexus/* do rodapé assim que o DOM terminar de carregar
+  window.addEventListener('DOMContentLoaded', function() {
+    if (!window.location.hostname.toLowerCase().includes('github.io')) return;
+    document.querySelectorAll('img[src^="/assets/nexus/"]').forEach(img => {
+      const resolved = window.resolveMenuAssetUrl(img.getAttribute('src'));
+      if (resolved && img.getAttribute('src') !== resolved) {
+        img.setAttribute('src', resolved);
+      }
+    });
+  });
 
   loadWebBrandingConfig().then(() => {
     init().then(() => syncMyComandaClosedLockState());
