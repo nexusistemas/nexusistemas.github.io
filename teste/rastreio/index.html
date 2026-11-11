@@ -6,9 +6,11 @@
   <title id="rastreioPageDocTitle">Rastreamento de Pedido</title>
   <meta name="description" content="Acompanhe o status e a entrega do seu pedido em tempo real." id="metaDocDesc" />
   <link rel="canonical" href="/rastreio" id="metaDocCanonical" />
-  <link rel="icon" id="dynamicFaviconLink" type="image/png" href="/api/public/og-logo.png" />
+  <link rel="icon" id="dynamicFaviconLink" type="image/x-icon" href="/favicon.ico" />
+  <link rel="shortcut icon" id="dynamicShortcutIconLink" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/api/public/og-logo.png" />
   <link rel="apple-touch-icon" id="dynamicAppleIconLink" href="/api/public/og-logo.png" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" id="dynamicManifestLink" href="/manifest.json" />
 
   <!-- Open Graph / WhatsApp / Facebook -->
   <meta property="og:type" content="website" />
@@ -399,15 +401,16 @@
         attribution: "© OpenStreetMap"
       }).addTo(map);
 
+      const storeLabel = String(window._trackStoreName || "Estabelecimento").trim();
       const storeIcon = L.divIcon({
         className: "",
-        html: '<div class="pin-store" title="Sir Beef">🥩</div>',
+        html: `<div class="pin-store" title="${storeLabel}">📍</div>`,
         iconSize: [36, 36],
         iconAnchor: [18, 18]
       });
       storeMarker = L.marker([DEFAULT_STORE.lat, DEFAULT_STORE.lng], { icon: storeIcon })
         .addTo(map)
-        .bindPopup("<b>🥩 SIR BEEF</b><br>Ponto de partida");
+        .bindPopup(`<b>📍 ${storeLabel}</b><br>Ponto de partida`);
     }
 
     async function tryGeocodeCustomerAddress(addressText) {
@@ -634,7 +637,7 @@
 
         // Localização em tempo real do Motoboy
         const mLoc = data.motoboy_location;
-        const motoName = ord.motoboy_name || (mLoc && mLoc.motoboy_name) || "Entregador Sir Beef";
+        const motoName = ord.motoboy_name || (mLoc && mLoc.motoboy_name) || "Entregador";
         const motoChip = document.getElementById("motoboyChip");
         const gpsSub = document.getElementById("gpsSubtitle");
 
@@ -648,13 +651,13 @@
           if (!motoMarker) {
             const motoIcon = L.divIcon({
               className: "",
-              html: '<div class="pin-moto" title="Entregador Sir Beef">🛵</div>',
+              html: '<div class="pin-moto" title="Entregador em rota">🛵</div>',
               iconSize: [42, 42],
               iconAnchor: [21, 21]
             });
             motoMarker = L.marker([mLoc.latitude, mLoc.longitude], { icon: motoIcon, zIndexOffset: 1000 })
               .addTo(map)
-              .bindPopup("<b>🛵 " + motoName + "</b><br>Entregador Sir Beef em rota");
+              .bindPopup("<b>🛵 " + motoName + "</b><br>Entregador em rota");
           } else {
             motoMarker.setLatLng([mLoc.latitude, mLoc.longitude]);
           }
@@ -709,19 +712,33 @@
 
       const rawName = String(cfg.company_name || cfg.client_name || 'NexuSistemas').trim();
       const cName = rawName || 'NexuSistemas';
+      window._trackStoreName = cName;
+      if (storeMarker && typeof storeMarker.bindPopup === 'function') {
+        storeMarker.bindPopup(`<b>📍 ${cName}</b><br>Ponto de partida`);
+      }
       document.title = `Rastreamento de Pedido • ${cName}`;
       const tEl = document.getElementById('trackBrandTitleText');
       if (tEl) tEl.textContent = `${cName} • RASTREIO AO VIVO`;
       const vParam = cfg.logo_hash ? ('?v=' + encodeURIComponent(cfg.logo_hash)) : ('?v=' + Date.now());
       const dynLogoUrl = cfg.og_logo_url || ('/api/public/og-logo.png' + vParam);
       const dynFaviconUrl = '/favicon.ico' + vParam;
-      const shortcutLink = document.getElementById('dynamicShortcutIconLink');
-      if (shortcutLink) shortcutLink.href = dynFaviconUrl;
+      let shortcutLink = document.getElementById('dynamicShortcutIconLink');
+      if (!shortcutLink) {
+        shortcutLink = document.createElement('link');
+        shortcutLink.rel = 'shortcut icon';
+        shortcutLink.id = 'dynamicShortcutIconLink';
+        shortcutLink.type = 'image/x-icon';
+        document.head.appendChild(shortcutLink);
+      }
+      shortcutLink.href = dynFaviconUrl;
       const favLink = document.getElementById('dynamicFaviconLink');
-      if (favLink) favLink.href = dynLogoUrl;
+      if (favLink) {
+        favLink.type = 'image/x-icon';
+        favLink.href = dynFaviconUrl;
+      }
       const appleLink = document.getElementById('dynamicAppleIconLink');
       if (appleLink) appleLink.href = dynLogoUrl;
-      const manifestLink = document.getElementById('dynamicManifestLink');
+      const manifestLink = document.getElementById('dynamicManifestLink') || document.querySelector('link[rel="manifest"]');
       if (manifestLink) manifestLink.href = '/manifest.json' + vParam;
       const lEl = document.getElementById('trackBrandLogoImg');
       if (lEl) {
