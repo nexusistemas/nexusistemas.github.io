@@ -1,8 +1,8 @@
 {
   "client_logo_base64": "/assets/nexus/nexus-icon.png",
-  "client_name": "NEXUS TEST",
-  "company_name": "NEXUS TEST",
-  "delivery_menu_url": "https://nexusistemas.github.io/cardapio-teste/cardapio",
+  "client_name": "NexuSistemas",
+  "company_name": "NexuSistemas",
+  "delivery_menu_url": "https://teste.nexusistemas.app.br/cardapio",
   "logo_url": "/assets/nexus/nexus-icon.png",
   "modules": {
     "module_counter": true,
@@ -10,14 +10,15 @@
     "module_individual_tabs": true,
     "module_kiosk": true,
     "module_kitchen_menu": true,
-    "module_market": true,
+    "module_market": false,
     "module_pickup": true,
     "module_tables_qr": true
   },
   "primary_color": "#d4af37",
-  "secondary_color": "",
-  "table_menu_url": "https://nexusistemas.github.io/cardapio-teste/mesa",
-  "table_token_prefix": "TESTE",
+  "secondary_color": "#f3d87d",
+  "superapp_url": "https://teste.nexusistemas.app.br/app",
+  "table_menu_url": "https://teste.nexusistemas.app.br/mesa",
+  "table_token_prefix": "NEXUS",
   "tables": [
     {
       "id": 1,
@@ -32,7 +33,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 2,
@@ -47,7 +48,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 3,
@@ -62,7 +63,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 4,
@@ -77,7 +78,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 5,
@@ -92,7 +93,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 6,
@@ -107,7 +108,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 7,
@@ -122,7 +123,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 8,
@@ -137,7 +138,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 9,
@@ -152,7 +153,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 10,
@@ -167,7 +168,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 11,
@@ -182,13 +183,13 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 12,
       "number": 12,
-      "label": "MESA 12 - \"Na Calçada\"",
-      "complement": "Na Calçada",
+      "label": "MESA 12",
+      "complement": "",
       "origin_prefix": "",
       "is_kiosk": true,
       "is_custom": false,
@@ -197,7 +198,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 13,
@@ -212,7 +213,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 14,
@@ -227,7 +228,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 15,
@@ -240,9 +241,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-15",
+      "qr_token": "NEXUS-MESA-15",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 16,
@@ -255,9 +256,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-16",
+      "qr_token": "NEXUS-MESA-16",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 17,
@@ -270,9 +271,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-17",
+      "qr_token": "NEXUS-MESA-17",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 18,
@@ -285,9 +286,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-18",
+      "qr_token": "NEXUS-MESA-18",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 19,
@@ -300,9 +301,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-19",
+      "qr_token": "NEXUS-MESA-19",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 20,
@@ -315,9 +316,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-20",
+      "qr_token": "NEXUS-MESA-20",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 21,
@@ -330,9 +331,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-21",
+      "qr_token": "NEXUS-MESA-21",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 22,
@@ -345,9 +346,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-22",
+      "qr_token": "NEXUS-MESA-22",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 23,
@@ -360,9 +361,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-23",
+      "qr_token": "NEXUS-MESA-23",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 24,
@@ -375,9 +376,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-24",
+      "qr_token": "NEXUS-MESA-24",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 25,
@@ -390,9 +391,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-25",
+      "qr_token": "NEXUS-MESA-25",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 26,
@@ -405,9 +406,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-26",
+      "qr_token": "NEXUS-MESA-26",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 27,
@@ -420,9 +421,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-27",
+      "qr_token": "NEXUS-MESA-27",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 28,
@@ -435,9 +436,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-28",
+      "qr_token": "NEXUS-MESA-28",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 29,
@@ -450,9 +451,9 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-29",
+      "qr_token": "NEXUS-MESA-29",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     },
     {
       "id": 30,
@@ -465,10 +466,10 @@
       "active": true,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-30",
+      "qr_token": "NEXUS-MESA-30",
       "current_total": 0,
-      "updated_at": "21:54"
+      "updated_at": "16:20"
     }
   ],
-  "updated_at": "2026-11-06T21:54:36-03:00"
+  "updated_at": "2026-11-11T16:20:37-03:00"
 }
