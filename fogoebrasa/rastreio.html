@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title id="rastreioPageDocTitle">Rastreamento de Pedido</title>
+  <meta name="description" content="Acompanhe o status e a entrega do seu pedido em tempo real." id="metaDocDesc" />
+  <link rel="canonical" href="/rastreio" id="metaDocCanonical" />
+  <link rel="icon" id="dynamicFaviconLink" type="image/x-icon" href="/favicon.ico" />
+  <link rel="shortcut icon" id="dynamicShortcutIconLink" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/api/public/og-logo.png" />
+  <link rel="apple-touch-icon" id="dynamicAppleIconLink" href="/api/public/og-logo.png" />
+  <link rel="manifest" id="dynamicManifestLink" href="/manifest.json" />
+
+  <!-- Open Graph / WhatsApp / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Rastreamento de Pedido" id="ogSiteName" />
+  <meta property="og:title" content="Rastreamento de Pedido" id="ogTitle" />
+  <meta property="og:description" content="Acompanhe o status e a entrega do seu pedido em tempo real." id="ogDesc" />
+  <meta property="og:url" content="/rastreio" id="ogUrl" />
+  <meta property="og:image" content="/api/public/og-logo.png" id="ogImage" />
+  <meta property="og:image:secure_url" content="/api/public/og-logo.png" id="ogImageSecure" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Rastreamento de Pedido" id="twTitle" />
+  <meta name="twitter:description" content="Acompanhe o status e a entrega do seu pedido em tempo real." id="twDesc" />
+  <meta name="twitter:image" content="/api/public/og-logo.png" id="twImage" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    :root {
+      --bg: #09090b;
+      --card: #121217;
+      --border: #272732;
+      --gold: #d4af37;
+      --gold-light: #f3d87d;
+      --green: #22c55e;
+      --blue: #3b82f6;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(12, 12, 16, 0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand img {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid var(--gold);
+    }
+    .brand-title {
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--gold-light);
+      letter-spacing: 0.4px;
+    }
+    .brand-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .order-badge {
+      background: #1c1917;
+      border: 1px solid var(--gold);
+      color: var(--gold-light);
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .status-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.45);
+    }
+    .status-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .status-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid var(--green);
+      color: #86efac;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 rgba(34, 197, 94, 0.7);
+      animation: pulse 1.6s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+    .status-desc {
+      font-size: 13px;
+      color: #d1d5db;
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      text-align: center;
+    }
+    .step-bar {
+      width: 100%;
+      height: 5px;
+      border-radius: 99px;
+      background: #272732;
+      overflow: hidden;
+      position: relative;
+    }
+    .step.done .step-bar {
+      background: var(--green);
+    }
+    .step.active .step-bar {
+      background: linear-gradient(90deg, var(--gold), var(--green));
+    }
+    .step-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .step.done .step-label,
+    .step.active .step-label {
+      color: var(--gold-light);
+      font-weight: 700;
+    }
+
+    .map-wrap {
+      position: relative;
+      height: 360px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1.5px solid var(--gold);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+      background: #14141b;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+    .map-overlay-top {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      z-index: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+    .moto-chip {
+      pointer-events: auto;
+      background: rgba(15, 15, 22, 0.92);
+      border: 1px solid var(--gold);
+      color: #fff;
+      padding: 7px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+    }
+    .recenter-btn {
+      pointer-events: auto;
+      background: var(--gold);
+      color: #000;
+      border: none;
+      padding: 7px 11px;
+      border-radius: 10px;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+    }
+
+    .info-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .info-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--gold-light);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      letter-spacing: 0.4px;
+    }
+    .info-row {
+      font-size: 13px;
+      color: #e5e7eb;
+      margin-bottom: 6px;
+      line-height: 1.45;
+    }
+    .items-list {
+      margin-top: 8px;
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .item-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #d1d5db;
+    }
+
+    .pin-moto {
+      background: #16a34a;
+      border: 2.5px solid #fff;
+      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.9);
+    }
+    .pin-store {
+      background: #18181b;
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+    }
+    .pin-home {
+      background: #2563eb;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+    }
+  </style>
+</head>
+<body>
+  <header class="top-bar">
+    <div class="brand">
+      <img id="trackBrandLogoImg" src="/assets/nexus/nexus-icon.png" onerror="this.style.display='none'" alt="Logo" style="object-fit:contain;background:transparent;" />
+      <div>
+        <div class="brand-title" id="trackBrandTitleText">SIR BEEF • RASTREIO AO VIVO</div>
+        <div class="brand-sub" id="gpsSubtitle">Sincronizando localização em tempo real...</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <img src="/assets/nexus/nexus-text.png" alt="NexuSistemas" title="Tecnologia NexuSistemas" onerror="this.style.display='none'" style="height:20px;width:auto;object-fit:contain;background:transparent;opacity:0.9;" />
+      <div class="order-badge" id="orderCodeBadge">#PEDIDO</div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="status-card">
+      <div class="status-header">
+        <div class="status-title" id="statusTitle">Carregando pedido...</div>
+        <div class="live-pill">
+          <span class="pulse-dot"></span>
+          <span id="liveBadgeText">AO VIVO</span>
+        </div>
+      </div>
+      <div class="status-desc" id="statusDesc">Buscando informações atualizadas do seu pedido Sir Beef...</div>
+
+      <div class="steps">
+        <div class="step" id="stepPrep">
+          <div class="step-bar"></div>
+          <div class="step-label">🔥 Na Chapa</div>
+        </div>
+        <div class="step" id="stepReady">
+          <div class="step-bar"></div>
+          <div class="step-label">🛍️ Pronto</div>
+        </div>
+        <div class="step" id="stepOut">
+          <div class="step-bar"></div>
+          <div class="step-label">🛵 Em Rota</div>
+        </div>
+        <div class="step" id="stepDone">
+          <div class="step-bar"></div>
+          <div class="step-label">✅ Entregue</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="map-wrap">
+      <div class="map-overlay-top">
+        <div class="moto-chip" id="motoboyChip">🛵 Entregador: Aguardando saída</div>
+        <button class="recenter-btn" onclick="centerOnMotoboy()">🎯 Focar Entregador</button>
+      </div>
+      <div id="map"></div>
+    </section>
+
+    <section class="info-card">
+      <div class="info-title">📍 Dados da Entrega</div>
+      <div class="info-row" id="customerInfo">Cliente: —</div>
+      <div class="info-row" id="addressInfo">Endereço: —</div>
+      <div class="info-row" id="paymentInfo">Pagamento: —</div>
+      <div class="items-list" id="itemsList"></div>
+    </section>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const pedidoParam = params.get("pedido") || params.get("order") || params.get("id") || "";
+
+    let map = null;
+    let storeMarker = null;
+    let homeMarker = null;
+    let motoMarker = null;
+    let routeLine = null;
+    let hasCenteredOnce = false;
+    let geocodedDest = null;
+    let lastAddressAttempted = "";
+
+    const DEFAULT_STORE = { lat: -20.7289, lng: -47.7486 };
+
+    function initMap() {
+      map = L.map("map", { zoomControl: false }).setView([DEFAULT_STORE.lat, DEFAULT_STORE.lng], 15);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "© OpenStreetMap"
+      }).addTo(map);
+
+      const storeLabel = String(window._trackStoreName || "Estabelecimento").trim();
+      const storeIcon = L.divIcon({
+        className: "",
+        html: `<div class="pin-store" title="${storeLabel}">📍</div>`,
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
+      });
+      storeMarker = L.marker([DEFAULT_STORE.lat, DEFAULT_STORE.lng], { icon: storeIcon })
+        .addTo(map)
+        .bindPopup(`<b>📍 ${storeLabel}</b><br>Ponto de partida`);
+    }
+
+    async function tryGeocodeCustomerAddress(addressText) {
+      if (!addressText || addressText === lastAddressAttempted) return;
+      lastAddressAttempted = addressText;
+      try {
+        const q = encodeURIComponent(addressText + ", Nuporanga, SP, Brasil");
+        const r = await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + q);
+        const arr = await r.json();
+        if (Array.isArray(arr) && arr.length > 0) {
+          geocodedDest = {
+            lat: parseFloat(arr[0].lat),
+            lng: parseFloat(arr[0].lon)
+          };
+        }
+      } catch (e) {}
+    }
+
+    function updateStepsUI(status) {
+      const st = (status || "").toUpperCase();
+      const sPrep = document.getElementById("stepPrep");
+      const sReady = document.getElementById("stepReady");
+      const sOut = document.getElementById("stepOut");
+      const sDone = document.getElementById("stepDone");
+      [sPrep, sReady, sOut, sDone].forEach(el => el.className = "step");
+
+      const titleEl = document.getElementById("statusTitle");
+      const descEl = document.getElementById("statusDesc");
+
+      if (st === "RECEBIDO" || st === "PREPARANDO") {
+        sPrep.className = "step active";
+        titleEl.textContent = "🔥 Seu pedido está na chapa!";
+        descEl.textContent = "Nossa cozinha está preparando seu pedido no capricho. Assim que o entregador bipar a saída, você verá a moto se movendo ao vivo no mapa abaixo!";
+      } else if (st === "PRONTO") {
+        sPrep.className = "step done";
+        sReady.className = "step active";
+        titleEl.textContent = "🛍️ Pedido pronto na expedição!";
+        descEl.textContent = "Seu pedido já foi conferido e embalado. Aguardando nosso entregador escanear o QR Code para iniciar o trajeto até você.";
+      } else if (st === "DESPACHADO") {
+        sPrep.className = "step done";
+        sReady.className = "step done";
+        sOut.className = "step active";
+        titleEl.textContent = "🛵💨 Saiu para entrega! Acompanhe no mapa";
+        descEl.textContent = "Nosso entregador está a caminho do seu endereço agora mesmo. Acompanhe o deslocamento em tempo real abaixo!";
+      } else if (st === "ENTREGUE") {
+        sPrep.className = "step done";
+        sReady.className = "step done";
+        sOut.className = "step done";
+        sDone.className = "step done";
+        titleEl.textContent = "⭐ Pedido entregue! Bom apetite!";
+        descEl.textContent = "Seu pedido foi entregue com sucesso. Obrigado por escolher o SIR BEEF!";
+      } else {
+        titleEl.textContent = "Status: " + st;
+        descEl.textContent = "Acompanhamento em tempo real do seu pedido.";
+      }
+    }
+
+    function centerOnMotoboy() {
+      if (motoMarker && map) {
+        map.flyTo(motoMarker.getLatLng(), 16, { duration: 0.8 });
+      } else if (storeMarker && map) {
+        map.flyTo(storeMarker.getLatLng(), 15, { duration: 0.8 });
+      }
+    }
+
+    let lastTrackedOrderId = null;
+
+    function renderDeletedOrEmptyTrackingDOM(customMsg) {
+      const codeBadge = document.getElementById("orderCodeBadge");
+      if (codeBadge) codeBadge.textContent = "#---";
+      document.querySelectorAll(".step, .step-dot").forEach(el => {
+        el.classList.remove("active", "done");
+      });
+      const stTitle = document.getElementById("statusTitle");
+      if (stTitle) stTitle.textContent = "🚫 Pedido Excluído ou Inexistente";
+      const stDesc = document.getElementById("statusDesc");
+      if (stDesc) stDesc.textContent = customMsg || "Este pedido foi finalizado, cancelado ou removido pelo estabelecimento no PDV.";
+      const eta = document.getElementById("etaChip") || document.getElementById("liveBadgeText");
+      if (eta) {
+        eta.textContent = "Encerrado";
+        eta.style.background = "rgba(239,68,68,0.16)";
+        eta.style.color = "#f87171";
+        eta.style.borderColor = "rgba(239,68,68,0.4)";
+      }
+
+      const custEl = document.getElementById("customerInfo");
+      if (custEl) custEl.innerHTML = "<b>👤 Cliente:</b> ---";
+      const addrEl = document.getElementById("addressInfo");
+      if (addrEl) addrEl.innerHTML = "<b>📍 Endereço:</b> ---";
+      const payEl = document.getElementById("paymentInfo");
+      if (payEl) payEl.innerHTML = "<b>💳 Total:</b> R$ 0,00";
+      const itemsEl = document.getElementById("itemsList");
+      if (itemsEl) {
+        itemsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">Nenhum pedido ativo para rastreamento no momento.</div>';
+      }
+      const motoEl = document.getElementById("motoboyChip");
+      if (motoEl) motoEl.textContent = "🛵 Sem entrega ativa";
+      const gpsEl = document.getElementById("gpsSubtitle");
+      if (gpsEl) gpsEl.textContent = "Pedido removido ou concluído";
+
+      if (motoMarker && map) {
+        map.removeLayer(motoMarker);
+        motoMarker = null;
+      }
+      if (homeMarker && map) {
+        map.removeLayer(homeMarker);
+        homeMarker = null;
+      }
+      if (routeLine && map) {
+        map.removeLayer(routeLine);
+        routeLine = null;
+      }
+    }
+
+    async function syncAndPurgeTrackedLocalOrders() {
+      try {
+        const rawIds = JSON.parse(localStorage.getItem("sirbeef_my_order_ids") || "[]");
+        if (!Array.isArray(rawIds) || rawIds.length === 0) return [];
+        const checkRes = await fetch("/api/orders/track?ids=" + encodeURIComponent(rawIds.join(",")), { cache: "no-store" });
+        if (!checkRes.ok) return rawIds;
+        const checkData = await checkRes.json();
+        if (checkData && Array.isArray(checkData.existing_ids)) {
+          const validNums = checkData.existing_ids.map(x => Number(x)).filter(n => n > 0);
+          if (validNums.length !== rawIds.length) {
+            localStorage.setItem("sirbeef_my_order_ids", JSON.stringify(validNums));
+          }
+          // Filtra apenas pedidos de DELIVERY para rastreio
+          if (Array.isArray(checkData.orders)) {
+            const delivOrders = checkData.orders.filter(o =>
+              String(o.origin_type || "").toUpperCase() === "DELIVERY" &&
+              String(o.payment_method || "").toUpperCase() !== "CONTA_MESA"
+            );
+            return delivOrders.map(o => o.order_code || String(o.id));
+          }
+          return validNums.map(String);
+        }
+        return rawIds;
+      } catch (e) {
+        return [];
+      }
+    }
+
+    async function pollTracking() {
+      try {
+        const validLocalDelivCodes = await syncAndPurgeTrackedLocalOrders();
+        let targetCode = pedidoParam;
+        if (!targetCode && validLocalDelivCodes.length > 0) {
+          targetCode = String(validLocalDelivCodes[0]);
+        }
+
+        const url = "/api/orders/track" + (targetCode ? ("?pedido=" + encodeURIComponent(targetCode)) : "");
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) {
+          if (res.status === 404) {
+            if (lastTrackedOrderId) {
+              const rawIds = JSON.parse(localStorage.getItem("sirbeef_my_order_ids") || "[]");
+              const nextIds = (rawIds || []).filter(x => Number(x) !== Number(lastTrackedOrderId) && String(x) !== String(targetCode));
+              localStorage.setItem("sirbeef_my_order_ids", JSON.stringify(nextIds));
+            }
+            renderDeletedOrEmptyTrackingDOM();
+          }
+          return;
+        }
+        const data = await res.json();
+        if (data && data.deleted) {
+          renderDeletedOrEmptyTrackingDOM();
+          return;
+        }
+        const ord = data.order;
+        if (!ord || String(ord.status || "").toUpperCase() === "CANCELADO") {
+          renderDeletedOrEmptyTrackingDOM();
+          return;
+        }
+        lastTrackedOrderId = ord.id;
+
+        document.getElementById("orderCodeBadge").textContent = "#" + (ord.order_code || ord.id);
+        updateStepsUI(ord.status);
+
+        document.getElementById("customerInfo").innerHTML = "<b>👤 Cliente:</b> " + (ord.customer_name || "Cliente Sir Beef");
+        document.getElementById("addressInfo").innerHTML = "<b>📍 Endereço:</b> " + (ord.address_text || "Retirada / Não informado");
+        document.getElementById("paymentInfo").innerHTML =
+          "<b>💳 Total:</b> R$ " + Number(ord.total || 0).toFixed(2) + " (" + (ord.payment_method || "A combinar") + ")";
+
+        const itemsEl = document.getElementById("itemsList");
+        if (Array.isArray(ord.items)) {
+          itemsEl.innerHTML = ord.items.map(it =>
+            `<div class="item-line"><span>${it.quantity}x ${it.product_name}</span><b>R$ ${Number(it.total_price || 0).toFixed(2)}</b></div>`
+          ).join("");
+        }
+
+        const stOrigin = data.store_origin || DEFAULT_STORE;
+        if (storeMarker && stOrigin.lat && stOrigin.lng) {
+          storeMarker.setLatLng([stOrigin.lat, stOrigin.lng]);
+        }
+
+        // Destino do cliente
+        let destLat = ord.latitude || 0;
+        let destLng = ord.longitude || 0;
+        if ((!destLat || !destLng || Math.abs(destLat + 23.555) < 0.03) && ord.address_text) {
+          await tryGeocodeCustomerAddress(ord.address_text);
+          if (geocodedDest) {
+            destLat = geocodedDest.lat;
+            destLng = geocodedDest.lng;
+          }
+        }
+        if (destLat && destLng && Math.abs(destLat) > 0.01) {
+          if (!homeMarker) {
+            const homeIcon = L.divIcon({
+              className: "",
+              html: '<div class="pin-home" title="Seu Endereço">🏠</div>',
+              iconSize: [36, 36],
+              iconAnchor: [18, 18]
+            });
+            homeMarker = L.marker([destLat, destLng], { icon: homeIcon })
+              .addTo(map)
+              .bindPopup("<b>🏠 Seu Endereço</b><br>" + (ord.address_text || ""));
+            if (!hasCenteredOnce) {
+              map.setView([destLat, destLng], 15);
+            }
+          } else {
+            homeMarker.setLatLng([destLat, destLng]);
+          }
+        }
+
+        // Localização em tempo real do Motoboy
+        const mLoc = data.motoboy_location;
+        const motoName = ord.motoboy_name || (mLoc && mLoc.motoboy_name) || "Entregador";
+        const motoChip = document.getElementById("motoboyChip");
+        const gpsSub = document.getElementById("gpsSubtitle");
+
+        if (mLoc && mLoc.latitude && mLoc.longitude) {
+          motoChip.textContent = "🛵 " + motoName + " • GPS Ao Vivo";
+          const sec = mLoc.seconds_ago || 0;
+          gpsSub.textContent = sec <= 15
+            ? "🛰️ Sinal GPS do entregador em tempo real (agora mesmo)"
+            : "🛰️ GPS atualizado há " + sec + "s (" + (mLoc.updated_at || "") + ")";
+
+          if (!motoMarker) {
+            const motoIcon = L.divIcon({
+              className: "",
+              html: '<div class="pin-moto" title="Entregador em rota">🛵</div>',
+              iconSize: [42, 42],
+              iconAnchor: [21, 21]
+            });
+            motoMarker = L.marker([mLoc.latitude, mLoc.longitude], { icon: motoIcon, zIndexOffset: 1000 })
+              .addTo(map)
+              .bindPopup("<b>🛵 " + motoName + "</b><br>Entregador em rota");
+          } else {
+            motoMarker.setLatLng([mLoc.latitude, mLoc.longitude]);
+          }
+
+          const pts = [];
+          pts.push([mLoc.latitude, mLoc.longitude]);
+          if (homeMarker) {
+            pts.push(homeMarker.getLatLng());
+          } else if (storeMarker) {
+            pts.push(storeMarker.getLatLng());
+          }
+          if (routeLine) {
+            routeLine.setLatLngs(pts);
+          } else if (pts.length >= 2) {
+            routeLine = L.polyline(pts, { color: "#22c55e", weight: 4, dashArray: "8, 8" }).addTo(map);
+          }
+
+          if (!hasCenteredOnce) {
+            hasCenteredOnce = true;
+            if (homeMarker) {
+              const group = L.featureGroup([motoMarker, homeMarker]);
+              map.fitBounds(group.getBounds().pad(0.28));
+            } else {
+              map.setView([mLoc.latitude, mLoc.longitude], 16);
+            }
+          }
+        } else {
+          motoChip.textContent = ord.status === "DESPACHADO"
+            ? ("🛵 " + motoName + " • Em rota de entrega")
+            : "🛵 Aguardando saída do entregador";
+          gpsSub.textContent = "Atualização automática a cada 3 segundos";
+        }
+      } catch (e) {}
+    }
+
+    async function loadTrackingBranding() {
+      try {
+        const res = await fetch('/api/system/branding-config');
+        if (!res.ok) return;
+        const cfg = await res.json();
+        applyTrackingBranding(cfg);
+      } catch (e) {}
+    }
+
+    function applyTrackingBranding(cfg) {
+      if (!cfg) return;
+      const root = document.documentElement;
+      if (cfg.primary_color) root.style.setProperty('--gold', cfg.primary_color);
+      if (cfg.secondary_color) root.style.setProperty('--gold-light', cfg.secondary_color);
+      if (cfg.bg_color) root.style.setProperty('--bg', cfg.bg_color);
+      if (cfg.card_color) root.style.setProperty('--card', cfg.card_color);
+
+      const rawName = String(cfg.company_name || cfg.client_name || 'NexuSistemas').trim();
+      const cName = rawName || 'NexuSistemas';
+      window._trackStoreName = cName;
+      if (storeMarker && typeof storeMarker.bindPopup === 'function') {
+        storeMarker.bindPopup(`<b>📍 ${cName}</b><br>Ponto de partida`);
+      }
+      document.title = `Rastreamento de Pedido • ${cName}`;
+      const tEl = document.getElementById('trackBrandTitleText');
+      if (tEl) tEl.textContent = `${cName} • RASTREIO AO VIVO`;
+      const vParam = cfg.logo_hash ? ('?v=' + encodeURIComponent(cfg.logo_hash)) : ('?v=' + Date.now());
+      const dynLogoUrl = cfg.og_logo_url || ('/api/public/og-logo.png' + vParam);
+      const dynFaviconUrl = '/favicon.ico' + vParam;
+      let shortcutLink = document.getElementById('dynamicShortcutIconLink');
+      if (!shortcutLink) {
+        shortcutLink = document.createElement('link');
+        shortcutLink.rel = 'shortcut icon';
+        shortcutLink.id = 'dynamicShortcutIconLink';
+        shortcutLink.type = 'image/x-icon';
+        document.head.appendChild(shortcutLink);
+      }
+      shortcutLink.href = dynFaviconUrl;
+      const favLink = document.getElementById('dynamicFaviconLink');
+      if (favLink) {
+        favLink.type = 'image/x-icon';
+        favLink.href = dynFaviconUrl;
+      }
+      const appleLink = document.getElementById('dynamicAppleIconLink');
+      if (appleLink) appleLink.href = dynLogoUrl;
+      const manifestLink = document.getElementById('dynamicManifestLink') || document.querySelector('link[rel="manifest"]');
+      if (manifestLink) manifestLink.href = '/manifest.json' + vParam;
+      const lEl = document.getElementById('trackBrandLogoImg');
+      if (lEl) {
+        lEl.src = (cfg.client_logo_base64 && cfg.client_logo_base64.startsWith('data:image'))
+          ? cfg.client_logo_base64
+          : (cfg.company_logo && !cfg.company_logo.toUpperCase().includes('SIR BEEF') ? cfg.company_logo : dynLogoUrl);
+      }
+    }
+
+    const TRACK_HOT_RELOAD_KEY = 'nexus_hot_reload_state';
+    window._nexusBootID = window._nexusBootID || '';
+    window._nexusTrackReloading = false;
+    let trackOtaProbeTimer = null;
+
+    function showTrackingHotReloadBanner(message, isSuccess) {
+      let el = document.getElementById('trackHotReloadTopBanner');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'trackHotReloadTopBanner';
+        el.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:999999;padding:10px 18px;border-radius:12px;font-weight:900;font-size:13px;box-shadow:0 10px 26px rgba(0,0,0,0.65);border:2px solid #d4af37;background:#0b1220;color:#fde68a;pointer-events:none;white-space:nowrap;';
+        document.body.appendChild(el);
+      }
+      if (isSuccess) {
+        el.style.borderColor = '#22c55e';
+        el.style.color = '#86efac';
+      }
+      el.textContent = message;
+      el.style.display = 'block';
+    }
+
+    function checkNexusTrackingBootId(bootId) {
+      const incoming = String(bootId || '').trim();
+      if (!incoming) return;
+      if (!window._nexusBootID) {
+        window._nexusBootID = incoming;
+        return;
+      }
+      if (incoming !== window._nexusBootID && !window._nexusTrackReloading) {
+        window._nexusTrackReloading = true;
+        if (trackOtaProbeTimer) {
+          clearInterval(trackOtaProbeTimer);
+          trackOtaProbeTimer = null;
+        }
+        try {
+          sessionStorage.setItem(TRACK_HOT_RELOAD_KEY, JSON.stringify({
+            savedAt: Date.now(),
+            pedido: typeof pedidoParam !== 'undefined' ? (pedidoParam || '') : '',
+            scrollY: window.scrollY || 0
+          }));
+        } catch (_) {}
+        showTrackingHotReloadBanner('🔄 Atualização aplicada! Recarregando sistema...', true);
+        setTimeout(() => window.location.reload(), 450);
+      }
+    }
+
+    function onTrackingServerRestartingOTA() {
+      if (window._nexusTrackReloading) return;
+      showTrackingHotReloadBanner('⏳ Atualização em andamento! Reconectando (1,5s)...', false);
+      if (trackingWsInstance) {
+        try { trackingWsInstance.close(); } catch (_) {}
+      }
+      if (!trackOtaProbeTimer) {
+        trackOtaProbeTimer = setInterval(async () => {
+          if (window._nexusTrackReloading) return;
+          try {
+            const res = await fetch('/api/status?t=' + Date.now(), { cache: 'no-store' });
+            if (res && res.ok) {
+              const hdrBoot = res.headers && res.headers.get && res.headers.get('X-Server-Boot-ID');
+              if (hdrBoot) checkNexusTrackingBootId(hdrBoot);
+              const data = await res.json().catch(() => null);
+              if (data && data.server_boot_id) checkNexusTrackingBootId(data.server_boot_id);
+            }
+          } catch (_) {}
+        }, 1500);
+      }
+    }
+
+    (function wrapTrackingApiFetch() {
+      const origFetch = window.fetch.bind(window);
+      window.fetch = async function(input, init) {
+        const resp = await origFetch(input, init);
+        try {
+          const urlStr = typeof input === 'string' ? input : (input && input.url ? input.url : '');
+          if (urlStr.startsWith('/api/') || urlStr.startsWith('api/')) {
+            const hdrBoot = resp && resp.headers && resp.headers.get && resp.headers.get('X-Server-Boot-ID');
+            if (hdrBoot) checkNexusTrackingBootId(hdrBoot);
+          }
+        } catch (_) {}
+        return resp;
+      };
+    })();
+
+    window.addEventListener('DOMContentLoaded', function() {
+      try {
+        const rawSnap = sessionStorage.getItem(TRACK_HOT_RELOAD_KEY);
+        if (rawSnap) {
+          sessionStorage.removeItem(TRACK_HOT_RELOAD_KEY);
+          const snap = JSON.parse(rawSnap);
+          if (snap && (!snap.savedAt || (Date.now() - snap.savedAt) < 180000)) {
+            if (typeof snap.scrollY === 'number' && snap.scrollY > 0) {
+              setTimeout(() => window.scrollTo(0, snap.scrollY), 150);
+            }
+            showTrackingHotReloadBanner('✅ Rastreio sincronizado na nova versão!', true);
+            setTimeout(() => {
+              const b = document.getElementById('trackHotReloadTopBanner');
+              if (b) b.style.display = 'none';
+            }, 2800);
+          }
+        }
+      } catch (_) {}
+    });
+
+    let trackingWsInstance = null;
+    let trackingWsTimer = null;
+    function connectTrackingBrandingWs() {
+      try {
+        if (trackingWsInstance && (trackingWsInstance.readyState === WebSocket.OPEN || trackingWsInstance.readyState === WebSocket.CONNECTING)) {
+          return;
+        }
+        if (trackingWsTimer) {
+          clearTimeout(trackingWsTimer);
+          trackingWsTimer = null;
+        }
+        const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const ws = new WebSocket(`${proto}//${window.location.host}/ws`);
+        trackingWsInstance = ws;
+        ws.onmessage = function(ev) {
+          try {
+            const msg = JSON.parse(ev.data);
+            if (msg && msg.server_boot_id) {
+              checkNexusTrackingBootId(msg.server_boot_id);
+            }
+            const evType = msg && (msg.type || msg.event);
+            if (evType === 'SERVER_RESTARTING_OTA' || String(evType || '').toUpperCase() === 'SERVER_RESTARTING_OTA') {
+              onTrackingServerRestartingOTA();
+              return;
+            }
+            if ((evType === 'branding_updated' || evType === 'branding_init') && msg.data) {
+              applyTrackingBranding(msg.data);
+            } else if (evType === 'order_deleted') {
+              if (msg.data && msg.data.order_id) {
+                const delId = Number(msg.data.order_id);
+                let rawIds = [];
+                try { rawIds = JSON.parse(localStorage.getItem('sirbeef_my_order_ids') || '[]') || []; } catch (_) {}
+                const nextIds = (Array.isArray(rawIds) ? rawIds : []).filter(x => Number(x) !== delId);
+                localStorage.setItem('sirbeef_my_order_ids', JSON.stringify(nextIds));
+                if (Number(lastTrackedOrderId) === delId || (pedidoParam && String(msg.data.order_code || '').toUpperCase() === String(pedidoParam).toUpperCase())) {
+                  renderDeletedOrEmptyTrackingDOM('Este pedido foi excluído no PDV pelo estabelecimento.');
+                }
+              }
+              pollTracking();
+            } else if (evType === 'orders_updated' || evType === 'system_reset') {
+              if (evType === 'system_reset') {
+                localStorage.removeItem('sirbeef_my_order_ids');
+                renderDeletedOrEmptyTrackingDOM();
+              }
+              pollTracking();
+            }
+          } catch (e) {}
+        };
+        ws.onclose = function() {
+          trackingWsInstance = null;
+          if (trackingWsTimer) clearTimeout(trackingWsTimer);
+          trackingWsTimer = setTimeout(connectTrackingBrandingWs, 1500);
+        };
+      } catch (e) {}
+    }
+
+    loadTrackingBranding();
+    connectTrackingBrandingWs();
+    initMap();
+    pollTracking();
+    setInterval(pollTracking, 3000);
+  </script>
+
+  <!-- Marca d'Água Oficial Fixa no Rodapé Inferior (Modelo 2: Logo + Letras NexuSistemas) -->
+  <footer id="nexusOfficialWatermarkFooter" style="margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;gap:10px;opacity:0.85;">
+    <img src="/assets/nexus/nexus-full.png" alt="NexuSistemas" onerror="this.style.display='none'" style="height:22px;width:auto;object-fit:contain;background:transparent;" />
+    <span style="font-size:11px;font-weight:800;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;">Tecnologia NexuSistemas</span>
+  </footer>
+</body>
+</html>
