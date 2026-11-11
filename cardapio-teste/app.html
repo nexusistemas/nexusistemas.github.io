@@ -14,8 +14,10 @@
   <title id="pageTitle">SuperApp da Equipe</title>
   <meta name="description" content="SuperApp Web da Equipe — Garçom (Comandas e Mesas) e Entregador Motoboy (Despacho e Rota)." id="metaDocDesc" />
   <link rel="canonical" href="/app" id="metaDocCanonical" />
-  <link rel="manifest" href="/manifest-superapp.json" />
-  <link rel="icon" type="image/png" href="/api/public/og-logo.png" id="faviconLink" />
+  <link rel="manifest" href="/manifest-superapp.json" id="manifestLink" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" id="dynamicFaviconLink" />
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" id="faviconLink" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/api/public/og-logo.png" />
   <link rel="apple-touch-icon" href="/api/public/og-logo.png" id="appleTouchIconLink" />
 
   <!-- Open Graph / WhatsApp / Facebook -->
@@ -916,6 +918,7 @@
         <div class="brand-sub">
           <span class="ws-dot" id="wsStatusDot"></span>
           <span id="wsStatusLabel">Tempo Real Ativo</span>
+          <span id="hybridNetworkModePill" style="margin-left:6px;font-size:10px;padding:1px 6px;border-radius:999px;background:rgba(212,175,55,0.14);color:var(--gold-light);border:1px solid rgba(212,175,55,0.28);font-weight:700;">📡 Híbrido</span>
         </div>
       </div>
     </div>
@@ -1584,6 +1587,9 @@
       customizingMods: {},
       ws: null,
       wsConnected: false,
+      activeApiBase: '',
+      networkMode: 'AUTO',
+      hybridProbingPromise: null,
       qrStream: null,
       qrScanLoopId: null,
       gpsWatchId: null,
@@ -1668,7 +1674,227 @@
       if (el) el.classList.remove('open');
     }
 
-    async function apiFetch(path, options) {
+    const SA_HYBRID_HOSTS_KEY = 'nexus_superapp_hybrid_endpoints_v1';
+
+    function loadStoredHybridHosts() {
+      try {
+        const raw = localStorage.getItem(SA_HYBRID_HOSTS_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') return parsed;
+        }
+      } catch (_) {}
+      return { lanUrls: [], tunnelUrl: '', subdomainTunnelUrl: '', storeSlug: '' };
+    }
+
+    function saveStoredHybridHosts(patch) {
+      try {
+        const prev = loadStoredHybridHosts();
+        const lanSet = new Set(Array.isArray(prev.lanUrls) ? prev.lanUrls : []);
+        if (Array.isArray(patch && patch.lanUrls)) {
+          patch.lanUrls.forEach(u => {
+            const c = String(u || '').trim().replace(/\/+$/, '');
+            if (c) lanSet.add(c);
+          });
+        }
+        const merged = {
+          lanUrls: Array.from(lanSet).slice(0, 8),
+          tunnelUrl: String((patch && patch.tunnelUrl) || prev.tunnelUrl || '').trim().replace(/\/+$/, ''),
+          subdomainTunnelUrl: String((patch && patch.subdomainTunnelUrl) || prev.subdomainTunnelUrl || '').trim().replace(/\/+$/, ''),
+          storeSlug: String((patch && patch.storeSlug) || prev.storeSlug || '').trim().toLowerCase(),
+          updatedAt: Date.now()
+        };
+        localStorage.setItem(SA_HYBRID_HOSTS_KEY, JSON.stringify(merged));
+        return merged;
+      } catch (_) {
+        return {};
+      }
+    }
+
+    function isLanOriginUrl(url) {
+      return /^https?:\/\/(127\.0\.0\.1|localhost|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/i.test(String(url || '').replace(/\/+$/, ''));
+    }
+
+    function updateHybridNetworkBadge(mode) {
+      state.networkMode = mode || state.networkMode || 'AUTO';
+      const badge = document.getElementById('hybridNetworkModePill');
+      if (!badge) return;
+      if (state.networkMode === 'LAN') {
+        badge.textContent = '🟢 Wi-Fi LAN';
+        badge.style.background = 'rgba(34,197,94,0.16)';
+        badge.style.color = '#86efac';
+        badge.style.borderColor = 'rgba(34,197,94,0.35)';
+      } else if (state.networkMode === 'CLOUD_4G') {
+        badge.textContent = '☁️ Nuvem 4G';
+        badge.style.background = 'rgba(56,189,248,0.16)';
+        badge.style.color = '#7dd3fc';
+        badge.style.borderColor = 'rgba(56,189,248,0.35)';
+      } else {
+        badge.textContent = '📡 Híbrido';
+        badge.style.background = 'rgba(212,175,55,0.14)';
+        badge.style.color = 'var(--primary, #f3d87d)';
+        badge.style.borderColor = 'rgba(212,175,55,0.28)';
+      }
+    }
+
+    async function probeEndpointPing(baseUrl, timeoutMs) {
+      const clean = String(baseUrl || '').trim().replace(/\/+$/, '');
+      if (!clean) return null;
+      const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      const tid = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs || 1200) : null;
+      try {
+        const res = await fetch(clean + '/api/ping?t=' + Date.now(), {
+          method: 'GET',
+          cache: 'no-store',
+          signal: ctrl ? ctrl.signal : undefined
+        });
+        if (tid) clearTimeout(tid);
+        if (!res.ok) return null;
+        const hdrBoot = res.headers && res.headers.get && res.headers.get('X-Server-Boot-ID');
+        if (hdrBoot && typeof checkNexusSuperAppBootId === 'function') {
+          checkNexusSuperAppBootId(hdrBoot);
+        }
+        const data = await res.json().catch(() => null);
+        if (data && data.server_boot_id && typeof checkNexusSuperAppBootId === 'function') {
+          checkNexusSuperAppBootId(data.server_boot_id);
+        }
+        return { ok: true, base: clean, data };
+      } catch (_) {
+        if (tid) clearTimeout(tid);
+        return null;
+      }
+    }
+
+    async function discoverCloudTunnelCandidatesFromGitHub(cached) {
+      const candidates = [];
+      if (cached && cached.tunnelUrl) candidates.push(cached.tunnelUrl);
+      if (cached && cached.subdomainTunnelUrl) candidates.push(cached.subdomainTunnelUrl);
+      if (cached && cached.storeSlug) {
+        candidates.push('https://' + cached.storeSlug + '.nexusistemas.app.br');
+      }
+      try {
+        const qpSlug = new URLSearchParams(location.search || '').get('loja') || '';
+        const cleanSlug = qpSlug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+        if (cleanSlug) {
+          candidates.push('https://' + cleanSlug + '.nexusistemas.app.br');
+        }
+      } catch (_) {}
+
+      const slugForPath = (cached && cached.storeSlug) ? cached.storeSlug : '';
+      const manifestUrls = [
+        slugForPath ? ('https://nexusistemas.github.io/' + slugForPath + '/tunnel.json?t=' + Date.now()) : '',
+        'https://nexusistemas.github.io/tunnel.json?t=' + Date.now(),
+        'https://raw.githubusercontent.com/nexusistemas/nexusistemas.github.io/main/tunnel.json?t=' + Date.now()
+      ].filter(Boolean);
+
+      for (const mUrl of manifestUrls) {
+        try {
+          const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+          const tid = ctrl ? setTimeout(() => ctrl.abort(), 2200) : null;
+          const r = await fetch(mUrl, { cache: 'no-store', signal: ctrl ? ctrl.signal : undefined });
+          if (tid) clearTimeout(tid);
+          if (!r.ok) continue;
+          const j = await r.json().catch(() => null);
+          if (j && typeof j === 'object') {
+            if (j.tunnel_url) candidates.push(String(j.tunnel_url).replace(/\/+$/, ''));
+            if (j.subdomain_tunnel_url) candidates.push(String(j.subdomain_tunnel_url).replace(/\/+$/, ''));
+            if (j.store_slug) candidates.push('https://' + String(j.store_slug).toLowerCase() + '.nexusistemas.app.br');
+            if (Array.isArray(j.lan_urls)) {
+              saveStoredHybridHosts({ lanUrls: j.lan_urls, tunnelUrl: j.tunnel_url || '', subdomainTunnelUrl: j.subdomain_tunnel_url || '', storeSlug: j.store_slug || '' });
+            }
+            break;
+          }
+        } catch (_) {}
+      }
+      candidates.push('https://teste.nexusistemas.app.br');
+      return Array.from(new Set(candidates.filter(u => /^https:\/\//i.test(u))));
+    }
+
+    async function resolveSuperAppHybridBase(forceReprobe) {
+      if (state.activeApiBase && !forceReprobe) {
+        return state.activeApiBase;
+      }
+      if (state.hybridProbingPromise && !forceReprobe) {
+        return state.hybridProbingPromise;
+      }
+      state.hybridProbingPromise = (async () => {
+        const isHttpsOrigin = location.protocol === 'https:';
+        const isStaticPages = /github\.io$/i.test(location.hostname);
+        const cached = loadStoredHybridHosts();
+
+        // Em origem HTTP (LAN) tenta primeiro os endpoints da rede local com timeout rápido de 1200ms
+        if (!isHttpsOrigin && !isStaticPages) {
+          const lanCandidates = Array.from(new Set([
+            location.origin,
+            ...(Array.isArray(cached.lanUrls) ? cached.lanUrls : [])
+          ].filter(u => isLanOriginUrl(u))));
+
+          if (lanCandidates.length > 0) {
+            const lanWinner = await new Promise((resolve) => {
+              let pending = lanCandidates.length;
+              let settled = false;
+              lanCandidates.forEach(cand => {
+                probeEndpointPing(cand, 1200).then(res => {
+                  if (!settled && res && res.ok) {
+                    settled = true;
+                    resolve(res);
+                  } else {
+                    pending -= 1;
+                    if (!settled && pending <= 0) resolve(null);
+                  }
+                });
+              });
+            });
+            if (lanWinner && lanWinner.base) {
+              state.activeApiBase = lanWinner.base === location.origin ? '' : lanWinner.base;
+              updateHybridNetworkBadge('LAN');
+              return state.activeApiBase;
+            }
+          }
+        }
+
+        // Em origem HTTPS (Cloudflare Tunnel / Domínio), valida primeiro o próprio host em até 1200ms
+        if (isHttpsOrigin && !isStaticPages) {
+          const selfRes = await probeEndpointPing(location.origin, 1200);
+          if (selfRes && selfRes.ok) {
+            state.activeApiBase = '';
+            updateHybridNetworkBadge('CLOUD_4G');
+            return state.activeApiBase;
+          }
+        }
+
+        // Failover automático para Nuvem 4G / Túnel Cloudflare via manifest GitHub / cache
+        const cloudCandidates = await discoverCloudTunnelCandidatesFromGitHub(cached);
+        for (const cUrl of cloudCandidates) {
+          const cloudRes = await probeEndpointPing(cUrl, 2800);
+          if (cloudRes && cloudRes.ok) {
+            state.activeApiBase = cloudRes.base === location.origin ? '' : cloudRes.base;
+            updateHybridNetworkBadge('CLOUD_4G');
+            return state.activeApiBase;
+          }
+        }
+
+        state.activeApiBase = '';
+        updateHybridNetworkBadge(isHttpsOrigin ? 'CLOUD_4G' : 'LAN');
+        return state.activeApiBase;
+      })();
+
+      try {
+        return await state.hybridProbingPromise;
+      } finally {
+        state.hybridProbingPromise = null;
+      }
+    }
+
+    function resolveApiTargetUrl(path) {
+      const p = String(path || '');
+      if (/^https?:\/\//i.test(p)) return p;
+      const base = String(state.activeApiBase || '').replace(/\/+$/, '');
+      if (!base) return p;
+      return base + (p.startsWith('/') ? p : '/' + p);
+    }
+
+    async function apiFetch(path, options, _retriedHybrid) {
       const opts = Object.assign({ method: 'GET', headers: {} }, options || {});
       opts.headers = Object.assign({
         'Accept': 'application/json',
@@ -1682,7 +1908,28 @@
         if (state.user.role) opts.headers['X-User-Role'] = state.user.role;
         if (state.user.session_token) opts.headers['X-Session-Token'] = state.user.session_token;
       }
-      const res = await fetch(path, opts);
+
+      const targetUrl = resolveApiTargetUrl(path);
+      const isCloudTarget = /^https:\/\//i.test(targetUrl) || (location.protocol === 'https:' && !targetUrl.startsWith('http://'));
+      const reqTimeoutMs = isCloudTarget ? 10000 : 2500;
+      const ctrl = (!opts.signal && typeof AbortController !== 'undefined') ? new AbortController() : null;
+      const tid = ctrl ? setTimeout(() => ctrl.abort(), reqTimeoutMs) : null;
+      if (ctrl) opts.signal = ctrl.signal;
+
+      let res;
+      try {
+        res = await fetch(targetUrl, opts);
+        if (tid) clearTimeout(tid);
+      } catch (netErr) {
+        if (tid) clearTimeout(tid);
+        if (!_retriedHybrid) {
+          await resolveSuperAppHybridBase(true);
+          const cleanRetryOpts = Object.assign({}, options || {});
+          return apiFetch(path, cleanRetryOpts, true);
+        }
+        throw netErr;
+      }
+
       try {
         const hdrBootId = res && res.headers && res.headers.get && res.headers.get('X-Server-Boot-ID');
         if (hdrBootId && typeof checkNexusSuperAppBootId === 'function') {
@@ -1825,8 +2072,16 @@
       const dynLogoUrl = b.og_logo_url || brPayload.og_logo_url || (companyLogo && companyLogo.startsWith('data:') ? companyLogo : ('/api/public/og-logo.png' + vParam));
       const dynFaviconUrl = '/favicon.ico' + vParam;
 
-      const shortcutLink = document.getElementById('dynamicShortcutIconLink') || document.getElementById('faviconLink');
-      if (shortcutLink) shortcutLink.setAttribute('href', dynFaviconUrl);
+      const shortcutLink = document.getElementById('faviconLink');
+      if (shortcutLink) {
+        shortcutLink.setAttribute('type', 'image/x-icon');
+        shortcutLink.setAttribute('href', dynFaviconUrl);
+      }
+      const dynFaviconEl = document.getElementById('dynamicFaviconLink');
+      if (dynFaviconEl) {
+        dynFaviconEl.setAttribute('type', 'image/x-icon');
+        dynFaviconEl.setAttribute('href', dynFaviconUrl);
+      }
       const appleTouchLink = document.getElementById('appleTouchIconLink');
       if (appleTouchLink) appleTouchLink.setAttribute('href', dynLogoUrl);
       const manifestLink = document.getElementById('manifestLink');
@@ -1895,6 +2150,12 @@
           state.operational.allow_staff_edit_delivery_fee = h.allow_staff_edit_delivery_fee !== false;
           state.operational.waiter_visible_categories = Array.isArray(h.waiter_visible_categories) ? h.waiter_visible_categories : [];
           state.operational.waiter_hidden_categories = Array.isArray(h.waiter_hidden_categories) ? h.waiter_hidden_categories : [];
+          saveStoredHybridHosts({
+            lanUrls: Array.isArray(h.lan_urls) ? h.lan_urls : (h.local_ip ? ['http://' + h.local_ip + ':8080'] : []),
+            tunnelUrl: h.tunnel_url || '',
+            subdomainTunnelUrl: h.subdomain_tunnel_url || h.custom_domain || '',
+            storeSlug: h.store_slug || ''
+          });
           const feeInp = document.getElementById('waiterDeliveryFeeInput');
           if (feeInp && !feeInp.value) {
             feeInp.value = state.operational.default_delivery_fee.toFixed(2);
@@ -5265,8 +5526,10 @@
         try { state.ws.close(); } catch (_) {}
         state.ws = null;
       }
-      const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
-      const wsUrl = proto + location.host + '/ws';
+      const wsBaseStr = (state.activeApiBase && /^https?:\/\//i.test(state.activeApiBase))
+        ? state.activeApiBase.replace(/^https:\/\//i, 'wss://').replace(/^http:\/\//i, 'ws://').replace(/\/+$/, '')
+        : ((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host);
+      const wsUrl = wsBaseStr + '/ws';
 
       try {
         const ws = new WebSocket(wsUrl);
@@ -5362,9 +5625,25 @@
 
       restoreCachedBrandingImmediate();
       setupPwaServiceWorker();
+      await resolveSuperAppHybridBase(false);
       connectSuperAppWebSocket();
       await loadBrandingAndHealth();
       await loadCatalogProducts();
+
+      window.addEventListener('online', async () => {
+        await resolveSuperAppHybridBase(true);
+        connectSuperAppWebSocket();
+        if (state.user) {
+          loadBrandingAndHealth();
+          loadTablesAndComandas();
+          loadOrdersAndDeliveries();
+        }
+      });
+      document.addEventListener('visibilitychange', async () => {
+        if (document.visibilityState === 'visible') {
+          await resolveSuperAppHybridBase(true);
+        }
+      });
 
       // Suporte à tecla Enter nos campos de login
       ['loginUsernameInput', 'loginPinInput'].forEach(id => {
