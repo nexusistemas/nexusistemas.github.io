@@ -243,8 +243,8 @@
         "status": "OCUPADA",
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-15",
-        "current_total": 66,
-        "updated_at": "17:00"
+        "current_total": 78,
+        "updated_at": "17:06"
       },
       {
         "id": 16,
@@ -472,7 +472,7 @@
         "updated_at": "17:00"
       }
     ],
-    "updated_at": "2026-11-11T17:00:45-03:00"
+    "updated_at": "2026-11-11T17:06:36-03:00"
   },
   "catalog": [
     {
@@ -11701,8 +11701,8 @@
       "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-15",
-      "current_total": 66,
-      "updated_at": "17:00"
+      "current_total": 78,
+      "updated_at": "17:06"
     },
     {
       "id": 16,
