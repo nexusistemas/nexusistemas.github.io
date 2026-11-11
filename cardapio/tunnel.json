@@ -1,19 +1,21 @@
 {
   "apk_direct_url": "https://raw.githubusercontent.com/nexusistemas/nexusistemas.github.io/main/NexuSistemas-SuperApp.apk",
-  "apk_fixed_url": "https://nexusistemas.github.io/apk",
-  "apk_version_code": 74,
-  "apk_version_name": "5.0.5",
-  "cardapio_fixed_url": "https://nexusistemas.github.io/cardapio-teste/cardapio",
+  "apk_fixed_url": "https://nexusistemas.app.br/apk",
+  "apk_version_code": 91,
+  "apk_version_name": "7.0",
+  "cardapio_fixed_url": "https://teste.nexusistemas.app.br/cardapio",
   "hostname_url": "http://gui",
   "lan_ips": [
-    "192.168.0.69",
-    "192.168.18.53"
+    "192.168.18.157"
   ],
-  "lan_no_port_url": "http://192.168.0.69",
-  "lan_url": "http://192.168.0.69:8080",
-  "mesa_fixed_url": "https://nexusistemas.github.io/cardapio-teste/mesa",
-  "pdv_fixed_url": "https://nexusistemas.github.io/cardapio-teste/pdv",
-  "rastreio_fixed_url": "https://nexusistemas.github.io/cardapio-teste/rastreio",
-  "tunnel_url": "https://assembled-conferencing-hospitality-replies.trycloudflare.com",
-  "updated_at": "2026-11-06T21:54:36-03:00"
+  "lan_no_port_url": "http://192.168.18.157",
+  "lan_url": "http://192.168.18.157:8080",
+  "mesa_fixed_url": "https://teste.nexusistemas.app.br/mesa",
+  "pdv_fixed_url": "https://teste.nexusistemas.app.br/pdv",
+  "rastreio_fixed_url": "https://teste.nexusistemas.app.br/rastreio",
+  "store_slug": "teste",
+  "subdomain_tunnel_url": "https://teste.nexusistemas.app.br",
+  "superapp_fixed_url": "https://teste.nexusistemas.app.br/app",
+  "tunnel_url": "https://teste.nexusistemas.app.br",
+  "updated_at": "2026-11-11T16:14:35-03:00"
 }
