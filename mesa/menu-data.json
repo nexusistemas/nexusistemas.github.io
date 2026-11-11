@@ -244,7 +244,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-15",
         "current_total": 78,
-        "updated_at": "18:23"
+        "updated_at": "18:26"
       },
       {
         "id": 16,
@@ -472,7 +472,7 @@
         "updated_at": "18:23"
       }
     ],
-    "updated_at": "2026-11-11T18:23:11-03:00"
+    "updated_at": "2026-11-11T18:26:35-03:00"
   },
   "catalog": [
     {
@@ -1119,9 +1119,9 @@
             {
               "id": 4,
               "name": "kafta",
-              "min": 1,
+              "min": 0,
               "max": 1,
-              "required": true,
+              "required": false,
               "options": [
                 {
                   "name": "Bacon",
@@ -1235,9 +1235,9 @@
             {
               "id": 5,
               "name": "queijos",
-              "min": 1,
+              "min": 0,
               "max": 1,
-              "required": true,
+              "required": false,
               "options": [
                 {
                   "name": "Mel",
@@ -1343,9 +1343,9 @@
             {
               "id": 5,
               "name": "queijos",
-              "min": 1,
+              "min": 0,
               "max": 1,
-              "required": true,
+              "required": false,
               "options": [
                 {
                   "name": "Mel",
@@ -2701,7 +2701,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-15",
       "current_total": 78,
-      "updated_at": "18:23"
+      "updated_at": "18:26"
     },
     {
       "id": 16,
