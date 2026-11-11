@@ -7,9 +7,11 @@
   <title id="pageDocTitle">Cardápio Digital Oficial</title>
   <meta name="description" content="Faça seu pedido online sem filas no cardápio oficial. Cardápio completo, delivery rápido e promoções exclusivas." id="metaDocDesc" />
   <link rel="canonical" href="/cardapio" id="metaDocCanonical" />
-  <link rel="icon" id="dynamicFaviconLink" type="image/png" href="/api/public/og-logo.png" />
+  <link rel="icon" id="dynamicFaviconLink" type="image/x-icon" href="/favicon.ico" />
+  <link rel="shortcut icon" id="dynamicShortcutIconLink" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/api/public/og-logo.png" />
   <link rel="apple-touch-icon" id="dynamicAppleIconLink" href="/api/public/og-logo.png" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" id="dynamicManifestLink" href="/manifest.json" />
 
   <!-- Open Graph / WhatsApp / Facebook -->
   <meta property="og:type" content="website" />
@@ -815,6 +817,10 @@
     const fav = document.getElementById('dynamicFaviconLink');
     if (fav && fav.getAttribute('href')) {
       fav.setAttribute('href', window.resolveMenuAssetUrl(fav.getAttribute('href')));
+    }
+    const scFav = document.getElementById('dynamicShortcutIconLink');
+    if (scFav && scFav.getAttribute('href')) {
+      scFav.setAttribute('href', window.resolveMenuAssetUrl(scFav.getAttribute('href')));
     }
   })();
 
@@ -2301,7 +2307,8 @@
 
   function showLoading(title, sub) {
     document.getElementById('sbLoadingTitle').textContent = title || '⏳ Aguarde um instante...';
-    document.getElementById('sbLoadingSub').textContent = sub || 'Enviando para o Servidor Sir Beef...';
+    const storeLabel = (window.systemBrandingConfig && (window.systemBrandingConfig.company_name || window.systemBrandingConfig.client_name)) || 'NexuSistemas';
+    document.getElementById('sbLoadingSub').textContent = sub || `Enviando para o Servidor ${storeLabel}...`;
     document.getElementById('sbLoadingOverlay').style.display = 'flex';
   }
 
@@ -2318,7 +2325,8 @@
       alert('⚠️ O autoatendimento por QR Code está temporariamente desativado pela gerência.');
       return;
     }
-    showLoading('🔔 Chamando Garçom...', `Avisando a equipe Sir Beef na MESA ${String(selectedTableNum).padStart(2, '0')}...`);
+    const storeLabelWaiter = (window.systemBrandingConfig && (window.systemBrandingConfig.company_name || window.systemBrandingConfig.client_name)) || 'da loja';
+    showLoading('🔔 Chamando Garçom...', `Avisando a equipe ${storeLabelWaiter} na MESA ${String(selectedTableNum).padStart(2, '0')}...`);
     try {
       const realTableId = await resolveRealTableIdByNumber(selectedTableNum);
       await fetch('/api/tables/status', {
@@ -2575,7 +2583,7 @@
 
     showLoading(
       isMesa ? '🔥 Enviando Pedido para a Chapa...' : (isRetirada ? '🛍️ Registrando Pedido para Retirada...' : '🛵 Enviando Pedido de Delivery...'),
-      'Aguarde um instante, o servidor Sir Beef está processando seu pedido...'
+      'Aguarde um instante, estamos registrando seu pedido...'
     );
 
     const realTableId = isMesa ? await resolveRealTableIdByNumber(tableNum) : null;
@@ -2624,7 +2632,7 @@
       customer_phone: cPhone,
       address_text: isMesa
         ? `MESA ${String(tableNum).padStart(2, '0')} (Comanda Individual)`
-        : (isRetirada ? 'Retirada no Balcão Sir Beef' : cAddr),
+        : (isRetirada ? 'Retirada no Balcão' : cAddr),
       latitude: pinLat,
       longitude: pinLng,
       status: isMesa ? 'ENTREGUE' : 'PREPARANDO',
@@ -2826,7 +2834,7 @@
   async function openMyOrdersModal() {
     document.getElementById('myOrdersModal').style.display = 'flex';
     const box = document.getElementById('myOrdersContent');
-    box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">⏳ Consultando servidor Sir Beef...</div>';
+    box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">⏳ Consultando pedidos no servidor...</div>';
 
     try {
       const synced = await syncAndPurgeLocalOrdersWithBackend();
@@ -2951,13 +2959,14 @@
 
     let favLink = document.getElementById('dynamicFaviconLink');
     if (favLink) {
-      favLink.href = dynLogoUrl;
+      favLink.type = 'image/x-icon';
+      favLink.href = dynFaviconUrl;
     } else {
       favLink = document.createElement('link');
       favLink.rel = 'icon';
       favLink.id = 'dynamicFaviconLink';
-      favLink.type = 'image/png';
-      favLink.href = dynLogoUrl;
+      favLink.type = 'image/x-icon';
+      favLink.href = dynFaviconUrl;
       document.head.appendChild(favLink);
     }
 
@@ -2972,9 +2981,16 @@
       document.head.appendChild(appleLink);
     }
 
-    let manifestLink = document.getElementById('dynamicManifestLink');
+    let manifestLink = document.getElementById('dynamicManifestLink') || document.querySelector('link[rel="manifest"]');
     if (manifestLink) {
+      manifestLink.id = 'dynamicManifestLink';
       manifestLink.href = '/manifest.json' + vParam;
+    } else {
+      manifestLink = document.createElement('link');
+      manifestLink.rel = 'manifest';
+      manifestLink.id = 'dynamicManifestLink';
+      manifestLink.href = '/manifest.json' + vParam;
+      document.head.appendChild(manifestLink);
     }
 
     const titleEl = document.getElementById('brandTitleText');
