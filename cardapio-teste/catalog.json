@@ -1,0 +1,13 @@
+[
+  {
+    "id": 138,
+    "name": "Cervejas 600ml",
+    "icon": "🥤",
+    "sector": "HAMBURGUERIA",
+    "sector_abc": "HAMBURGUERIA",
+    "sort_order": 10,
+    "is_system_category": true,
+    "is_active": true,
+    "items": []
+  }
+]
