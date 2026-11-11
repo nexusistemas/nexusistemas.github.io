@@ -783,7 +783,7 @@
     if (firstSeg && !['mesa', 'cardapio', 'rastreio', 'pdv', 'index.html', 'mesa.html'].includes(firstSeg.toLowerCase())) {
       return '/' + firstSeg;
     }
-    return '/cardapio-teste';
+    return '';
   };
 
   window.resolveMenuAssetUrl = function(rawUrl) {
@@ -858,13 +858,16 @@
       if (resolvingPromise && !forceRefresh) return resolvingPromise;
       resolvingPromise = (async () => {
         const ts = Date.now();
-        const hostOwner = window.location.hostname.split('.')[0] || 'nexusistemas';
+        const hostLow = window.location.hostname.toLowerCase();
+        const hostParts = hostLow.split('.');
+        const hostOwner = (hostLow === 'nexusistemas.app.br' || hostLow === 'www.nexusistemas.app.br' || hostLow.endsWith('.nexusistemas.app.br'))
+          ? 'nexusistemas'
+          : (hostParts[0] || 'nexusistemas');
         const pathParts = window.location.pathname.split('/').filter(Boolean);
         const firstSeg = pathParts[0] || '';
-        const repoGuess = (firstSeg && !['mesa', 'cardapio', 'rastreio', 'pdv', 'index.html', 'mesa.html'].includes(firstSeg.toLowerCase()))
-          ? firstSeg
-          : 'cardapio-teste';
-        const subSlug = repoGuess.replace(/^cardapio-/i, '').replace(/-cardapio$/i, '') || 'teste';
+        const subSlug = (firstSeg && !['mesa', 'cardapio', 'rastreio', 'pdv', 'index.html', 'mesa.html'].includes(firstSeg.toLowerCase()))
+          ? firstSeg.toLowerCase()
+          : ((hostLow.endsWith('.nexusistemas.app.br') && hostParts[0] && hostParts[0] !== 'www') ? hostParts[0] : 'teste');
         const directFixedCandidates = [
           `https://${subSlug}.nexusistemas.app.br`,
           `https://teste.nexusistemas.app.br`
@@ -880,15 +883,15 @@
           }
         }
         const candidates = [
-          `https://api.github.com/repos/${hostOwner}/${repoGuess}/contents/tunnel.json?t=${ts}`,
+          `https://api.github.com/repos/${hostOwner}/${hostOwner}.github.io/contents/${subSlug}/tunnel.json?t=${ts}`,
           `https://api.github.com/repos/${hostOwner}/${hostOwner}.github.io/contents/tunnel.json?t=${ts}`,
-          `https://raw.githubusercontent.com/${hostOwner}/${repoGuess}/main/tunnel.json?t=${ts}`,
+          `https://raw.githubusercontent.com/${hostOwner}/${hostOwner}.github.io/main/${subSlug}/tunnel.json?t=${ts}`,
           `https://raw.githubusercontent.com/${hostOwner}/${hostOwner}.github.io/main/tunnel.json?t=${ts}`,
-          `https://raw.githubusercontent.com/nexusistemas/cardapio-teste/main/tunnel.json?t=${ts}`,
+          `https://raw.githubusercontent.com/nexusistemas/nexusistemas.github.io/main/${subSlug}/tunnel.json?t=${ts}`,
           `https://raw.githubusercontent.com/nexusistemas/nexusistemas.github.io/main/tunnel.json?t=${ts}`,
           `./tunnel.json?t=${ts}`,
           `../tunnel.json?t=${ts}`,
-          `/cardapio-teste/tunnel.json?t=${ts}`,
+          `/${subSlug}/tunnel.json?t=${ts}`,
           `/tunnel.json?t=${ts}`
         ];
         for (const u of candidates) {
@@ -1533,17 +1536,22 @@
   async function fetchStaticMenuDataFallback() {
     const f = window.__origNativeFetch || window.fetch.bind(window);
     const ts = Date.now();
-    const hostOwner = window.location.hostname.split('.')[0] || 'nexusistemas';
+    const hostLow = window.location.hostname.toLowerCase();
+    const hostParts = hostLow.split('.');
+    const hostOwner = (hostLow === 'nexusistemas.app.br' || hostLow === 'www.nexusistemas.app.br' || hostLow.endsWith('.nexusistemas.app.br'))
+      ? 'nexusistemas'
+      : (hostParts[0] || 'nexusistemas');
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     const firstSeg = pathParts[0] || '';
-    const repoGuess = (firstSeg && !['mesa', 'cardapio', 'rastreio', 'pdv', 'index.html', 'mesa.html'].includes(firstSeg.toLowerCase()))
-      ? firstSeg
-      : 'cardapio-teste';
+    const subSlug = (firstSeg && !['mesa', 'cardapio', 'rastreio', 'pdv', 'index.html', 'mesa.html'].includes(firstSeg.toLowerCase()))
+      ? firstSeg.toLowerCase()
+      : ((hostLow.endsWith('.nexusistemas.app.br') && hostParts[0] && hostParts[0] !== 'www') ? hostParts[0] : 'teste');
     const candidates = [
       `./menu-data.json?t=${ts}`,
       `../menu-data.json?t=${ts}`,
-      `https://raw.githubusercontent.com/${hostOwner}/${repoGuess}/main/menu-data.json?t=${ts}`,
-      `https://raw.githubusercontent.com/nexusistemas/cardapio-teste/main/menu-data.json?t=${ts}`
+      `https://raw.githubusercontent.com/${hostOwner}/${hostOwner}.github.io/main/${subSlug}/menu-data.json?t=${ts}`,
+      `https://raw.githubusercontent.com/nexusistemas/nexusistemas.github.io/main/${subSlug}/menu-data.json?t=${ts}`,
+      `https://raw.githubusercontent.com/nexusistemas/nexusistemas.github.io/main/menu-data.json?t=${ts}`
     ];
     for (const u of candidates) {
       try {
