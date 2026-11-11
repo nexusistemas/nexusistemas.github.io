@@ -244,7 +244,7 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-15",
         "current_total": 78,
-        "updated_at": "17:15"
+        "updated_at": "17:20"
       },
       {
         "id": 16,
@@ -472,7 +472,7 @@
         "updated_at": "17:09"
       }
     ],
-    "updated_at": "2026-11-11T17:15:18-03:00"
+    "updated_at": "2026-11-11T17:20:59-03:00"
   },
   "catalog": [
     {
@@ -11702,7 +11702,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-15",
       "current_total": 78,
-      "updated_at": "17:15"
+      "updated_at": "17:20"
     },
     {
       "id": 16,
