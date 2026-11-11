@@ -34,7 +34,7 @@
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 2,
@@ -49,7 +49,7 @@
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 3,
@@ -64,7 +64,7 @@
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 4,
@@ -79,7 +79,7 @@
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 5,
@@ -94,7 +94,7 @@
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 6,
@@ -109,7 +109,7 @@
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 7,
@@ -124,7 +124,7 @@
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 8,
@@ -139,7 +139,7 @@
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 9,
@@ -154,7 +154,7 @@
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 10,
@@ -169,7 +169,7 @@
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 11,
@@ -184,7 +184,7 @@
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 12,
@@ -199,7 +199,7 @@
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 13,
@@ -214,7 +214,7 @@
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 14,
@@ -229,7 +229,7 @@
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 15,
@@ -243,8 +243,8 @@
         "status": "OCUPADA",
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-15",
-        "current_total": 66,
-        "updated_at": "17:00"
+        "current_total": 78,
+        "updated_at": "17:09"
       },
       {
         "id": 16,
@@ -259,7 +259,7 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-16",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 17,
@@ -274,7 +274,7 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-17",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 18,
@@ -289,7 +289,7 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-18",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 19,
@@ -304,7 +304,7 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-19",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 20,
@@ -319,7 +319,7 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-20",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 21,
@@ -334,7 +334,7 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-21",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 22,
@@ -349,7 +349,7 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-22",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 23,
@@ -364,7 +364,7 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-23",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 24,
@@ -379,7 +379,7 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-24",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 25,
@@ -394,7 +394,7 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-25",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 26,
@@ -409,7 +409,7 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-26",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 27,
@@ -424,7 +424,7 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-27",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 28,
@@ -439,7 +439,7 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-28",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 29,
@@ -454,7 +454,7 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-29",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       },
       {
         "id": 30,
@@ -469,10 +469,10 @@
         "waiter_call": false,
         "qr_token": "NEXUS-MESA-30",
         "current_total": 0,
-        "updated_at": "17:00"
+        "updated_at": "17:09"
       }
     ],
-    "updated_at": "2026-11-11T17:00:45-03:00"
+    "updated_at": "2026-11-11T17:09:17-03:00"
   },
   "catalog": [
     {
@@ -11492,7 +11492,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 2,
@@ -11507,7 +11507,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 3,
@@ -11522,7 +11522,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 4,
@@ -11537,7 +11537,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 5,
@@ -11552,7 +11552,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 6,
@@ -11567,7 +11567,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 7,
@@ -11582,7 +11582,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 8,
@@ -11597,7 +11597,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 9,
@@ -11612,7 +11612,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 10,
@@ -11627,7 +11627,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 11,
@@ -11642,7 +11642,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 12,
@@ -11657,7 +11657,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 13,
@@ -11672,7 +11672,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 14,
@@ -11687,7 +11687,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 15,
@@ -11701,8 +11701,8 @@
       "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-15",
-      "current_total": 66,
-      "updated_at": "17:00"
+      "current_total": 78,
+      "updated_at": "17:09"
     },
     {
       "id": 16,
@@ -11717,7 +11717,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-16",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 17,
@@ -11732,7 +11732,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-17",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 18,
@@ -11747,7 +11747,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-18",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 19,
@@ -11762,7 +11762,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-19",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 20,
@@ -11777,7 +11777,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-20",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 21,
@@ -11792,7 +11792,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-21",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 22,
@@ -11807,7 +11807,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-22",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 23,
@@ -11822,7 +11822,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-23",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 24,
@@ -11837,7 +11837,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-24",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 25,
@@ -11852,7 +11852,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-25",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 26,
@@ -11867,7 +11867,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-26",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 27,
@@ -11882,7 +11882,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-27",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 28,
@@ -11897,7 +11897,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-28",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 29,
@@ -11912,7 +11912,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-29",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     },
     {
       "id": 30,
@@ -11927,7 +11927,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-30",
       "current_total": 0,
-      "updated_at": "17:00"
+      "updated_at": "17:09"
     }
   ]
 }
