@@ -1,0 +1,21 @@
+{
+  "apk_direct_url": "https://raw.githubusercontent.com/nexusistemas/nexusistemas.github.io/main/NexuSistemas-SuperApp.apk",
+  "apk_fixed_url": "https://nexusistemas.app.br/apk",
+  "apk_version_code": 94,
+  "apk_version_name": "8.5",
+  "cardapio_fixed_url": "https://teste.nexusistemas.app.br/cardapio",
+  "hostname_url": "http://gui",
+  "lan_ips": [
+    "192.168.18.157"
+  ],
+  "lan_no_port_url": "http://192.168.18.157",
+  "lan_url": "http://192.168.18.157:8080",
+  "mesa_fixed_url": "https://teste.nexusistemas.app.br/mesa",
+  "pdv_fixed_url": "https://teste.nexusistemas.app.br/pdv",
+  "rastreio_fixed_url": "https://teste.nexusistemas.app.br/rastreio",
+  "store_slug": "teste",
+  "subdomain_tunnel_url": "https://teste.nexusistemas.app.br",
+  "superapp_fixed_url": "https://teste.nexusistemas.app.br/app",
+  "tunnel_url": "https://teste.nexusistemas.app.br",
+  "updated_at": "2026-11-11T16:20:37-03:00"
+}
