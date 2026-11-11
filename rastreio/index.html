@@ -3,8 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Rastreio de Entrega em Tempo Real | Tecnologia NexuSistemas</title>
-  <link rel="icon" id="dynamicFaviconLink" type="image/png" href="/assets/nexus/nexus-icon.png" />
+  <title id="rastreioPageDocTitle">Rastreamento de Pedido</title>
+  <meta name="description" content="Acompanhe o status e a entrega do seu pedido em tempo real." id="metaDocDesc" />
+  <link rel="canonical" href="/rastreio" id="metaDocCanonical" />
+  <link rel="icon" id="dynamicFaviconLink" type="image/png" href="/api/public/og-logo.png" />
+  <link rel="apple-touch-icon" id="dynamicAppleIconLink" href="/api/public/og-logo.png" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Open Graph / WhatsApp / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Rastreamento de Pedido" id="ogSiteName" />
+  <meta property="og:title" content="Rastreamento de Pedido" id="ogTitle" />
+  <meta property="og:description" content="Acompanhe o status e a entrega do seu pedido em tempo real." id="ogDesc" />
+  <meta property="og:url" content="/rastreio" id="ogUrl" />
+  <meta property="og:image" content="/api/public/og-logo.png" id="ogImage" />
+  <meta property="og:image:secure_url" content="/api/public/og-logo.png" id="ogImageSecure" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Rastreamento de Pedido" id="twTitle" />
+  <meta name="twitter:description" content="Acompanhe o status e a entrega do seu pedido em tempo real." id="twDesc" />
+  <meta name="twitter:image" content="/api/public/og-logo.png" id="twImage" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
@@ -451,14 +473,115 @@
       }
     }
 
+    let lastTrackedOrderId = null;
+
+    function renderDeletedOrEmptyTrackingDOM(customMsg) {
+      const codeBadge = document.getElementById("orderCodeBadge");
+      if (codeBadge) codeBadge.textContent = "#---";
+      document.querySelectorAll(".step, .step-dot").forEach(el => {
+        el.classList.remove("active", "done");
+      });
+      const stTitle = document.getElementById("statusTitle");
+      if (stTitle) stTitle.textContent = "🚫 Pedido Excluído ou Inexistente";
+      const stDesc = document.getElementById("statusDesc");
+      if (stDesc) stDesc.textContent = customMsg || "Este pedido foi finalizado, cancelado ou removido pelo estabelecimento no PDV.";
+      const eta = document.getElementById("etaChip") || document.getElementById("liveBadgeText");
+      if (eta) {
+        eta.textContent = "Encerrado";
+        eta.style.background = "rgba(239,68,68,0.16)";
+        eta.style.color = "#f87171";
+        eta.style.borderColor = "rgba(239,68,68,0.4)";
+      }
+
+      const custEl = document.getElementById("customerInfo");
+      if (custEl) custEl.innerHTML = "<b>👤 Cliente:</b> ---";
+      const addrEl = document.getElementById("addressInfo");
+      if (addrEl) addrEl.innerHTML = "<b>📍 Endereço:</b> ---";
+      const payEl = document.getElementById("paymentInfo");
+      if (payEl) payEl.innerHTML = "<b>💳 Total:</b> R$ 0,00";
+      const itemsEl = document.getElementById("itemsList");
+      if (itemsEl) {
+        itemsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">Nenhum pedido ativo para rastreamento no momento.</div>';
+      }
+      const motoEl = document.getElementById("motoboyChip");
+      if (motoEl) motoEl.textContent = "🛵 Sem entrega ativa";
+      const gpsEl = document.getElementById("gpsSubtitle");
+      if (gpsEl) gpsEl.textContent = "Pedido removido ou concluído";
+
+      if (motoMarker && map) {
+        map.removeLayer(motoMarker);
+        motoMarker = null;
+      }
+      if (homeMarker && map) {
+        map.removeLayer(homeMarker);
+        homeMarker = null;
+      }
+      if (routeLine && map) {
+        map.removeLayer(routeLine);
+        routeLine = null;
+      }
+    }
+
+    async function syncAndPurgeTrackedLocalOrders() {
+      try {
+        const rawIds = JSON.parse(localStorage.getItem("sirbeef_my_order_ids") || "[]");
+        if (!Array.isArray(rawIds) || rawIds.length === 0) return [];
+        const checkRes = await fetch("/api/orders/track?ids=" + encodeURIComponent(rawIds.join(",")), { cache: "no-store" });
+        if (!checkRes.ok) return rawIds;
+        const checkData = await checkRes.json();
+        if (checkData && Array.isArray(checkData.existing_ids)) {
+          const validNums = checkData.existing_ids.map(x => Number(x)).filter(n => n > 0);
+          if (validNums.length !== rawIds.length) {
+            localStorage.setItem("sirbeef_my_order_ids", JSON.stringify(validNums));
+          }
+          // Filtra apenas pedidos de DELIVERY para rastreio
+          if (Array.isArray(checkData.orders)) {
+            const delivOrders = checkData.orders.filter(o =>
+              String(o.origin_type || "").toUpperCase() === "DELIVERY" &&
+              String(o.payment_method || "").toUpperCase() !== "CONTA_MESA"
+            );
+            return delivOrders.map(o => o.order_code || String(o.id));
+          }
+          return validNums.map(String);
+        }
+        return rawIds;
+      } catch (e) {
+        return [];
+      }
+    }
+
     async function pollTracking() {
       try {
-        const url = "/api/orders/track" + (pedidoParam ? ("?pedido=" + encodeURIComponent(pedidoParam)) : "");
+        const validLocalDelivCodes = await syncAndPurgeTrackedLocalOrders();
+        let targetCode = pedidoParam;
+        if (!targetCode && validLocalDelivCodes.length > 0) {
+          targetCode = String(validLocalDelivCodes[0]);
+        }
+
+        const url = "/api/orders/track" + (targetCode ? ("?pedido=" + encodeURIComponent(targetCode)) : "");
         const res = await fetch(url, { cache: "no-store" });
-        if (!res.ok) return;
+        if (!res.ok) {
+          if (res.status === 404) {
+            if (lastTrackedOrderId) {
+              const rawIds = JSON.parse(localStorage.getItem("sirbeef_my_order_ids") || "[]");
+              const nextIds = (rawIds || []).filter(x => Number(x) !== Number(lastTrackedOrderId) && String(x) !== String(targetCode));
+              localStorage.setItem("sirbeef_my_order_ids", JSON.stringify(nextIds));
+            }
+            renderDeletedOrEmptyTrackingDOM();
+          }
+          return;
+        }
         const data = await res.json();
+        if (data && data.deleted) {
+          renderDeletedOrEmptyTrackingDOM();
+          return;
+        }
         const ord = data.order;
-        if (!ord) return;
+        if (!ord || String(ord.status || "").toUpperCase() === "CANCELADO") {
+          renderDeletedOrEmptyTrackingDOM();
+          return;
+        }
+        lastTrackedOrderId = ord.id;
 
         document.getElementById("orderCodeBadge").textContent = "#" + (ord.order_code || ord.id);
         updateStepsUI(ord.status);
@@ -483,7 +606,7 @@
         // Destino do cliente
         let destLat = ord.latitude || 0;
         let destLng = ord.longitude || 0;
-        if ((!destLat || !destLng || Math.abs(destLat + 23.5505) < 0.01) && ord.address_text) {
+        if ((!destLat || !destLng || Math.abs(destLat + 23.555) < 0.03) && ord.address_text) {
           await tryGeocodeCustomerAddress(ord.address_text);
           if (geocodedDest) {
             destLat = geocodedDest.lat;
@@ -501,6 +624,9 @@
             homeMarker = L.marker([destLat, destLng], { icon: homeIcon })
               .addTo(map)
               .bindPopup("<b>🏠 Seu Endereço</b><br>" + (ord.address_text || ""));
+            if (!hasCenteredOnce) {
+              map.setView([destLat, destLng], 15);
+            }
           } else {
             homeMarker.setLatLng([destLat, destLng]);
           }
@@ -581,29 +707,185 @@
       if (cfg.bg_color) root.style.setProperty('--bg', cfg.bg_color);
       if (cfg.card_color) root.style.setProperty('--card', cfg.card_color);
 
-      const cName = cfg.client_name || 'SIR BEEF';
-      document.title = `${cName} — Rastreio de Entrega em Tempo Real | Tecnologia NexuSistemas`;
+      const rawName = String(cfg.company_name || cfg.client_name || 'NexuSistemas').trim();
+      const cName = rawName || 'NexuSistemas';
+      document.title = `Rastreamento de Pedido • ${cName}`;
       const tEl = document.getElementById('trackBrandTitleText');
       if (tEl) tEl.textContent = `${cName} • RASTREIO AO VIVO`;
+      const vParam = cfg.logo_hash ? ('?v=' + encodeURIComponent(cfg.logo_hash)) : ('?v=' + Date.now());
+      const dynLogoUrl = cfg.og_logo_url || ('/api/public/og-logo.png' + vParam);
+      const dynFaviconUrl = '/favicon.ico' + vParam;
+      const shortcutLink = document.getElementById('dynamicShortcutIconLink');
+      if (shortcutLink) shortcutLink.href = dynFaviconUrl;
+      const favLink = document.getElementById('dynamicFaviconLink');
+      if (favLink) favLink.href = dynLogoUrl;
+      const appleLink = document.getElementById('dynamicAppleIconLink');
+      if (appleLink) appleLink.href = dynLogoUrl;
+      const manifestLink = document.getElementById('dynamicManifestLink');
+      if (manifestLink) manifestLink.href = '/manifest.json' + vParam;
       const lEl = document.getElementById('trackBrandLogoImg');
       if (lEl) {
         lEl.src = (cfg.client_logo_base64 && cfg.client_logo_base64.startsWith('data:image'))
           ? cfg.client_logo_base64
-          : '/assets/nexus/nexus-icon.png';
+          : (cfg.company_logo && !cfg.company_logo.toUpperCase().includes('SIR BEEF') ? cfg.company_logo : dynLogoUrl);
       }
     }
 
+    const TRACK_HOT_RELOAD_KEY = 'nexus_hot_reload_state';
+    window._nexusBootID = window._nexusBootID || '';
+    window._nexusTrackReloading = false;
+    let trackOtaProbeTimer = null;
+
+    function showTrackingHotReloadBanner(message, isSuccess) {
+      let el = document.getElementById('trackHotReloadTopBanner');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'trackHotReloadTopBanner';
+        el.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:999999;padding:10px 18px;border-radius:12px;font-weight:900;font-size:13px;box-shadow:0 10px 26px rgba(0,0,0,0.65);border:2px solid #d4af37;background:#0b1220;color:#fde68a;pointer-events:none;white-space:nowrap;';
+        document.body.appendChild(el);
+      }
+      if (isSuccess) {
+        el.style.borderColor = '#22c55e';
+        el.style.color = '#86efac';
+      }
+      el.textContent = message;
+      el.style.display = 'block';
+    }
+
+    function checkNexusTrackingBootId(bootId) {
+      const incoming = String(bootId || '').trim();
+      if (!incoming) return;
+      if (!window._nexusBootID) {
+        window._nexusBootID = incoming;
+        return;
+      }
+      if (incoming !== window._nexusBootID && !window._nexusTrackReloading) {
+        window._nexusTrackReloading = true;
+        if (trackOtaProbeTimer) {
+          clearInterval(trackOtaProbeTimer);
+          trackOtaProbeTimer = null;
+        }
+        try {
+          sessionStorage.setItem(TRACK_HOT_RELOAD_KEY, JSON.stringify({
+            savedAt: Date.now(),
+            pedido: typeof pedidoParam !== 'undefined' ? (pedidoParam || '') : '',
+            scrollY: window.scrollY || 0
+          }));
+        } catch (_) {}
+        showTrackingHotReloadBanner('🔄 Atualização aplicada! Recarregando sistema...', true);
+        setTimeout(() => window.location.reload(), 450);
+      }
+    }
+
+    function onTrackingServerRestartingOTA() {
+      if (window._nexusTrackReloading) return;
+      showTrackingHotReloadBanner('⏳ Atualização em andamento! Reconectando (1,5s)...', false);
+      if (trackingWsInstance) {
+        try { trackingWsInstance.close(); } catch (_) {}
+      }
+      if (!trackOtaProbeTimer) {
+        trackOtaProbeTimer = setInterval(async () => {
+          if (window._nexusTrackReloading) return;
+          try {
+            const res = await fetch('/api/status?t=' + Date.now(), { cache: 'no-store' });
+            if (res && res.ok) {
+              const hdrBoot = res.headers && res.headers.get && res.headers.get('X-Server-Boot-ID');
+              if (hdrBoot) checkNexusTrackingBootId(hdrBoot);
+              const data = await res.json().catch(() => null);
+              if (data && data.server_boot_id) checkNexusTrackingBootId(data.server_boot_id);
+            }
+          } catch (_) {}
+        }, 1500);
+      }
+    }
+
+    (function wrapTrackingApiFetch() {
+      const origFetch = window.fetch.bind(window);
+      window.fetch = async function(input, init) {
+        const resp = await origFetch(input, init);
+        try {
+          const urlStr = typeof input === 'string' ? input : (input && input.url ? input.url : '');
+          if (urlStr.startsWith('/api/') || urlStr.startsWith('api/')) {
+            const hdrBoot = resp && resp.headers && resp.headers.get && resp.headers.get('X-Server-Boot-ID');
+            if (hdrBoot) checkNexusTrackingBootId(hdrBoot);
+          }
+        } catch (_) {}
+        return resp;
+      };
+    })();
+
+    window.addEventListener('DOMContentLoaded', function() {
+      try {
+        const rawSnap = sessionStorage.getItem(TRACK_HOT_RELOAD_KEY);
+        if (rawSnap) {
+          sessionStorage.removeItem(TRACK_HOT_RELOAD_KEY);
+          const snap = JSON.parse(rawSnap);
+          if (snap && (!snap.savedAt || (Date.now() - snap.savedAt) < 180000)) {
+            if (typeof snap.scrollY === 'number' && snap.scrollY > 0) {
+              setTimeout(() => window.scrollTo(0, snap.scrollY), 150);
+            }
+            showTrackingHotReloadBanner('✅ Rastreio sincronizado na nova versão!', true);
+            setTimeout(() => {
+              const b = document.getElementById('trackHotReloadTopBanner');
+              if (b) b.style.display = 'none';
+            }, 2800);
+          }
+        }
+      } catch (_) {}
+    });
+
+    let trackingWsInstance = null;
+    let trackingWsTimer = null;
     function connectTrackingBrandingWs() {
       try {
+        if (trackingWsInstance && (trackingWsInstance.readyState === WebSocket.OPEN || trackingWsInstance.readyState === WebSocket.CONNECTING)) {
+          return;
+        }
+        if (trackingWsTimer) {
+          clearTimeout(trackingWsTimer);
+          trackingWsTimer = null;
+        }
         const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const ws = new WebSocket(`${proto}//${window.location.host}/ws`);
+        trackingWsInstance = ws;
         ws.onmessage = function(ev) {
           try {
             const msg = JSON.parse(ev.data);
-            if (msg && msg.type === 'branding_updated' && msg.data) {
+            if (msg && msg.server_boot_id) {
+              checkNexusTrackingBootId(msg.server_boot_id);
+            }
+            const evType = msg && (msg.type || msg.event);
+            if (evType === 'SERVER_RESTARTING_OTA' || String(evType || '').toUpperCase() === 'SERVER_RESTARTING_OTA') {
+              onTrackingServerRestartingOTA();
+              return;
+            }
+            if ((evType === 'branding_updated' || evType === 'branding_init') && msg.data) {
               applyTrackingBranding(msg.data);
+            } else if (evType === 'order_deleted') {
+              if (msg.data && msg.data.order_id) {
+                const delId = Number(msg.data.order_id);
+                let rawIds = [];
+                try { rawIds = JSON.parse(localStorage.getItem('sirbeef_my_order_ids') || '[]') || []; } catch (_) {}
+                const nextIds = (Array.isArray(rawIds) ? rawIds : []).filter(x => Number(x) !== delId);
+                localStorage.setItem('sirbeef_my_order_ids', JSON.stringify(nextIds));
+                if (Number(lastTrackedOrderId) === delId || (pedidoParam && String(msg.data.order_code || '').toUpperCase() === String(pedidoParam).toUpperCase())) {
+                  renderDeletedOrEmptyTrackingDOM('Este pedido foi excluído no PDV pelo estabelecimento.');
+                }
+              }
+              pollTracking();
+            } else if (evType === 'orders_updated' || evType === 'system_reset') {
+              if (evType === 'system_reset') {
+                localStorage.removeItem('sirbeef_my_order_ids');
+                renderDeletedOrEmptyTrackingDOM();
+              }
+              pollTracking();
             }
           } catch (e) {}
+        };
+        ws.onclose = function() {
+          trackingWsInstance = null;
+          if (trackingWsTimer) clearTimeout(trackingWsTimer);
+          trackingWsTimer = setTimeout(connectTrackingBrandingWs, 1500);
         };
       } catch (e) {}
     }
