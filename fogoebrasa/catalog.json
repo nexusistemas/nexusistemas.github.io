@@ -643,9 +643,9 @@
           {
             "id": 4,
             "name": "kafta",
-            "min": 1,
+            "min": 0,
             "max": 1,
-            "required": true,
+            "required": false,
             "options": [
               {
                 "name": "Bacon",
@@ -759,9 +759,9 @@
           {
             "id": 5,
             "name": "queijos",
-            "min": 1,
+            "min": 0,
             "max": 1,
-            "required": true,
+            "required": false,
             "options": [
               {
                 "name": "Mel",
@@ -867,9 +867,9 @@
           {
             "id": 5,
             "name": "queijos",
-            "min": 1,
+            "min": 0,
             "max": 1,
-            "required": true,
+            "required": false,
             "options": [
               {
                 "name": "Mel",
