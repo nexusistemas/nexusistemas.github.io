@@ -3,16 +3,16 @@
   "subdomain_tunnel_url": "https://teste.nexusistemas.app.br",
   "custom_domain": "https://teste.nexusistemas.app.br",
   "store_slug": "teste",
-  "lan_url": "http://172.26.226.152:8080",
-  "lan_no_port_url": "http://172.26.226.152",
-  "lan_ip": "172.26.226.152",
+  "lan_url": "http://192.168.18.157:8080",
+  "lan_no_port_url": "http://192.168.18.157",
+  "lan_ip": "192.168.18.157",
   "lan_ips": [
-    "172.26.226.152"
+    "192.168.18.157"
   ],
   "lan_urls": [
-    "http://172.26.226.152:8080"
+    "http://192.168.18.157:8080"
   ],
-  "hostname_url": "http://e794036d-b428-4d84-9652-7c7245dc30e0:8080",
+  "hostname_url": "http://gui:8080",
   "cardapio_fixed_url": "https://teste.nexusistemas.app.br/cardapio",
   "mesa_fixed_url": "https://teste.nexusistemas.app.br/mesa",
   "rastreio_fixed_url": "https://teste.nexusistemas.app.br/rastreio",
