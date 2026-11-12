@@ -516,7 +516,7 @@
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
       <select id="topTableSelect" onchange="syncSelectedTable(this.value)" style="width:auto;margin:0;padding:8px 12px;font-weight:700;"></select>
       <button class="btn" onclick="callWaiterFromWeb()">🔔 Chamar Garçom</button>
-      <button class="btn btn-gold" onclick="openMyOrdersModal()">🧾 Ver Minha Comanda / Pedir Conta</button>
+      <button class="btn btn-gold" onclick="openMyOrdersModal()">💸 Conta</button>
     </div>
   </div>
 
@@ -2811,7 +2811,7 @@
         .reduce((acc, o) => acc + Number(o.total || 0), 0);
       html += `<div style="margin-bottom:14px;background:#101015;border:1px solid var(--gold);border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;">
         <span style="font-weight:800;color:#e5e7eb;">🍽️ MESA ${String(selectedTableNum).padStart(2, '0')} — Consumo Ativo</span>
-        <strong style="font-size:16px;color:var(--gold-light);">Total Parcial: R$ ${partialTableTotal.toFixed(2)}</strong>
+        <strong style="font-size:16px;color:var(--gold-light);">Total dos Meus Pedidos: R$ ${partialTableTotal.toFixed(2)}</strong>
       </div>`;
     }
 
