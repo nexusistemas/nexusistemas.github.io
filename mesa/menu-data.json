@@ -240,11 +240,11 @@
         "is_kiosk": false,
         "is_custom": false,
         "active": true,
-        "status": "LIVRE",
+        "status": "OCUPADA",
         "waiter_call": false,
         "qr_token": "TESTE-MESA-15",
-        "current_total": 0,
-        "updated_at": "17:14"
+        "current_total": 93,
+        "updated_at": "17:24"
       },
       {
         "id": 16,
@@ -472,7 +472,7 @@
         "updated_at": "17:14"
       }
     ],
-    "updated_at": "2026-11-12T17:17:19-03:00"
+    "updated_at": "2026-11-12T17:24:37-03:00"
   },
   "catalog": [
     {
@@ -4157,7 +4157,7 @@
               ]
             }
           ],
-          "stock_qty": 36,
+          "stock_qty": 35,
           "min_stock": 5,
           "track_stock": true,
           "hide_in_delivery": false,
@@ -29291,11 +29291,11 @@
       "is_kiosk": false,
       "is_custom": false,
       "active": true,
-      "status": "LIVRE",
+      "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "TESTE-MESA-15",
-      "current_total": 0,
-      "updated_at": "17:14"
+      "current_total": 93,
+      "updated_at": "17:24"
     },
     {
       "id": 16,
