@@ -1,8 +1,8 @@
 {
-  "tunnel_url": "https://teste.nexusistemas.app.br",
-  "subdomain_tunnel_url": "https://teste.nexusistemas.app.br",
-  "custom_domain": "https://teste.nexusistemas.app.br",
-  "store_slug": "teste",
+  "tunnel_url": "https://fogoebrasa.nexusistemas.app.br",
+  "subdomain_tunnel_url": "https://fogoebrasa.nexusistemas.app.br",
+  "custom_domain": "https://fogoebrasa.nexusistemas.app.br",
+  "store_slug": "fogoebrasa",
   "lan_url": "http://172.26.226.152:8080",
   "lan_no_port_url": "http://172.26.226.152",
   "lan_ip": "172.26.226.152",
@@ -13,14 +13,14 @@
     "http://172.26.226.152:8080"
   ],
   "hostname_url": "http://e794036d-b428-4d84-9652-7c7245dc30e0:8080",
-  "cardapio_fixed_url": "https://teste.nexusistemas.app.br/cardapio",
-  "mesa_fixed_url": "https://teste.nexusistemas.app.br/mesa",
-  "rastreio_fixed_url": "https://teste.nexusistemas.app.br/rastreio",
-  "pdv_fixed_url": "https://teste.nexusistemas.app.br/pdv",
-  "superapp_fixed_url": "https://teste.nexusistemas.app.br/app",
+  "cardapio_fixed_url": "https://fogoebrasa.nexusistemas.app.br/cardapio",
+  "mesa_fixed_url": "https://fogoebrasa.nexusistemas.app.br/mesa",
+  "rastreio_fixed_url": "https://fogoebrasa.nexusistemas.app.br/rastreio",
+  "pdv_fixed_url": "https://fogoebrasa.nexusistemas.app.br/pdv",
+  "superapp_fixed_url": "https://fogoebrasa.nexusistemas.app.br/app",
   "apk_fixed_url": "https://nexusistemas.app.br/apk",
   "apk_direct_url": "https://raw.githubusercontent.com/nexusistemas/nexusistemas.github.io/main/NexuSistemas-SuperApp.apk",
   "apk_version_code": 98,
   "apk_version_name": "8.8",
-  "updated_at": "2026-11-12T09:55:57-03:00"
+  "updated_at": "2026-11-12T09:58:38-03:00"
 }
