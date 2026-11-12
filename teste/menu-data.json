@@ -30,11 +30,11 @@
         "is_kiosk": true,
         "is_custom": false,
         "active": false,
-        "status": "LIVRE",
+        "status": "OCUPADA",
         "waiter_call": false,
         "qr_token": "",
-        "current_total": 0,
-        "updated_at": "10:34"
+        "current_total": 70,
+        "updated_at": "10:35"
       },
       {
         "id": 2,
@@ -240,11 +240,11 @@
         "is_kiosk": false,
         "is_custom": false,
         "active": true,
-        "status": "LIVRE",
+        "status": "OCUPADA",
         "waiter_call": false,
         "qr_token": "TESTE-MESA-15",
         "current_total": 0,
-        "updated_at": "10:34"
+        "updated_at": "10:37"
       },
       {
         "id": 16,
@@ -472,7 +472,7 @@
         "updated_at": "10:34"
       }
     ],
-    "updated_at": "2026-11-12T10:35:02-03:00"
+    "updated_at": "2026-11-12T10:37:56-03:00"
   },
   "catalog": [
     {
@@ -29081,11 +29081,11 @@
       "is_kiosk": true,
       "is_custom": false,
       "active": false,
-      "status": "LIVRE",
+      "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "",
-      "current_total": 0,
-      "updated_at": "10:34"
+      "current_total": 70,
+      "updated_at": "10:35"
     },
     {
       "id": 2,
@@ -29291,11 +29291,11 @@
       "is_kiosk": false,
       "is_custom": false,
       "active": true,
-      "status": "LIVRE",
+      "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "TESTE-MESA-15",
       "current_total": 0,
-      "updated_at": "10:34"
+      "updated_at": "10:37"
     },
     {
       "id": 16,
