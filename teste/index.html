@@ -1716,7 +1716,7 @@
     grid.innerHTML = itemsToShow.map(item => {
       const hasPhoto = !!(item.image_url && String(item.image_url).trim() !== '' && !String(item.image_url).includes('SEM_FOTO'));
       const descTxt = item.description || '';
-      const varGrp = (item.modifier_groups || []).find(g => isVariationGroupInMenu(g));
+      const varGrp = (item.modifier_groups || []).find(g => isVariationGroupInMenu(g, item.price));
       let minVarPrice = item.price;
       let hasMultiVarPrices = false;
       if (varGrp) {
@@ -1776,8 +1776,8 @@
 
   function isVariationGroupInMenu(g, itemBasePrice) {
     if (!g) return false;
-    if (g.is_variation === false) return false;
-    if (g.is_variation === true) return true;
+    if (g.is_variation === false || g._isVariation === false) return false;
+    if (g.is_variation === true || g._isVariation === true) return true;
     const gLow = String(g.name || '').toLowerCase().trim();
     if (gLow.includes('kafta') || gLow.includes('queijo') || gLow.includes('molho') || 
         gLow.includes('adicion') || gLow.includes('ponto') || gLow.includes('refrigerante') || 
@@ -1789,21 +1789,28 @@
     const allOpts = (Array.isArray(g.options) ? g.options : []).filter(o => o && String(o.name || '').trim() !== '');
     if (allOpts.length === 0) return false;
 
+    const maxSel = Number(g.max_select !== undefined ? g.max_select : (g.max || 1));
     const isNamedVar = gLow.includes('variaç') || gLow.includes('variac') ||
-      gLow.includes('tamanho') || gLow.includes('porção') || gLow.includes('porcao') ||
-      gLow.includes('versão') || gLow.includes('versao') || gLow.includes('opção principal') ||
+      gLow.includes('tipo') || gLow.includes('tamanho') || gLow.includes('porção') || gLow.includes('porcao') ||
+      gLow.includes('versão') || gLow.includes('versao') || gLow.includes('sabor') ||
+      gLow.includes('com gás') || gLow.includes('com gas') ||
+      gLow.includes('opção principal') || gLow.includes('opcao principal') ||
       gLow === 'opções' || gLow === 'opcoes';
-    const maxSel = Number(g.max || 1);
 
     if (isNamedVar && maxSel <= 1 && allOpts.some(o => Number(o.original_price || o.price || 0) > 0)) {
       return true;
     }
 
-    const baseP = Number(itemBasePrice || 0);
-    if (baseP > 0) {
-      const maxOptPrice = Math.max(...allOpts.map(o => Number(o.price || 0)));
-      if (maxOptPrice > 0 && maxOptPrice < baseP * 0.7) {
-        return false;
+    const isReq = Boolean(g.required) || Number(g.min_select !== undefined ? g.min_select : (g.min || 0)) >= 1;
+    if ((isReq || maxSel <= 1) && maxSel <= 1 && allOpts.length > 1 && allOpts.every(o => Number(o.original_price || o.price || 0) > 0)) {
+      const baseP = Number(itemBasePrice || 0);
+      if (baseP > 0) {
+        const maxOptPrice = Math.max(...allOpts.map(o => Number(o.price || 0)));
+        if (maxOptPrice >= baseP * 0.7) {
+          return true;
+        }
+      } else {
+        return true;
       }
     }
 
@@ -1897,7 +1904,7 @@
     }
 
     const groupsHtml = groups.map((g, gIdx) => {
-      const isVar = isVariationGroupInMenu(g);
+      const isVar = isVariationGroupInMenu(g, currentProduct ? currentProduct.price : 0);
       let visibleOpts = isVar
         ? (g.options || []).filter(opt => opt && String(opt.name || '').trim() !== '').slice(0, 45)
         : (g.options || []).filter(opt => isMenuModifierOptionActive(opt)).slice(0, 45);
