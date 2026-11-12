@@ -1,7 +1,7 @@
 {
   "client_logo_base64": "/assets/nexus/nexus-icon.png",
-  "client_name": "teste",
-  "company_name": "teste",
+  "client_name": "NexuSistemas",
+  "company_name": "NexuSistemas",
   "delivery_menu_url": "https://teste.nexusistemas.app.br/cardapio",
   "logo_url": "/assets/nexus/nexus-icon.png",
   "modules": {
@@ -18,7 +18,7 @@
   "secondary_color": "#f3d87d",
   "superapp_url": "https://teste.nexusistemas.app.br/app",
   "table_menu_url": "https://teste.nexusistemas.app.br/mesa",
-  "table_token_prefix": "TESTE",
+  "table_token_prefix": "NEXUS",
   "tables": [
     {
       "id": 1,
@@ -29,11 +29,11 @@
       "is_kiosk": true,
       "is_custom": false,
       "active": false,
-      "status": "OCUPADA",
+      "status": "LIVRE",
       "waiter_call": false,
       "qr_token": "",
-      "current_total": 141,
-      "updated_at": "16:22"
+      "current_total": 0,
+      "updated_at": "16:43"
     },
     {
       "id": 2,
@@ -48,7 +48,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 3,
@@ -63,7 +63,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 4,
@@ -78,7 +78,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 5,
@@ -93,7 +93,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 6,
@@ -108,7 +108,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 7,
@@ -123,7 +123,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 8,
@@ -138,7 +138,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 9,
@@ -153,7 +153,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 10,
@@ -168,7 +168,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 11,
@@ -183,7 +183,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 12,
@@ -198,7 +198,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 13,
@@ -213,7 +213,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 14,
@@ -228,7 +228,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 15,
@@ -239,11 +239,11 @@
       "is_kiosk": false,
       "is_custom": false,
       "active": true,
-      "status": "OCUPADA",
+      "status": "LIVRE",
       "waiter_call": false,
       "qr_token": "TESTE-MESA-15",
-      "current_total": 180,
-      "updated_at": "16:22"
+      "current_total": 0,
+      "updated_at": "16:43"
     },
     {
       "id": 16,
@@ -258,7 +258,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-16",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 17,
@@ -273,7 +273,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-17",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 18,
@@ -288,7 +288,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-18",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 19,
@@ -303,7 +303,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-19",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 20,
@@ -318,7 +318,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-20",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 21,
@@ -333,7 +333,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-21",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 22,
@@ -348,7 +348,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-22",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 23,
@@ -363,7 +363,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-23",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 24,
@@ -378,7 +378,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-24",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 25,
@@ -393,7 +393,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-25",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 26,
@@ -408,7 +408,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-26",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 27,
@@ -423,7 +423,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-27",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 28,
@@ -438,7 +438,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-28",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 29,
@@ -453,7 +453,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-29",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     },
     {
       "id": 30,
@@ -468,8 +468,8 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-30",
       "current_total": 0,
-      "updated_at": "16:21"
+      "updated_at": "16:43"
     }
   ],
-  "updated_at": "2026-11-12T16:31:57-03:00"
+  "updated_at": "2026-11-12T16:44:01-03:00"
 }
