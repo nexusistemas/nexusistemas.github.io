@@ -242,8 +242,8 @@
       "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "TESTE-MESA-15",
-      "current_total": 110,
-      "updated_at": "15:37"
+      "current_total": 180,
+      "updated_at": "15:40"
     },
     {
       "id": 16,
@@ -471,5 +471,5 @@
       "updated_at": "15:37"
     }
   ],
-  "updated_at": "2026-11-12T15:37:39-03:00"
+  "updated_at": "2026-11-12T15:40:38-03:00"
 }
