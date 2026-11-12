@@ -1,7 +1,7 @@
 {
   "client_logo_base64": "/assets/nexus/nexus-icon.png",
-  "client_name": "NexuSistemas",
-  "company_name": "NexuSistemas",
+  "client_name": "teste",
+  "company_name": "teste",
   "delivery_menu_url": "https://teste.nexusistemas.app.br/cardapio",
   "logo_url": "/assets/nexus/nexus-icon.png",
   "modules": {
@@ -18,7 +18,7 @@
   "secondary_color": "#f3d87d",
   "superapp_url": "https://teste.nexusistemas.app.br/app",
   "table_menu_url": "https://teste.nexusistemas.app.br/mesa",
-  "table_token_prefix": "NEXUS",
+  "table_token_prefix": "TESTE",
   "tables": [
     {
       "id": 1,
@@ -26,14 +26,14 @@
       "label": "MESA 01",
       "complement": "",
       "origin_prefix": "",
-      "is_kiosk": false,
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-01",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 2,
@@ -41,14 +41,14 @@
       "label": "MESA 02",
       "complement": "",
       "origin_prefix": "",
-      "is_kiosk": false,
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-02",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 3,
@@ -56,14 +56,14 @@
       "label": "MESA 03",
       "complement": "",
       "origin_prefix": "",
-      "is_kiosk": false,
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-03",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 4,
@@ -71,14 +71,14 @@
       "label": "MESA 04",
       "complement": "",
       "origin_prefix": "",
-      "is_kiosk": false,
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-04",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 5,
@@ -86,14 +86,14 @@
       "label": "MESA 05",
       "complement": "",
       "origin_prefix": "",
-      "is_kiosk": false,
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-05",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 6,
@@ -101,14 +101,14 @@
       "label": "MESA 06",
       "complement": "",
       "origin_prefix": "",
-      "is_kiosk": false,
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-06",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 7,
@@ -116,14 +116,14 @@
       "label": "MESA 07",
       "complement": "",
       "origin_prefix": "",
-      "is_kiosk": false,
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-07",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 8,
@@ -131,14 +131,14 @@
       "label": "MESA 08",
       "complement": "",
       "origin_prefix": "",
-      "is_kiosk": false,
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-08",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 9,
@@ -146,14 +146,14 @@
       "label": "MESA 09",
       "complement": "",
       "origin_prefix": "",
-      "is_kiosk": false,
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-09",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 10,
@@ -161,14 +161,14 @@
       "label": "MESA 10",
       "complement": "",
       "origin_prefix": "",
-      "is_kiosk": false,
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-10",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 11,
@@ -176,14 +176,14 @@
       "label": "MESA 11",
       "complement": "",
       "origin_prefix": "",
-      "is_kiosk": false,
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-11",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 12,
@@ -191,14 +191,14 @@
       "label": "MESA 12",
       "complement": "",
       "origin_prefix": "",
-      "is_kiosk": false,
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-12",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 13,
@@ -206,14 +206,14 @@
       "label": "MESA 13",
       "complement": "",
       "origin_prefix": "",
-      "is_kiosk": false,
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-13",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 14,
@@ -221,14 +221,14 @@
       "label": "MESA 14",
       "complement": "",
       "origin_prefix": "",
-      "is_kiosk": false,
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "TESTE-MESA-14",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 15,
@@ -243,7 +243,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-15",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 16,
@@ -258,7 +258,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-16",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 17,
@@ -273,7 +273,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-17",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 18,
@@ -288,7 +288,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-18",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 19,
@@ -303,7 +303,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-19",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 20,
@@ -318,7 +318,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-20",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 21,
@@ -333,7 +333,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-21",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 22,
@@ -348,7 +348,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-22",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 23,
@@ -363,7 +363,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-23",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 24,
@@ -378,7 +378,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-24",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 25,
@@ -393,7 +393,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-25",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 26,
@@ -408,7 +408,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-26",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 27,
@@ -423,7 +423,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-27",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 28,
@@ -438,7 +438,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-28",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 29,
@@ -453,7 +453,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-29",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     },
     {
       "id": 30,
@@ -468,7 +468,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-30",
       "current_total": 0,
-      "updated_at": "09:50"
+      "updated_at": "09:48"
     }
   ],
   "updated_at": "2026-11-12T09:50:48-03:00"
