@@ -3681,7 +3681,7 @@
             ]
           }
         ],
-        "stock_qty": 36,
+        "stock_qty": 35,
         "min_stock": 5,
         "track_stock": true,
         "hide_in_delivery": false,
