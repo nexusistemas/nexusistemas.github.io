@@ -9,5 +9,16 @@
     "is_system_category": true,
     "is_active": true,
     "items": []
+  },
+  {
+    "id": 138,
+    "name": "Bebidas",
+    "icon": "🥤",
+    "sector": "HAMBURGUERIA",
+    "sector_abc": "MERCADO_BEBIDAS",
+    "sort_order": 1001,
+    "is_system_category": true,
+    "is_active": true,
+    "items": []
   }
 ]
