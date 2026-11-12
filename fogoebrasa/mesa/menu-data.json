@@ -30,11 +30,11 @@
         "is_kiosk": true,
         "is_custom": false,
         "active": true,
-        "status": "LIVRE",
+        "status": "OCUPADA",
         "waiter_call": false,
         "qr_token": "",
-        "current_total": 0,
-        "updated_at": "09:50"
+        "current_total": 29,
+        "updated_at": "10:07"
       },
       {
         "id": 2,
@@ -244,7 +244,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-15",
         "current_total": 0,
-        "updated_at": "10:03"
+        "updated_at": "10:05"
       },
       {
         "id": 16,
@@ -472,7 +472,7 @@
         "updated_at": "09:50"
       }
     ],
-    "updated_at": "2026-11-12T10:04:11-03:00"
+    "updated_at": "2026-11-12T10:07:09-03:00"
   },
   "catalog": [
     {
@@ -2487,11 +2487,11 @@
       "is_kiosk": true,
       "is_custom": false,
       "active": true,
-      "status": "LIVRE",
+      "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "",
-      "current_total": 0,
-      "updated_at": "09:50"
+      "current_total": 29,
+      "updated_at": "10:07"
     },
     {
       "id": 2,
@@ -2701,7 +2701,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-15",
       "current_total": 0,
-      "updated_at": "10:03"
+      "updated_at": "10:05"
     },
     {
       "id": 16,
