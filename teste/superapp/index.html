@@ -3031,21 +3031,28 @@
       const allOpts = (g.options || []).filter(Boolean);
       if (allOpts.length === 0) return false;
 
-      const isNamedVar = gLow.includes('variaç') || gLow.includes('variac') ||
-        gLow.includes('tamanho') || gLow.includes('porção') || gLow.includes('porcao') ||
-        gLow.includes('versão') || gLow.includes('versao') || gLow.includes('opção principal') ||
-        gLow === 'opções' || gLow === 'opcoes';
       const maxSel = Number(g.max_select !== undefined ? g.max_select : (g.max || 1));
+      const isNamedVar = gLow.includes('variaç') || gLow.includes('variac') ||
+        gLow.includes('tipo') || gLow.includes('tamanho') || gLow.includes('porção') || gLow.includes('porcao') ||
+        gLow.includes('versão') || gLow.includes('versao') || gLow.includes('sabor') ||
+        gLow.includes('com gás') || gLow.includes('com gas') ||
+        gLow.includes('opção principal') || gLow.includes('opcao principal') ||
+        gLow === 'opções' || gLow === 'opcoes';
 
       if (isNamedVar && maxSel <= 1 && allOpts.some(o => Number(o.price || 0) > 0 || Number(o.original_price || 0) > 0)) {
         return true;
       }
 
-      const baseP = Number(prodBasePrice || 0);
-      if (baseP > 0) {
-        const maxOptPrice = Math.max(...allOpts.map(o => Number(o.price || 0)));
-        if (maxOptPrice > 0 && maxOptPrice < baseP * 0.7) {
-          return false;
+      const isReq = Boolean(g.required) || Number(g.min_select !== undefined ? g.min_select : (g.min || 0)) >= 1;
+      if ((isReq || maxSel <= 1) && maxSel <= 1 && allOpts.length > 1 && allOpts.every(o => Number(o.original_price || o.price || 0) > 0)) {
+        const baseP = Number(prodBasePrice || 0);
+        if (baseP > 0) {
+          const maxOptPrice = Math.max(...allOpts.map(o => Number(o.price || 0)));
+          if (maxOptPrice >= baseP * 0.7) {
+            return true;
+          }
+        } else {
+          return true;
         }
       }
 
@@ -3059,7 +3066,7 @@
       const activeP = Number(prod.price || 0);
       const clonedGroups = rawGroups.map(g => {
         const rawOpts = Array.isArray(g.options) ? g.options : [];
-        const isVar = isVariationModifierGroup(g);
+        const isVar = isVariationModifierGroup(g, activeP);
         if (!isVar) return Object.assign({}, g, { _isVariation: false, options: rawOpts });
 
         const hasPerVarPromo = rawOpts.some(o => o && (o.promo_active === true || o.promo_active === false || Number(o.original_price || 0) > Number(o.price || 0) + 0.005));
@@ -3125,7 +3132,7 @@
       grid.innerHTML = filtered.map(rawP => {
         const p = normalizeProductVariationsForSuperApp(rawP);
         const img = p.image_url ? `<img src="${escapeHtml(p.image_url)}" class="prod-img" alt="" onerror="this.style.display='none'" />` : '';
-        const varGroups = (p.modifier_groups || []).filter(g => Boolean(g._isVariation) || isVariationModifierGroup(g));
+        const varGroups = (p.modifier_groups || []).filter(g => Boolean(g._isVariation) || isVariationModifierGroup(g, p.price));
         let activeVarPrices = [];
         varGroups.forEach(vg => {
           (vg.options || []).forEach(vo => {
@@ -3250,7 +3257,7 @@
         if (groups.length > 0) {
           htmlParts.push(groups.map((g, gIdx) => {
             const rawOpts = Array.isArray(g.options) ? g.options : [];
-            const isVarGrp = Boolean(g._isVariation) || isVariationModifierGroup(g);
+            const isVarGrp = Boolean(g._isVariation) || isVariationModifierGroup(g, prod.price);
             const minSel = isVarGrp ? 1 : Number(g.min_select !== undefined ? g.min_select : (g.min || 0));
             const maxSel = isVarGrp ? 1 : Number(g.max_select !== undefined ? g.max_select : (g.max || 1));
             const isReq = isVarGrp || Boolean(g.required) || minSel >= 1;
@@ -3429,7 +3436,7 @@
       const groups = Array.isArray(prod.modifier_groups) ? prod.modifier_groups : [];
       Object.keys(state.customizingMods).forEach(gIdx => {
         const grp = groups[Number(gIdx)];
-        const isVar = grp ? (Boolean(grp._isVariation) || isVariationModifierGroup(grp)) : false;
+        const isVar = grp ? (Boolean(grp._isVariation) || isVariationModifierGroup(grp, prod.price)) : false;
         const list = state.customizingMods[gIdx] || [];
         list.forEach(opt => {
           const optP = Number(opt.price || 0);
@@ -3476,7 +3483,7 @@
       const groups = Array.isArray(prod.modifier_groups) ? prod.modifier_groups : [];
       for (let i = 0; i < groups.length; i++) {
         const g = groups[i];
-        const isVarGrp = Boolean(g._isVariation) || isVariationModifierGroup(g);
+        const isVarGrp = Boolean(g._isVariation) || isVariationModifierGroup(g, prod.price);
         const minSel = isVarGrp ? 1 : Number(g.min_select !== undefined ? g.min_select : (g.min || 0));
         const isReq = isVarGrp || Boolean(g.required) || minSel >= 1;
         const chosen = (state.customizingMods[i] || []).filter(isModifierOptionActive);
