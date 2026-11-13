@@ -1073,7 +1073,7 @@
         <div class="sa-card-header" style="flex-wrap:wrap;">
           <div>
             <div class="sa-title">➕ Lançamento Rápido de Pedido</div>
-            <div class="sa-subtitle">Escolha o destino (Mesa, Comanda Individual, Retirada ou Entrega) e adicione os itens.</div>
+            <div class="sa-subtitle">Escolha o destino (Mesa, Comanda Individual, Balcão / Retirada ou Entrega) e adicione os itens.</div>
           </div>
         </div>
 
@@ -1081,7 +1081,7 @@
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">
           <button type="button" class="sa-btn sa-btn-primary" id="btnModeMesa" style="padding:9px 4px;font-size:11px;" onclick="setWaiterLauncherMode('MESA')">🍽️ Mesa</button>
           <button type="button" class="sa-btn sa-btn-outline" id="btnModeComanda" style="padding:9px 4px;font-size:11px;" onclick="setWaiterLauncherMode('COMANDA')">🏷️ Comanda</button>
-          <button type="button" class="sa-btn sa-btn-outline" id="btnModeRetirada" style="padding:9px 4px;font-size:11px;" onclick="setWaiterLauncherMode('RETIRADA')">🛍️ Retirada</button>
+          <button type="button" class="sa-btn sa-btn-outline" id="btnModeRetirada" style="padding:9px 4px;font-size:11px;" onclick="setWaiterLauncherMode('RETIRADA')">🛍️ Balcão / Retirada</button>
           <button type="button" class="sa-btn sa-btn-outline" id="btnModeDelivery" style="padding:9px 4px;font-size:11px;" onclick="setWaiterLauncherMode('DELIVERY')">🛵 Entrega</button>
         </div>
 
@@ -1441,6 +1441,62 @@
         <button type="button" class="sa-btn sa-btn-outline" onclick="clearActiveCart()">🗑️ Limpar</button>
         <button type="button" class="sa-btn sa-btn-green" style="flex:1;font-size:14px;" id="btnSubmitOrderNow" onclick="submitActiveCartOrder()">
           🚀 ENVIAR PEDIDO P/ COZINHA
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 3B: PREENCHIMENTO RÁPIDO DE DADOS DO CLIENTE (BALCÃO / RETIRADA & ENTREGA)
+       ========================================================================= -->
+  <div class="modal-backdrop" id="modalStaffQuickFill" style="z-index:1200;">
+    <div class="modal-sheet" style="max-width:480px;border:1.5px solid var(--primary);box-shadow:0 20px 60px rgba(0,0,0,0.9);">
+      <div class="modal-head">
+        <h3 id="quickFillModalTitle">🛍️ Dados do Cliente • Balcão / Retirada</h3>
+        <button type="button" class="btn-icon-top" onclick="closeModal('modalStaffQuickFill')">✕</button>
+      </div>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:12px;">
+        <div id="quickFillNoticeBanner" style="font-size:12.5px;color:#fde68a;background:rgba(245,158,11,0.14);border:1.5px solid #f59e0b;padding:10px 12px;border-radius:10px;line-height:1.4;">
+          ⚠️ <strong>Nome do Cliente Pendente:</strong> Informe o Nome do Cliente para identificar o pedido de <strong>Balcão / Retirada</strong> na Cozinha e no Caixa.
+        </div>
+        <div id="quickFillInlineAlert" style="display:none;font-size:12px;font-weight:800;color:#fca5a5;background:rgba(239,68,68,0.14);border:1px solid #ef4444;padding:8px 10px;border-radius:8px;"></div>
+
+        <div>
+          <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">👤 Nome do Cliente *</label>
+          <input type="text" id="quickFillCustomerName" class="sa-input" placeholder="Ex: Lucas Ferreira ou Consumidor..." onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+        </div>
+
+        <div>
+          <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">📱 Celular / WhatsApp (00 0 0000 0000)</label>
+          <input type="tel" id="quickFillCustomerPhone" class="sa-input" placeholder="📱 00 0 0000 0000" maxlength="14" inputmode="numeric" oninput="applyPhoneMaskSpaced11(this)" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+        </div>
+
+        <div id="quickFillDeliveryFields" style="display:none;flex-direction:column;gap:10px;">
+          <div>
+            <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">📍 Endereço de Entrega (Rua, Número, Bairro, Complemento/Ref.) *</label>
+            <input type="text" id="quickFillDeliveryAddress" class="sa-input" placeholder="Ex: Rua Brasil, 120, Centro - Ap 12" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div>
+              <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">Forma de Pagamento</label>
+              <select id="quickFillPaymentMethod" class="sa-select">
+                <option value="PIX">💠 PIX</option>
+                <option value="CARTAO">💳 Cartão (Maquininha)</option>
+                <option value="DINHEIRO">💵 Dinheiro</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">Taxa Entrega (R$)</label>
+              <input type="number" step="0.01" id="quickFillDeliveryFee" class="sa-input" placeholder="0.00" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="sa-btn sa-btn-outline" onclick="closeModal('modalStaffQuickFill')">Voltar</button>
+        <button type="button" class="sa-btn sa-btn-green" style="flex:1;font-size:14px;font-weight:900;" id="btnQuickFillConfirm" onclick="confirmQuickFillAndSubmitOrder()">
+          ✅ Confirmar Dados e Enviar p/ Cozinha
         </button>
       </div>
     </div>
@@ -3748,7 +3804,7 @@
           const cmdSel = document.getElementById('waiterTargetComandaSelect');
           targetText += cmdSel && cmdSel.options[cmdSel.selectedIndex] ? cmdSel.options[cmdSel.selectedIndex].text : 'Comanda Individual';
         } else if (state.launcherMode === 'RETIRADA') {
-          targetText += 'Retirada no Balcão';
+          targetText += 'Balcão / Retirada';
         } else {
           targetText += 'Entrega (Delivery)';
         }
@@ -3808,10 +3864,113 @@
     }
 
     let isSubmittingStaffOrder = false;
+
+    function openStaffQuickFillModal(mode) {
+      const curName = (document.getElementById('waiterCustomerName')?.value || '').trim();
+      const curPhone = (document.getElementById('waiterCustomerPhone')?.value || '').trim();
+      const nameInp = document.getElementById('quickFillCustomerName');
+      const phoneInp = document.getElementById('quickFillCustomerPhone');
+      if (nameInp) nameInp.value = curName;
+      if (phoneInp) phoneInp.value = curPhone;
+
+      const titleEl = document.getElementById('quickFillModalTitle');
+      const bannerEl = document.getElementById('quickFillNoticeBanner');
+      const alertEl = document.getElementById('quickFillInlineAlert');
+      const delivBox = document.getElementById('quickFillDeliveryFields');
+      if (alertEl) {
+        alertEl.style.display = 'none';
+        alertEl.textContent = '';
+      }
+
+      if (mode === 'DELIVERY') {
+        if (titleEl) titleEl.textContent = '🛵 Dados para Entrega (Delivery)';
+        if (bannerEl) {
+          bannerEl.innerHTML = '⚠️ <strong>Dados de Entrega Pendentes:</strong> Informe o <strong>Nome do Cliente</strong> e o <strong>Endereço Completo</strong> para enviar o pedido p/ cozinha e despacho.';
+        }
+        if (delivBox) delivBox.style.display = 'flex';
+
+        const curAddr = (document.getElementById('waiterDeliveryAddress')?.value || '').trim();
+        const curPay = document.getElementById('waiterPaymentMethod')?.value || 'PIX';
+        const curFee = document.getElementById('waiterDeliveryFeeInput')?.value || (state.operational?.default_delivery_fee || '');
+
+        const addrInp = document.getElementById('quickFillDeliveryAddress');
+        const paySel = document.getElementById('quickFillPaymentMethod');
+        const feeInp = document.getElementById('quickFillDeliveryFee');
+        if (addrInp) addrInp.value = curAddr;
+        if (paySel) paySel.value = curPay;
+        if (feeInp) feeInp.value = curFee;
+
+        openModal('modalStaffQuickFill');
+        setTimeout(() => {
+          if (!curName && nameInp) nameInp.focus();
+          else if (addrInp) addrInp.focus();
+        }, 120);
+      } else {
+        // BALCÃO / RETIRADA
+        if (titleEl) titleEl.textContent = '🛍️ Dados do Cliente • Balcão / Retirada';
+        if (bannerEl) {
+          bannerEl.innerHTML = '⚠️ <strong>Nome do Cliente Pendente:</strong> Informe o <strong>Nome do Cliente</strong> para identificar o pedido de <strong>Balcão / Retirada</strong> na Cozinha e no Caixa.';
+        }
+        if (delivBox) delivBox.style.display = 'none';
+
+        openModal('modalStaffQuickFill');
+        setTimeout(() => {
+          if (nameInp) nameInp.focus();
+        }, 120);
+      }
+    }
+
+    function confirmQuickFillAndSubmitOrder() {
+      const mode = state.launcherMode;
+      const cName = (document.getElementById('quickFillCustomerName')?.value || '').trim();
+      const cPhone = (document.getElementById('quickFillCustomerPhone')?.value || '').trim();
+      const alertEl = document.getElementById('quickFillInlineAlert');
+
+      if (!cName) {
+        if (alertEl) {
+          alertEl.style.display = 'block';
+          alertEl.textContent = '⚠️ Informe obrigatoriamente o Nome do Cliente!';
+        }
+        document.getElementById('quickFillCustomerName')?.focus();
+        return;
+      }
+
+      // Sincroniza com os campos do cabeçalho
+      const topName = document.getElementById('waiterCustomerName');
+      if (topName) topName.value = cName;
+      const topPhone = document.getElementById('waiterCustomerPhone');
+      if (topPhone) topPhone.value = cPhone;
+
+      if (mode === 'DELIVERY') {
+        const addr = (document.getElementById('quickFillDeliveryAddress')?.value || '').trim();
+        if (!addr) {
+          if (alertEl) {
+            alertEl.style.display = 'block';
+            alertEl.textContent = '⚠️ Informe o Endereço Completo de Entrega (Rua, Nº, Bairro)!';
+          }
+          document.getElementById('quickFillDeliveryAddress')?.focus();
+          return;
+        }
+        const topAddr = document.getElementById('waiterDeliveryAddress');
+        if (topAddr) topAddr.value = addr;
+
+        const pay = document.getElementById('quickFillPaymentMethod')?.value || 'PIX';
+        const topPay = document.getElementById('waiterPaymentMethod');
+        if (topPay) topPay.value = pay;
+
+        const fee = document.getElementById('quickFillDeliveryFee')?.value || '';
+        const topFee = document.getElementById('waiterDeliveryFeeInput');
+        if (topFee && fee !== '') topFee.value = fee;
+      }
+
+      if (alertEl) alertEl.style.display = 'none';
+      closeModal('modalStaffQuickFill');
+      submitActiveCartOrder();
+    }
+
     async function submitActiveCartOrder() {
       if (isSubmittingStaffOrder) return;
       if (state.cart.length === 0) return;
-      isSubmittingStaffOrder = true;
 
       const btn = document.getElementById('btnSubmitOrderNow');
       const generalNotes = (document.getElementById('cartGeneralNotesInput')?.value || '').trim();
@@ -3912,13 +4071,14 @@
         const cName = (document.getElementById('waiterCustomerName')?.value || '').trim();
         const cPhone = (document.getElementById('waiterCustomerPhone')?.value || '').trim();
         if (!cName) {
-          showSaAlert('Informe o nome do cliente para o pedido de Retirada.');
+          openStaffQuickFillModal('RETIRADA');
           return;
         }
         orderBody.origin_type = 'RETIRADA';
-        orderBody.header_tag = `[RETIRADA BALCÃO - ${cName.toUpperCase()}]`;
+        orderBody.header_tag = `[BALCÃO / RETIRADA - ${cName.toUpperCase()}]`;
         orderBody.customer_name = cName;
         orderBody.customer_phone = cPhone;
+        orderBody.address_text = 'Retirada no Balcão';
         orderBody.payment_method = 'A_DEFINIR';
       } else if (state.launcherMode === 'DELIVERY') {
         const cName = (document.getElementById('waiterCustomerName')?.value || '').trim();
@@ -3927,7 +4087,7 @@
         const pay = document.getElementById('waiterPaymentMethod')?.value || 'PIX';
         const delivFee = Math.max(0, Number(document.getElementById('waiterDeliveryFeeInput')?.value || state.operational.default_delivery_fee || 0));
         if (!cName || !addr) {
-          showSaAlert('Informe o Nome do Cliente e o Endereço Completo para lançar a Entrega.');
+          openStaffQuickFillModal('DELIVERY');
           return;
         }
         orderBody.origin_type = 'DELIVERY';
@@ -3940,6 +4100,7 @@
         orderBody.total = Math.round((subTotal + delivFee) * 100) / 100;
       }
 
+      isSubmittingStaffOrder = true;
       if (btn) {
         btn.disabled = true;
         btn.textContent = '⏳ Enviando p/ Cozinha...';
