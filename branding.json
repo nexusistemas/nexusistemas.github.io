@@ -239,10 +239,10 @@
       "is_kiosk": false,
       "is_custom": false,
       "active": true,
-      "status": "LIVRE",
+      "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "TESTE-MESA-15",
-      "current_total": 0,
+      "current_total": 33,
       "updated_at": "09:03"
     },
     {
@@ -471,5 +471,5 @@
       "updated_at": "09:03"
     }
   ],
-  "updated_at": "2026-11-13T09:03:10-03:00"
+  "updated_at": "2026-11-13T09:06:08-03:00"
 }
