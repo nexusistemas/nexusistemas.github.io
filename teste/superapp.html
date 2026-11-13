@@ -581,14 +581,44 @@
       transform: scale(0.985);
     }
 
-    .prod-img {
+    @keyframes nexusClientPhotoPan {
+      0% {
+        transform: scale(1.14) translate3d(-4.5%, 0, 0);
+      }
+      100% {
+        transform: scale(1.14) translate3d(4.5%, 0, 0);
+      }
+    }
+
+    .prod-img-wrap {
       width: 54px;
       height: 54px;
       border-radius: 10px;
-      object-fit: cover;
+      overflow: hidden;
       background: #0d0d13;
       border: 1px solid var(--border-subtle);
       flex-shrink: 0;
+      position: relative;
+    }
+
+    .prod-img-wrap .prod-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+      border: none;
+      object-fit: cover;
+      display: block;
+      /* 100% estático por padrão para Garçom, Comandas, Expedição e Motoboy */
+    }
+
+    /* Animação Panorâmica Isolada EXCLUSIVAMENTE sob o seletor ativo do Modo Kiosk */
+    body.mode-kiosk .prod-img-wrap .prod-img,
+    body.role-kiosk .prod-img-wrap .prod-img,
+    body.role-tablet .prod-img-wrap .prod-img,
+    [data-mode="kiosk"] .prod-img-wrap .prod-img,
+    .kiosk-active .prod-img-wrap .prod-img {
+      will-change: transform;
+      animation: nexusClientPhotoPan 5s ease-in-out infinite alternate;
     }
 
     .prod-info {
@@ -2293,6 +2323,15 @@
     }
 
     function configureTabsForRole(roleUpper) {
+      const isKiosk = String(roleUpper || '').toUpperCase() === 'TABLET' || String(roleUpper || '').toUpperCase() === 'KIOSK' ||
+        new URLSearchParams(window.location.search || '').get('mode') === 'kiosk' ||
+        new URLSearchParams(window.location.search || '').get('role') === 'TABLET';
+      document.body.classList.toggle('mode-kiosk', isKiosk);
+      if (isKiosk) {
+        document.body.setAttribute('data-mode', 'kiosk');
+      } else {
+        document.body.removeAttribute('data-mode');
+      }
       const isMotoboy = String(roleUpper || '').toUpperCase() === 'MOTOBOY';
       const topMotoCaixaBtn = document.getElementById('btnTopMotoboyCaixa');
       if (topMotoCaixaBtn) {
@@ -3131,7 +3170,7 @@
 
       grid.innerHTML = filtered.map(rawP => {
         const p = normalizeProductVariationsForSuperApp(rawP);
-        const img = p.image_url ? `<img src="${escapeHtml(p.image_url)}" class="prod-img" alt="" onerror="this.style.display='none'" />` : '';
+        const img = p.image_url ? `<div class="prod-img-wrap"><img src="${escapeHtml(p.image_url)}" class="prod-img" alt="" onerror="this.closest('.prod-img-wrap').style.display='none'" /></div>` : '';
         const varGroups = (p.modifier_groups || []).filter(g => Boolean(g._isVariation) || isVariationModifierGroup(g, p.price));
         let activeVarPrices = [];
         varGroups.forEach(vg => {
