@@ -544,6 +544,33 @@
       animation: sbSpin 0.8s linear infinite;
       margin: 0 auto 14px;
     }
+    /* Estilos do Carrossel de Destaques em Tela Cheia no Modo Kiosk */
+    .kiosk-hl-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      will-change: transform, opacity;
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .kiosk-hl-slide.slide-enter {
+      opacity: 0;
+      transform: translate3d(100%, 0, 0);
+    }
+    .kiosk-hl-slide.slide-active {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+    .kiosk-hl-slide.slide-exit {
+      opacity: 0;
+      transform: translate3d(-100%, 0, 0);
+    }
   </style>
 </head>
 <body>
@@ -615,6 +642,7 @@
       <select id="topTableSelect" onchange="syncSelectedTable(this.value)" style="width:auto;margin:0;padding:8px 12px;font-weight:700;"></select>
       <button class="btn" onclick="callWaiterFromWeb()" style="height:46px;font-weight:700;">🔔 Chamar Garçom</button>
       <button class="btn" onclick="openMyOrdersModal()" style="height:46px;padding:0 22px;font-size:1.08rem;font-weight:800;background:linear-gradient(135deg, #10b981 0%, #059669 100%);color:#ffffff;border:2px solid #34d399;border-radius:12px;box-shadow:0 4px 14px rgba(16,185,129,0.35);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;">💸 Conta</button>
+      <button class="btn" id="btnMesaKioskHighlights" onclick="triggerKioskHighlightsMode(true)" style="height:46px;padding:0 18px;font-size:1.05rem;font-weight:800;background:rgba(212,175,55,0.18);color:#f3d87d;border:2px solid #d4af37;border-radius:12px;box-shadow:0 4px 14px rgba(212,175,55,0.25);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;">✨ Destaque</button>
     </div>
   </div>
 
@@ -844,6 +872,29 @@
   </div>
 </div>
 
+<!-- =========================================================================
+     MODO DESTAQUE EM TELA CHEIA (CARROSSEL DE FOTOS & CONTROLE DE BRILHO)
+     ========================================================================= -->
+<div id="kioskHighlightsFullscreenOverlay" onclick="exitKioskHighlightsMode()" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:999999;background:#000;overflow:hidden;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;">
+  <!-- Dimmer para controle de brilho via software caso não haja ponte nativa -->
+  <div id="kioskHlSoftwareDimmer" style="position:absolute;top:0;left:0;width:100%;height:100%;background:#000;opacity:0;pointer-events:none;z-index:1000000;transition:opacity 0.4s ease;"></div>
+
+  <!-- Badge Superior Elegante Centralizado de Alto Contraste -->
+  <div style="position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:1000001;background:rgba(18,18,26,0.92);border:2px solid #d4af37;border-radius:999px;padding:8px 24px;box-shadow:0 8px 32px rgba(0,0,0,0.85);display:flex;align-items:center;gap:12px;pointer-events:none;backdrop-filter:blur(8px);">
+    <div id="kioskHlBadgeStoreName" style="font-family:'Bayformance',sans-serif;font-size:18px;color:#f3d87d;letter-spacing:1px;font-weight:900;">NEXUSISTEMAS</div>
+    <div style="width:5px;height:5px;border-radius:50%;background:#86efac;"></div>
+    <div id="kioskHlBadgeTable" style="font-size:13px;font-weight:800;color:#86efac;background:rgba(34,197,94,0.18);padding:3px 12px;border-radius:999px;border:1px solid #22c55e;letter-spacing:0.5px;">MESA 01</div>
+  </div>
+
+  <!-- Carrossel de Fotos com Deslizamento Lateral Fluido (translate3d) -->
+  <div id="kioskHlSlidesContainer" style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;"></div>
+
+  <!-- Aviso Inferior de Toque Para Abrir Cardápio -->
+  <div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:1000001;background:rgba(18,18,26,0.88);border:1.5px solid #d4af37;border-radius:30px;padding:10px 24px;color:#ffffff;font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:8px;box-shadow:0 6px 24px rgba(0,0,0,0.8);pointer-events:none;letter-spacing:0.4px;">
+    <span>👆</span> <span>TOQUE EM QUALQUER LUGAR PARA VER O CARDÁPIO</span>
+  </div>
+</div>
+
 <script>
   let catalog = [];
   let activeCatId = null;
@@ -881,6 +932,249 @@
     module_boutique: true,
     module_coupons_loyalty: true
   };
+
+  /* =========================================================================
+     MODO DESTAQUE (CARROSSEL DE FOTOS & CONTROLE DE BRILHO P/ TABLET KIOSK)
+     ========================================================================= */
+  const WEB_STORAGE_KIOSK_HL_KEY = 'nexus_web_kiosk_highlights_v1';
+  let kioskHighlightsConfig = {
+    enabled: true,
+    slide_duration_seconds: 5,
+    idle_timeout_seconds: 10,
+    dimmer_brightness_percent: 15,
+    items: [],
+    version: ''
+  };
+  let isKioskHighlightsActive = false;
+  let kioskHighlightsTimer = null;
+  let kioskSlideInterval = null;
+  let kioskCurrentSlideIdx = 0;
+  let kioskInactivityListenersBound = false;
+
+  async function loadKioskHighlightsConfig() {
+    try {
+      const res = await fetch('/api/kiosk/highlights');
+      if (res && res.ok) {
+        const data = await res.json();
+        if (data && typeof data === 'object') {
+          applyKioskHighlightsConfig(data);
+          return;
+        }
+      }
+    } catch (_) {}
+    try {
+      const cached = localStorage.getItem(WEB_STORAGE_KIOSK_HL_KEY);
+      if (cached) {
+        applyKioskHighlightsConfig(JSON.parse(cached));
+      }
+    } catch (_) {}
+  }
+
+  function applyKioskHighlightsConfig(data) {
+    if (!data || typeof data !== 'object') return;
+    kioskHighlightsConfig.enabled = data.enabled !== false;
+    kioskHighlightsConfig.slide_duration_seconds = Number(data.slide_duration_seconds) || 5;
+    kioskHighlightsConfig.idle_timeout_seconds = Number(data.idle_timeout_seconds) || 10;
+    kioskHighlightsConfig.dimmer_brightness_percent = Number(data.dimmer_brightness_percent) || 15;
+    kioskHighlightsConfig.items = Array.isArray(data.items) ? data.items : [];
+    kioskHighlightsConfig.version = data.version || '';
+    try {
+      localStorage.setItem(WEB_STORAGE_KIOSK_HL_KEY, JSON.stringify(kioskHighlightsConfig));
+    } catch (_) {}
+    resetKioskInactivityTimer();
+  }
+
+  function resetKioskInactivityTimer() {
+    if (kioskHighlightsTimer) {
+      clearTimeout(kioskHighlightsTimer);
+      kioskHighlightsTimer = null;
+    }
+    const isMesa = customerMode === 'MESA' || isMesaSelfServicePage ||
+                   document.body.classList.contains('mode-kiosk') ||
+                   new URLSearchParams(window.location.search || '').get('mode') === 'kiosk' ||
+                   new URLSearchParams(window.location.search || '').has('mesa');
+    if (!isMesa) return;
+    if (!kioskHighlightsConfig.enabled) return;
+    if (!kioskHighlightsConfig.items || kioskHighlightsConfig.items.length === 0) return;
+    if (isKioskHighlightsActive) return;
+
+    const timeoutMs = Math.max(3, kioskHighlightsConfig.idle_timeout_seconds || 10) * 1000;
+    kioskHighlightsTimer = setTimeout(() => {
+      triggerKioskHighlightsMode(false);
+    }, timeoutMs);
+  }
+
+  function initKioskInactivityMonitoring() {
+    if (kioskInactivityListenersBound) {
+      resetKioskInactivityTimer();
+      return;
+    }
+    kioskInactivityListenersBound = true;
+    const events = ['touchstart', 'touchmove', 'touchend', 'mousedown', 'mousemove', 'keydown', 'scroll', 'click'];
+    events.forEach(ev => {
+      window.addEventListener(ev, () => {
+        if (isKioskHighlightsActive) {
+          exitKioskHighlightsMode();
+        } else {
+          resetKioskInactivityTimer();
+        }
+      }, { passive: true });
+    });
+    resetKioskInactivityTimer();
+  }
+
+  function triggerKioskHighlightsMode(manual = false) {
+    if (!manual && !kioskHighlightsConfig.enabled) return;
+    if (!kioskHighlightsConfig.items || kioskHighlightsConfig.items.length === 0) {
+      if (manual) {
+        alert('Nenhuma foto de destaque cadastrada no momento.');
+      }
+      return;
+    }
+    isKioskHighlightsActive = true;
+    const overlay = document.getElementById('kioskHighlightsFullscreenOverlay');
+    if (!overlay) return;
+
+    // Atualiza badge superior
+    const storeEl = document.getElementById('kioskHlBadgeStoreName');
+    const tableEl = document.getElementById('kioskHlBadgeTable');
+    if (storeEl) {
+      storeEl.textContent = (window.systemBrandingConfig && window.systemBrandingConfig.client_name)
+        ? window.systemBrandingConfig.client_name.toUpperCase()
+        : 'NEXUSISTEMAS';
+    }
+    if (tableEl) {
+      let mesaLabel = 'MESA ' + String(selectedTableNum || 1).padStart(2, '0');
+      if (hostTablesList && Array.isArray(hostTablesList)) {
+        const tb = hostTablesList.find(t => Number(t.id) === Number(selectedTableNum) || Number(t.number) === Number(selectedTableNum));
+        if (tb) mesaLabel = tb.label || 'MESA ' + String(tb.number || tb.id).padStart(2, '0');
+      }
+      tableEl.textContent = mesaLabel;
+    }
+
+    renderKioskHighlightsSlides();
+    overlay.style.display = 'block';
+
+    // Redução de brilho p/ economia de bateria
+    const pct = Math.max(1, Math.min(100, kioskHighlightsConfig.dimmer_brightness_percent || 15));
+    try {
+      if (window.Android && typeof window.Android.setScreenBrightness === 'function') {
+        window.Android.setScreenBrightness(pct);
+      } else if (window.AndroidBridge && typeof window.AndroidBridge.setScreenBrightness === 'function') {
+        window.AndroidBridge.setScreenBrightness(pct);
+      }
+    } catch (_) {}
+
+    const dimmer = document.getElementById('kioskHlSoftwareDimmer');
+    if (dimmer) {
+      const dimOpacity = ((100 - pct) / 100) * 0.82;
+      dimmer.style.opacity = String(dimOpacity);
+    }
+
+    if (kioskSlideInterval) clearInterval(kioskSlideInterval);
+    const slideDuration = Math.max(2, kioskHighlightsConfig.slide_duration_seconds || 5) * 1000;
+    kioskSlideInterval = setInterval(advanceKioskHighlightsSlide, slideDuration);
+  }
+
+  function renderKioskHighlightsSlides() {
+    const container = document.getElementById('kioskHlSlidesContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    kioskCurrentSlideIdx = 0;
+    const items = kioskHighlightsConfig.items || [];
+    items.forEach((item, idx) => {
+      const slide = document.createElement('div');
+      slide.className = 'kiosk-hl-slide ' + (idx === 0 ? 'slide-active' : 'slide-enter');
+      slide.id = 'kioskSlideWeb_' + idx;
+      slide.style.backgroundImage = 'url("' + (item.image_url || '') + '")';
+      if (item.title) {
+        const caption = document.createElement('div');
+        caption.style.position = 'absolute';
+        caption.style.bottom = '80px';
+        caption.style.left = '50%';
+        caption.style.transform = 'translateX(-50%)';
+        caption.style.background = 'rgba(18,18,26,0.88)';
+        caption.style.border = '1.5px solid rgba(212,175,55,0.6)';
+        caption.style.borderRadius = '16px';
+        caption.style.padding = '10px 24px';
+        caption.style.color = '#f3d87d';
+        caption.style.fontSize = '18px';
+        caption.style.fontWeight = '800';
+        caption.style.letterSpacing = '0.5px';
+        caption.style.boxShadow = '0 6px 20px rgba(0,0,0,0.85)';
+        caption.textContent = item.title;
+        slide.appendChild(caption);
+      }
+      container.appendChild(slide);
+    });
+  }
+
+  function advanceKioskHighlightsSlide() {
+    const items = kioskHighlightsConfig.items || [];
+    if (items.length <= 1) return;
+    const prevIdx = kioskCurrentSlideIdx;
+    kioskCurrentSlideIdx = (kioskCurrentSlideIdx + 1) % items.length;
+
+    const prevSlide = document.getElementById('kioskSlideWeb_' + prevIdx);
+    const nextSlide = document.getElementById('kioskSlideWeb_' + kioskCurrentSlideIdx);
+
+    if (prevSlide) {
+      prevSlide.className = 'kiosk-hl-slide slide-exit';
+    }
+    if (nextSlide) {
+      nextSlide.className = 'kiosk-hl-slide slide-enter';
+      void nextSlide.offsetWidth;
+      nextSlide.className = 'kiosk-hl-slide slide-active';
+    }
+
+    setTimeout(() => {
+      if (prevSlide && prevSlide.classList.contains('slide-exit')) {
+        prevSlide.className = 'kiosk-hl-slide slide-enter';
+      }
+    }, 550);
+  }
+
+  function exitKioskHighlightsMode() {
+    if (!isKioskHighlightsActive) return;
+    isKioskHighlightsActive = false;
+
+    if (kioskSlideInterval) {
+      clearInterval(kioskSlideInterval);
+      kioskSlideInterval = null;
+    }
+
+    try {
+      if (window.Android && typeof window.Android.restoreScreenBrightness === 'function') {
+        window.Android.restoreScreenBrightness();
+      } else if (window.AndroidBridge && typeof window.AndroidBridge.restoreScreenBrightness === 'function') {
+        window.AndroidBridge.restoreScreenBrightness();
+      }
+    } catch (_) {}
+
+    const dimmer = document.getElementById('kioskHlSoftwareDimmer');
+    if (dimmer) {
+      dimmer.style.opacity = '0';
+    }
+
+    const overlay = document.getElementById('kioskHighlightsFullscreenOverlay');
+    if (overlay) {
+      overlay.style.display = 'none';
+    }
+
+    // Ao tocar: restaura brilho, fecha carrossel e posiciona rolagem no topo da tela (scrollTo(0, 0)) na primeira categoria!
+    try {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      const catBar = document.getElementById('catBar');
+      if (catBar) catBar.scrollLeft = 0;
+      if (catalog && catalog.length > 0) {
+        selectCategory(catalog[0].id);
+      }
+    } catch (_) {}
+
+    resetKioskInactivityTimer();
+  }
 
   window.isStaticCloudPagesHost = function() {
     const h = window.location.hostname.toLowerCase();
@@ -1728,6 +2022,8 @@
     }
 
     await loadCatalog();
+    await loadKioskHighlightsConfig();
+    initKioskInactivityMonitoring();
     setInterval(loadCatalog, 8000);
   }
 
@@ -3390,6 +3686,12 @@
               applyCatalogArrayToUI(msg.data.categories);
             }
             loadCatalog();
+          } else if (evType === 'kiosk_highlights_updated') {
+            if (msg.data) {
+              applyKioskHighlightsConfig(msg.data);
+            } else {
+              loadKioskHighlightsConfig();
+            }
           } else if (evType === 'system_reset') {
             localStorage.removeItem('sirbeef_my_order_ids');
             isMyComandaClosedLock = false;
