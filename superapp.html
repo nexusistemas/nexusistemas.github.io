@@ -1108,18 +1108,25 @@
 
         <div id="launcherTargetCustomerBox" style="display:none;flex-direction:column;gap:8px;margin-top:4px;">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <input type="text" id="waiterCustomerName" class="sa-input" placeholder="👤 Nome do Cliente *" />
-            <input type="tel" id="waiterCustomerPhone" class="sa-input" placeholder="📱 00 0 0000 0000" maxlength="14" inputmode="numeric" oninput="applyPhoneMaskSpaced11(this)" />
+            <input type="text" id="waiterCustomerName" class="sa-input" placeholder="👤 Nome do Cliente *" autocomplete="off" />
+            <input type="tel" id="waiterCustomerPhone" class="sa-input" placeholder="📱 00 0 0000 0000" maxlength="14" inputmode="numeric" oninput="applyPhoneMaskSpaced11(this)" autocomplete="off" />
           </div>
           <div id="launcherDeliveryAddressWrap" style="display:none;flex-direction:column;gap:8px;">
-            <input type="text" id="waiterDeliveryAddress" class="sa-input" placeholder="📍 Endereço Completo (Rua, Nº, Bairro, Ref.) *" />
+            <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">
+              <input type="text" id="waiterDeliveryStreet" class="sa-input" placeholder="📍 Rua / Logradouro *" autocomplete="off" />
+              <input type="text" id="waiterDeliveryNumber" class="sa-input" placeholder="🔢 Nº da Casa *" autocomplete="off" />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <input type="text" id="waiterDeliveryNeighborhood" class="sa-input" placeholder="🏘️ Bairro (Opcional)" autocomplete="off" />
+              <input type="text" id="waiterDeliveryComplement" class="sa-input" placeholder="Complemento / Ref. (Opcional)" autocomplete="off" />
+            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
               <select id="waiterPaymentMethod" class="sa-select">
                 <option value="PIX">💠 PIX</option>
                 <option value="CARTAO">💳 Cartão (Maquininha)</option>
                 <option value="DINHEIRO">💵 Dinheiro</option>
               </select>
-              <input type="number" step="0.01" id="waiterDeliveryFeeInput" class="sa-input" placeholder="Taxa Entrega (R$)" />
+              <input type="number" step="0.01" id="waiterDeliveryFeeInput" class="sa-input" placeholder="Taxa Entrega (R$)" autocomplete="off" />
             </div>
           </div>
         </div>
@@ -1463,18 +1470,35 @@
 
         <div>
           <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">👤 Nome do Cliente *</label>
-          <input type="text" id="quickFillCustomerName" class="sa-input" placeholder="Ex: Lucas Ferreira ou Consumidor..." onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+          <input type="text" id="quickFillCustomerName" class="sa-input" placeholder="Ex: Lucas Ferreira ou Consumidor..." autocomplete="off" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
         </div>
 
         <div>
           <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">📱 Celular / WhatsApp (00 0 0000 0000)</label>
-          <input type="tel" id="quickFillCustomerPhone" class="sa-input" placeholder="📱 00 0 0000 0000" maxlength="14" inputmode="numeric" oninput="applyPhoneMaskSpaced11(this)" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+          <input type="tel" id="quickFillCustomerPhone" class="sa-input" placeholder="📱 00 0 0000 0000" maxlength="14" inputmode="numeric" oninput="applyPhoneMaskSpaced11(this)" autocomplete="off" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
         </div>
 
         <div id="quickFillDeliveryFields" style="display:none;flex-direction:column;gap:10px;">
-          <div>
-            <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">📍 Endereço de Entrega (Rua, Número, Bairro, Complemento/Ref.) *</label>
-            <input type="text" id="quickFillDeliveryAddress" class="sa-input" placeholder="Ex: Rua Brasil, 120, Centro - Ap 12" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+          <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">
+            <div>
+              <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">📍 Rua / Logradouro *</label>
+              <input type="text" id="quickFillDeliveryStreet" class="sa-input" placeholder="Ex: Rua Brasil" autocomplete="off" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">🔢 Nº da Casa *</label>
+              <input type="text" id="quickFillDeliveryNumber" class="sa-input" placeholder="Ex: 120" autocomplete="off" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div>
+              <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">🏘️ Bairro (Opcional)</label>
+              <input type="text" id="quickFillDeliveryNeighborhood" class="sa-input" placeholder="Ex: Centro" autocomplete="off" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">Complemento / Ref. (Opcional)</label>
+              <input type="text" id="quickFillDeliveryComplement" class="sa-input" placeholder="Ex: Ap 12, Fundos" autocomplete="off" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+            </div>
           </div>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -1488,7 +1512,7 @@
             </div>
             <div>
               <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">Taxa Entrega (R$)</label>
-              <input type="number" step="0.01" id="quickFillDeliveryFee" class="sa-input" placeholder="0.00" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+              <input type="number" step="0.01" id="quickFillDeliveryFee" class="sa-input" placeholder="0.00" autocomplete="off" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
             </div>
           </div>
         </div>
@@ -2578,6 +2602,9 @@
       } else if (roleUpper !== 'MOTOBOY' && (tabName === 'motoboy' || tabName === 'motoboy-caixa')) {
         tabName = 'tables';
       }
+      if (state.activeTab !== tabName) {
+        clearStaffCustomerDataInputs(false);
+      }
       state.activeTab = tabName;
       document.querySelectorAll('.view-section').forEach(sec => {
         sec.classList.toggle('active', sec.id === 'view-' + tabName);
@@ -3181,6 +3208,9 @@
     }
 
     function setWaiterLauncherMode(mode) {
+      if (state.launcherMode !== mode) {
+        clearStaffCustomerDataInputs(false);
+      }
       state.launcherMode = mode;
       const mapBtn = {
         'MESA': 'btnModeMesa',
@@ -3903,8 +3933,43 @@
       updateFloatingCartBar();
     }
 
+    function clearStaffCustomerDataInputs(clearCartToo) {
+      const topName = document.getElementById('waiterCustomerName');
+      if (topName) topName.value = '';
+      const topPhone = document.getElementById('waiterCustomerPhone');
+      if (topPhone) topPhone.value = '';
+      const topStreet = document.getElementById('waiterDeliveryStreet');
+      if (topStreet) topStreet.value = '';
+      const topNumber = document.getElementById('waiterDeliveryNumber');
+      if (topNumber) topNumber.value = '';
+      const topNeigh = document.getElementById('waiterDeliveryNeighborhood');
+      if (topNeigh) topNeigh.value = '';
+      const topComp = document.getElementById('waiterDeliveryComplement');
+      if (topComp) topComp.value = '';
+
+      const qName = document.getElementById('quickFillCustomerName');
+      if (qName) qName.value = '';
+      const qPhone = document.getElementById('quickFillCustomerPhone');
+      if (qPhone) qPhone.value = '';
+      const qStreet = document.getElementById('quickFillDeliveryStreet');
+      if (qStreet) qStreet.value = '';
+      const qNum = document.getElementById('quickFillDeliveryNumber');
+      if (qNum) qNum.value = '';
+      const qNeigh = document.getElementById('quickFillDeliveryNeighborhood');
+      if (qNeigh) qNeigh.value = '';
+      const qComp = document.getElementById('quickFillDeliveryComplement');
+      if (qComp) qComp.value = '';
+
+      if (clearCartToo) {
+        state.cart = [];
+        const notesInp = document.getElementById('cartGeneralNotesInput');
+        if (notesInp) notesInp.value = '';
+        updateFloatingCartBar();
+      }
+    }
+
     function clearActiveCart() {
-      state.cart = [];
+      clearStaffCustomerDataInputs(true);
       closeModal('modalCartReview');
       updateFloatingCartBar();
     }
@@ -3931,25 +3996,35 @@
       if (mode === 'DELIVERY') {
         if (titleEl) titleEl.textContent = '🛵 Dados para Entrega (Delivery)';
         if (bannerEl) {
-          bannerEl.innerHTML = '⚠️ <strong>Dados de Entrega Pendentes:</strong> Informe o <strong>Nome do Cliente</strong> e o <strong>Endereço Completo</strong> para enviar o pedido p/ cozinha e despacho.';
+          bannerEl.innerHTML = '⚠️ <strong>Dados de Entrega:</strong> Informe <strong>Nome</strong>, <strong>Rua</strong> e <strong>Número da Casa</strong> para enviar o pedido.';
         }
         if (delivBox) delivBox.style.display = 'flex';
 
-        const curAddr = (document.getElementById('waiterDeliveryAddress')?.value || '').trim();
+        const curStreet = (document.getElementById('waiterDeliveryStreet')?.value || '').trim();
+        const curNumber = (document.getElementById('waiterDeliveryNumber')?.value || '').trim();
+        const curNeigh = (document.getElementById('waiterDeliveryNeighborhood')?.value || '').trim();
+        const curComp = (document.getElementById('waiterDeliveryComplement')?.value || '').trim();
         const curPay = document.getElementById('waiterPaymentMethod')?.value || 'PIX';
         const curFee = document.getElementById('waiterDeliveryFeeInput')?.value || (state.operational?.default_delivery_fee || '');
 
-        const addrInp = document.getElementById('quickFillDeliveryAddress');
+        const streetInp = document.getElementById('quickFillDeliveryStreet');
+        const numInp = document.getElementById('quickFillDeliveryNumber');
+        const neighInp = document.getElementById('quickFillDeliveryNeighborhood');
+        const compInp = document.getElementById('quickFillDeliveryComplement');
         const paySel = document.getElementById('quickFillPaymentMethod');
         const feeInp = document.getElementById('quickFillDeliveryFee');
-        if (addrInp) addrInp.value = curAddr;
+        if (streetInp) streetInp.value = curStreet;
+        if (numInp) numInp.value = curNumber;
+        if (neighInp) neighInp.value = curNeigh;
+        if (compInp) compInp.value = curComp;
         if (paySel) paySel.value = curPay;
         if (feeInp) feeInp.value = curFee;
 
         openModal('modalStaffQuickFill');
         setTimeout(() => {
           if (!curName && nameInp) nameInp.focus();
-          else if (addrInp) addrInp.focus();
+          else if (!curStreet && streetInp) streetInp.focus();
+          else if (!curNumber && numInp) numInp.focus();
         }, 120);
       } else {
         // BALCÃO / RETIRADA
@@ -3988,17 +4063,36 @@
       if (topPhone) topPhone.value = cPhone;
 
       if (mode === 'DELIVERY') {
-        const addr = (document.getElementById('quickFillDeliveryAddress')?.value || '').trim();
-        if (!addr) {
+        const street = (document.getElementById('quickFillDeliveryStreet')?.value || '').trim();
+        const number = (document.getElementById('quickFillDeliveryNumber')?.value || '').trim();
+        const neigh = (document.getElementById('quickFillDeliveryNeighborhood')?.value || '').trim();
+        const comp = (document.getElementById('quickFillDeliveryComplement')?.value || '').trim();
+
+        if (!street) {
           if (alertEl) {
             alertEl.style.display = 'block';
-            alertEl.textContent = '⚠️ Informe o Endereço Completo de Entrega (Rua, Nº, Bairro)!';
+            alertEl.textContent = '⚠️ Informe obrigatoriamente a Rua / Logradouro de Entrega!';
           }
-          document.getElementById('quickFillDeliveryAddress')?.focus();
+          document.getElementById('quickFillDeliveryStreet')?.focus();
           return;
         }
-        const topAddr = document.getElementById('waiterDeliveryAddress');
-        if (topAddr) topAddr.value = addr;
+        if (!number) {
+          if (alertEl) {
+            alertEl.style.display = 'block';
+            alertEl.textContent = '⚠️ Informe obrigatoriamente o Número da Casa!';
+          }
+          document.getElementById('quickFillDeliveryNumber')?.focus();
+          return;
+        }
+
+        const topStreet = document.getElementById('waiterDeliveryStreet');
+        if (topStreet) topStreet.value = street;
+        const topNumber = document.getElementById('waiterDeliveryNumber');
+        if (topNumber) topNumber.value = number;
+        const topNeigh = document.getElementById('waiterDeliveryNeighborhood');
+        if (topNeigh) topNeigh.value = neigh;
+        const topComp = document.getElementById('waiterDeliveryComplement');
+        if (topComp) topComp.value = comp;
 
         const pay = document.getElementById('quickFillPaymentMethod')?.value || 'PIX';
         const topPay = document.getElementById('waiterPaymentMethod');
@@ -4129,18 +4223,26 @@
       } else if (state.launcherMode === 'DELIVERY') {
         const cName = (document.getElementById('waiterCustomerName')?.value || '').trim();
         const cPhone = (document.getElementById('waiterCustomerPhone')?.value || '').trim();
-        const addr = (document.getElementById('waiterDeliveryAddress')?.value || '').trim();
+        const street = (document.getElementById('waiterDeliveryStreet')?.value || '').trim();
+        const number = (document.getElementById('waiterDeliveryNumber')?.value || '').trim();
+        const neigh = (document.getElementById('waiterDeliveryNeighborhood')?.value || '').trim();
+        const comp = (document.getElementById('waiterDeliveryComplement')?.value || '').trim();
         const pay = document.getElementById('waiterPaymentMethod')?.value || 'PIX';
         const delivFee = Math.max(0, Number(document.getElementById('waiterDeliveryFeeInput')?.value || state.operational.default_delivery_fee || 0));
-        if (!cName || !addr) {
+
+        if (!cName || !street || !number) {
           openStaffQuickFillModal('DELIVERY');
           return;
         }
+        let fullAddr = `${street}, ${number}`;
+        if (neigh) fullAddr += ` - ${neigh}`;
+        if (comp) fullAddr += ` (${comp})`;
+
         orderBody.origin_type = 'DELIVERY';
         orderBody.header_tag = `[ENTREGA DELIVERY - ${cName.toUpperCase()}]`;
         orderBody.customer_name = cName;
         orderBody.customer_phone = cPhone;
-        orderBody.address_text = addr;
+        orderBody.address_text = fullAddr;
         orderBody.payment_method = pay;
         orderBody.delivery_fee = delivFee;
         orderBody.total = Math.round((subTotal + delivFee) * 100) / 100;
@@ -4169,9 +4271,7 @@
           }).catch(() => {});
         }
 
-        state.cart = [];
-        const notesInp = document.getElementById('cartGeneralNotesInput');
-        if (notesInp) notesInp.value = '';
+        clearStaffCustomerDataInputs(true);
         closeModal('modalCartReview');
         updateFloatingCartBar();
         playNotificationBeep(1200, 180);
@@ -5869,9 +5969,7 @@
             selectedComandaId: state.selectedComandaId || 0,
             launcherMode: state.launcherMode || 'MESA',
             selectedWaiterCategory: state.selectedWaiterCategory || 'ALL',
-            cart: Array.isArray(state.cart) ? state.cart : [],
-            customerName: document.getElementById('waiterCustomerName')?.value || '',
-            customerPhone: document.getElementById('waiterCustomerPhone')?.value || ''
+            cart: Array.isArray(state.cart) ? state.cart : []
           }));
         } catch (_) {}
         showSaHotReloadBanner('🔄 Atualização aplicada! Recarregando sistema...', true);
@@ -6062,12 +6160,6 @@
           if (pendingHotSnap.launcherMode) state.launcherMode = pendingHotSnap.launcherMode;
           if (pendingHotSnap.selectedWaiterCategory) state.selectedWaiterCategory = pendingHotSnap.selectedWaiterCategory;
           if (Array.isArray(pendingHotSnap.cart)) state.cart = pendingHotSnap.cart;
-          if (pendingHotSnap.customerName && document.getElementById('waiterCustomerName')) {
-            document.getElementById('waiterCustomerName').value = pendingHotSnap.customerName;
-          }
-          if (pendingHotSnap.customerPhone && document.getElementById('waiterCustomerPhone')) {
-            document.getElementById('waiterCustomerPhone').value = pendingHotSnap.customerPhone;
-          }
           if (pendingHotSnap.activeTab && state.user) {
             switchSuperAppTab(pendingHotSnap.activeTab);
           }
