@@ -621,6 +621,57 @@
       animation: nexusClientPhotoPan 5s ease-in-out infinite alternate;
     }
 
+    /* Grade de 2 Colunas e Cards Retangulares-Quadrados no Modo Kiosk / Tablet Web */
+    body.mode-kiosk .products-grid,
+    body.role-kiosk .products-grid,
+    body.role-tablet .products-grid,
+    [data-mode="kiosk"] .products-grid,
+    .kiosk-active .products-grid {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 14px !important;
+      align-items: stretch !important;
+    }
+    body.mode-kiosk .prod-card,
+    body.role-kiosk .prod-card,
+    body.role-tablet .prod-card,
+    [data-mode="kiosk"] .prod-card,
+    .kiosk-active .prod-card {
+      min-height: 225px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      padding: 14px !important;
+      border-radius: 16px !important;
+    }
+    body.mode-kiosk .prod-img-wrap,
+    body.role-kiosk .prod-img-wrap,
+    body.role-tablet .prod-img-wrap,
+    [data-mode="kiosk"] .prod-img-wrap,
+    .kiosk-active .prod-img-wrap {
+      width: 104px !important;
+      height: 104px !important;
+      border-radius: 12px !important;
+    }
+    body.mode-kiosk .prod-name,
+    body.role-kiosk .prod-name,
+    body.role-tablet .prod-name,
+    [data-mode="kiosk"] .prod-name,
+    .kiosk-active .prod-name {
+      font-size: 1.12rem !important;
+      font-weight: 800 !important;
+    }
+    body.mode-kiosk .prod-desc,
+    body.role-kiosk .prod-desc,
+    body.role-tablet .prod-desc,
+    [data-mode="kiosk"] .prod-desc,
+    .kiosk-active .prod-desc {
+      display: -webkit-box !important;
+      -webkit-line-clamp: 3 !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
+    }
+
     .prod-info {
       flex: 1;
       min-width: 0;
