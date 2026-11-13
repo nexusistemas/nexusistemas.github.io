@@ -332,23 +332,44 @@
       color: var(--muted);
       margin-right: 6px;
     }
+    @keyframes kioskCartBarEntrance {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, 20px) scale(0.92);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+      }
+    }
     .cart-bar {
       position: fixed;
-      bottom: 16px;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      width: min(660px, 94vw);
+      width: min(520px, 92vw);
+      max-width: 520px;
+      min-width: 340px;
+      height: 50px;
       background: linear-gradient(135deg, var(--gold-light), var(--gold));
       color: #000;
-      padding: 14px 22px;
-      border-radius: 16px;
+      padding: 0 20px;
+      border-radius: 14px;
       display: none;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       font-weight: 800;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.75);
+      font-size: 14.5px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.85);
+      border: 2px solid rgba(255,255,255,0.25);
       cursor: pointer;
       z-index: 200;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .cart-bar.kiosk-entrance {
+      animation: kioskCartBarEntrance 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     .modal-backdrop {
       position: fixed;
@@ -578,6 +599,17 @@
 
   <!-- Grade de Produtos do Cardápio -->
   <div class="products-grid" id="productsGrid"></div>
+</div>
+
+<!-- Modal Lightbox / Zoom da Foto do Produto -->
+<div class="modal-backdrop" id="productPhotoLightboxModal" onclick="closeProductPhotoLightbox()" style="z-index: 10000; background: rgba(5,5,8,0.88); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; padding: 16px;">
+  <div class="lightbox-box" onclick="event.stopPropagation()" style="background: #14141d; border: 2px solid var(--gold); border-radius: 16px; padding: 18px; max-width: 520px; width: 100%; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.95); position: relative;">
+    <h3 id="lightboxProductTitle" style="color: var(--gold-light); font-size: 17px; font-weight: 800; margin-bottom: 12px; line-height: 1.3;"></h3>
+    <div style="width: 100%; max-height: 55vh; min-height: 220px; border-radius: 12px; overflow: hidden; background: #0b0b10; border: 1px solid rgba(212,175,55,0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+      <img id="lightboxProductImg" src="" alt="" style="width: 100%; height: 100%; max-height: 55vh; object-fit: contain; display: block;" onerror="this.src='/api/public/og-logo.png'" />
+    </div>
+    <button type="button" class="btn btn-gold" onclick="closeProductPhotoLightbox()" style="width: 100%; justify-content: center; padding: 11px 18px; font-size: 14px; font-weight: 900;">✕ Fechar / Voltar</button>
+  </div>
 </div>
 
 <!-- Barra Flutuante da Sacola -->
@@ -1788,7 +1820,7 @@
       return `
       <div class="prod-card" onclick='openItemModal(${JSON.stringify(item).replace(/'/g, "&#39;")})'>
         <div class="prod-top">
-          ${hasPhoto ? `<div class="prod-img-wrap"><img class="prod-img" src="${resolveMenuAssetUrl(item.image_url)}" onerror="this.closest('.prod-img-wrap').style.display='none'" /></div>` : ''}
+          ${hasPhoto ? `<div class="prod-img-wrap" onclick="event.stopPropagation(); openProductPhotoLightbox('${resolveMenuAssetUrl(item.image_url)}', '${(item.name || '').replace(/'/g, "\\'")}')"><img class="prod-img" src="${resolveMenuAssetUrl(item.image_url)}" onerror="this.closest('.prod-img-wrap').style.display='none'" /></div>` : ''}
           <div class="prod-info">
             <h3>${item.name}</h3>
             <p>${descTxt}</p>
@@ -2149,6 +2181,22 @@
     updateCartBar();
   }
 
+  function openProductPhotoLightbox(url, title) {
+    const modal = document.getElementById('productPhotoLightboxModal');
+    const img = document.getElementById('lightboxProductImg');
+    const titleEl = document.getElementById('lightboxProductTitle');
+    if (!modal || !img) return;
+    img.src = url;
+    if (titleEl) titleEl.textContent = title || 'Foto do Produto';
+    modal.style.display = 'flex';
+  }
+
+  function closeProductPhotoLightbox() {
+    const modal = document.getElementById('productPhotoLightboxModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  let lastKnownCartCount = 0;
   function updateCartBar() {
     const bar = document.getElementById('cartBar');
     const totalQty = cart.reduce((acc, i) => acc + i.quantity, 0);
@@ -2156,12 +2204,21 @@
 
     if (cart.length === 0) {
       bar.style.display = 'none';
+      bar.classList.remove('kiosk-entrance');
+      lastKnownCartCount = 0;
       return;
     }
+    const wasHidden = (bar.style.display !== 'flex' || lastKnownCartCount === 0);
     bar.style.display = 'flex';
+    if (wasHidden) {
+      bar.classList.add('kiosk-entrance');
+    }
+    lastKnownCartCount = totalQty;
     const total = cart.reduce((acc, i) => acc + i.total_price, 0);
-    document.getElementById('cartCountText').textContent = `${totalQty} item(ns) na sacola`;
-    document.getElementById('cartTotalText').textContent = `Finalizar Pedido • R$ ${total.toFixed(2)}`;
+    const countEl = document.getElementById('cartCountText');
+    const totalEl = document.getElementById('cartTotalText');
+    if (countEl) countEl.style.display = 'none';
+    if (totalEl) totalEl.textContent = `🛒 Enviar / Editar Pedido (${totalQty}) • R$ ${total.toFixed(2)}`;
   }
 
   function changeCartItemQty(idx, delta) {
