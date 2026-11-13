@@ -233,6 +233,46 @@
       grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
       gap: 16px;
     }
+    /* Grade de 2 Colunas e Cards Retangulares-Quadrados no Modo Kiosk / Tablet */
+    body.mode-kiosk .products-grid,
+    body[data-mode="kiosk"] .products-grid,
+    .mesa-kiosk .products-grid {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 14px !important;
+      align-items: stretch !important;
+    }
+    body.mode-kiosk .prod-card,
+    body[data-mode="kiosk"] .prod-card,
+    .mesa-kiosk .prod-card {
+      min-height: 225px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      padding: 14px !important;
+      border-radius: 16px !important;
+    }
+    body.mode-kiosk .prod-img-wrap,
+    body[data-mode="kiosk"] .prod-img-wrap,
+    .mesa-kiosk .prod-img-wrap {
+      width: 104px !important;
+      height: 104px !important;
+      border-radius: 12px !important;
+    }
+    body.mode-kiosk .prod-name,
+    body[data-mode="kiosk"] .prod-name,
+    .mesa-kiosk .prod-name {
+      font-size: 1.12rem !important;
+      font-weight: 800 !important;
+    }
+    body.mode-kiosk .prod-desc,
+    body[data-mode="kiosk"] .prod-desc,
+    .mesa-kiosk .prod-desc {
+      display: -webkit-box !important;
+      -webkit-line-clamp: 3 !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
+    }
     .prod-card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -573,8 +613,8 @@
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
       <select id="topTableSelect" onchange="syncSelectedTable(this.value)" style="width:auto;margin:0;padding:8px 12px;font-weight:700;"></select>
-      <button class="btn" onclick="callWaiterFromWeb()">🔔 Chamar Garçom</button>
-      <button class="btn btn-gold" onclick="openMyOrdersModal()">💸 Conta</button>
+      <button class="btn" onclick="callWaiterFromWeb()" style="height:46px;font-weight:700;">🔔 Chamar Garçom</button>
+      <button class="btn" onclick="openMyOrdersModal()" style="height:46px;padding:0 22px;font-size:1.08rem;font-weight:800;background:linear-gradient(135deg, #10b981 0%, #059669 100%);color:#ffffff;border:2px solid #34d399;border-radius:12px;box-shadow:0 4px 14px rgba(16,185,129,0.35);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;">💸 Conta</button>
     </div>
   </div>
 
