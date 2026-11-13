@@ -1986,7 +1986,8 @@
 
       const targetUrl = resolveApiTargetUrl(path);
       const isCloudTarget = /^https:\/\//i.test(targetUrl) || (location.protocol === 'https:' && !targetUrl.startsWith('http://'));
-      const reqTimeoutMs = isCloudTarget ? 10000 : 2500;
+      // Smart Dual-Path: Timeout curto de 1200ms na LAN para failover instantâneo quando o garçom ou motoboy migra para o 4G
+      const reqTimeoutMs = isCloudTarget ? 8000 : 1200;
       const ctrl = (!opts.signal && typeof AbortController !== 'undefined') ? new AbortController() : null;
       const tid = ctrl ? setTimeout(() => ctrl.abort(), reqTimeoutMs) : null;
       if (ctrl) opts.signal = ctrl.signal;
@@ -1998,6 +1999,16 @@
       } catch (netErr) {
         if (tid) clearTimeout(tid);
         if (!_retriedHybrid) {
+          // Se falhou na LAN local, chaveia imediatamente para o Túnel Cloudflare sem espera
+          if (!isCloudTarget) {
+            const cached = loadStoredHybridHosts();
+            const candidates = await discoverCloudTunnelCandidatesFromGitHub(cached);
+            const cloudBase = (candidates && candidates[0]) || 'https://teste.nexusistemas.app.br';
+            state.activeApiBase = cloudBase;
+            updateHybridNetworkBadge('CLOUD_4G');
+            const cleanRetryOpts = Object.assign({}, options || {});
+            return apiFetch(path, cleanRetryOpts, true);
+          }
           await resolveSuperAppHybridBase(true);
           const cleanRetryOpts = Object.assign({}, options || {});
           return apiFetch(path, cleanRetryOpts, true);
@@ -2825,56 +2836,72 @@
     /* =========================================================================
        CATÁLOGO, MODALIDADES E CARRINHO DO GARÇOM
        ========================================================================= */
+    function applySuperAppCatalogData(rawCats) {
+      if (!Array.isArray(rawCats) || rawCats.length === 0) return;
+      const cats = [...rawCats].sort((a, b) => {
+        const sa = (typeof a.sort_order === 'number' && a.sort_order > 0) ? a.sort_order : 999999;
+        const sb = (typeof b.sort_order === 'number' && b.sort_order > 0) ? b.sort_order : 999999;
+        if (sa !== sb) return sa - sb;
+        return Number(a.id || 0) - Number(b.id || 0);
+      });
+
+      const vis = state.operational.waiter_visible_categories || [];
+      const hid = state.operational.waiter_hidden_categories || [];
+
+      const cleanCats = [];
+      const flatProducts = [];
+
+      cats.forEach((c, idx) => {
+        if (c.is_active === false) return;
+        const cSec = String(c.sector || '').toUpperCase();
+        const cNameLower = String(c.name || '').toLowerCase();
+        if (c.id === 900 || cSec === 'MERCADO' || cNameLower.includes('boutique') || cNameLower.includes('mercado')) {
+          return;
+        }
+        if (hid.length > 0 && (hid.includes(c.id) || hid.includes(String(c.id)) || hid.map(x => String(x).toLowerCase()).includes(cNameLower))) {
+          return;
+        }
+
+        const activeItems = (c.items || []).filter(p => p.active !== false);
+        if (Number(c.id) === 137 && activeItems.length === 0) return;
+
+        cleanCats.push({
+          id: c.id,
+          name: c.name,
+          icon: c.icon || '',
+          sort_order: (typeof c.sort_order === 'number' && c.sort_order > 0) ? c.sort_order : (idx + 1)
+        });
+        activeItems.forEach(p => {
+          flatProducts.push(Object.assign({}, p, {
+            category_id: c.id,
+            category_name: p.category_name || c.name,
+            category_sort_order: (typeof c.sort_order === 'number' && c.sort_order > 0) ? c.sort_order : (idx + 1)
+          }));
+        });
+      });
+
+      state.categories = cleanCats;
+      state.products = flatProducts;
+      renderWaiterCategoryStrip();
+      renderWaiterCatalog();
+    }
+
     async function loadCatalogProducts() {
+      // Stale-While-Revalidate: renderiza imediatamente o catálogo salvo localmente sem esperar rede no 4G
+      try {
+        const cachedStr = localStorage.getItem('superapp_cached_catalog');
+        if (cachedStr && (!state.products || state.products.length === 0)) {
+          const cached = JSON.parse(cachedStr);
+          applySuperAppCatalogData(cached);
+        }
+      } catch (_) {}
+
       try {
         const rawCats = await apiFetch('/api/catalog');
-        if (!Array.isArray(rawCats)) return;
-        const cats = [...rawCats].sort((a, b) => {
-          const sa = (typeof a.sort_order === 'number' && a.sort_order > 0) ? a.sort_order : 999999;
-          const sb = (typeof b.sort_order === 'number' && b.sort_order > 0) ? b.sort_order : 999999;
-          if (sa !== sb) return sa - sb;
-          return Number(a.id || 0) - Number(b.id || 0);
-        });
-
-        const vis = state.operational.waiter_visible_categories || [];
-        const hid = state.operational.waiter_hidden_categories || [];
-
-        const cleanCats = [];
-        const flatProducts = [];
-
-        cats.forEach((c, idx) => {
-          if (c.is_active === false) return;
-          const cSec = String(c.sector || '').toUpperCase();
-          const cNameLower = String(c.name || '').toLowerCase();
-          if (c.id === 900 || cSec === 'MERCADO' || cNameLower.includes('boutique') || cNameLower.includes('mercado')) {
-            return;
-          }
-          if (hid.length > 0 && (hid.includes(c.id) || hid.includes(String(c.id)) || hid.map(x => String(x).toLowerCase()).includes(cNameLower))) {
-            return;
-          }
-
-          const activeItems = (c.items || []).filter(p => p.active !== false);
-          if (Number(c.id) === 137 && activeItems.length === 0) return;
-
-          cleanCats.push({
-            id: c.id,
-            name: c.name,
-            icon: c.icon || '',
-            sort_order: (typeof c.sort_order === 'number' && c.sort_order > 0) ? c.sort_order : (idx + 1)
-          });
-          activeItems.forEach(p => {
-            flatProducts.push(Object.assign({}, p, {
-              category_id: c.id,
-              category_name: p.category_name || c.name,
-              category_sort_order: (typeof c.sort_order === 'number' && c.sort_order > 0) ? c.sort_order : (idx + 1)
-            }));
-          });
-        });
-
-        state.categories = cleanCats;
-        state.products = flatProducts;
-        renderWaiterCategoryStrip();
-        renderWaiterCatalog();
+        if (Array.isArray(rawCats) && rawCats.length > 0) {
+          try { localStorage.setItem('superapp_cached_catalog', JSON.stringify(rawCats)); } catch (_) {}
+          applySuperAppCatalogData(rawCats);
+        }
       } catch (_) {}
     }
 
@@ -3780,28 +3807,36 @@
       updateFloatingCartBar();
     }
 
+    let isSubmittingStaffOrder = false;
     async function submitActiveCartOrder() {
+      if (isSubmittingStaffOrder) return;
       if (state.cart.length === 0) return;
+      isSubmittingStaffOrder = true;
 
       const btn = document.getElementById('btnSubmitOrderNow');
       const generalNotes = (document.getElementById('cartGeneralNotesInput')?.value || '').trim();
 
       const itemsPayload = state.cart.map(it => {
-        const mods = Array.isArray(it.selected_modifiers) ? [...it.selected_modifiers] : [];
+        const rawMods = Array.isArray(it.selected_modifiers) ? [...it.selected_modifiers] : [];
         if (it.notes) {
-          mods.push({ group_name: 'Observação', option_name: it.notes, price: 0 });
+          rawMods.push({ group_name: 'Observação', option_name: it.notes, price: 0 });
         }
+        const cleanMods = rawMods.map(m => ({
+          group_name: String(m.group_name || ''),
+          option_name: String(m.option_name || ''),
+          price: Number(m.price || 0)
+        }));
         return {
-          product_id: it.product_id,
-          product_name: it.product_name,
-          category_id: it.category_id || 0,
-          category_name: it.category_name || '',
-          sector_abc: it.sector_abc || 'HAMBURGUERIA',
-          quantity: it.quantity,
-          unit_price: it.unit_price,
-          total_price: it.total_price,
-          notes: it.notes || '',
-          selected_modifiers: mods
+          product_id: Number(it.product_id || 0),
+          product_name: String(it.product_name || ''),
+          category_id: Number(it.category_id || 0),
+          category_name: String(it.category_name || ''),
+          sector_abc: String(it.sector_abc || 'HAMBURGUERIA'),
+          quantity: Number(it.quantity || 1),
+          unit_price: Number(it.unit_price || 0),
+          total_price: Number(it.total_price || 0),
+          notes: String(it.notes || ''),
+          selected_modifiers: cleanMods
         };
       });
 
@@ -3810,6 +3845,7 @@
       const waiterId = state.user ? Number(state.user.id || 3) : 3;
 
       let orderBody = {
+        client_order_uid: 'STAFF-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9),
         waiter_id: waiterId,
         waiter_name: waiterName,
         notes: generalNotes,
@@ -3945,6 +3981,7 @@
       } catch (err) {
         showSaAlert(err.message || 'Falha ao enviar o pedido.');
       } finally {
+        isSubmittingStaffOrder = false;
         if (btn) {
           btn.disabled = false;
           btn.textContent = '🚀 ENVIAR PEDIDO P/ COZINHA';
