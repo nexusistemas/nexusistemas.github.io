@@ -818,16 +818,56 @@
 
     (function wrapTrackingApiFetch() {
       const origFetch = window.fetch.bind(window);
+      let resolvedCloudTunnel = localStorage.getItem('nexus_cloud_tunnel_url') || 'https://teste.nexusistemas.app.br';
+      let activePathMode = (location.protocol === 'https:' || location.hostname.includes('nexusistemas.app.br')) ? 'CLOUD_4G' : 'LAN';
+
       window.fetch = async function(input, init) {
-        const resp = await origFetch(input, init);
-        try {
-          const urlStr = typeof input === 'string' ? input : (input && input.url ? input.url : '');
-          if (urlStr.startsWith('/api/') || urlStr.startsWith('api/')) {
+        const urlStr = typeof input === 'string' ? input : (input && input.url ? input.url : '');
+        if (urlStr.startsWith('/api/') || urlStr.startsWith('api/')) {
+          const cleanPath = urlStr.startsWith('/') ? urlStr : ('/' + urlStr);
+
+          // Smart Dual-Path: Se estiver em LAN, timeout curto de 1200ms para failover instantâneo se o cliente estiver em 4G
+          if (activePathMode === 'LAN') {
+            const lanCtrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+            const lanTid = lanCtrl ? setTimeout(() => lanCtrl.abort(), 1200) : null;
+            const lanInit = Object.assign({}, init || {});
+            if (!lanInit.signal && lanCtrl) lanInit.signal = lanCtrl.signal;
+            try {
+              const resp = await origFetch(cleanPath, lanInit);
+              if (lanTid) clearTimeout(lanTid);
+              if (resp && resp.status < 500) {
+                const hdrBoot = resp.headers && resp.headers.get && resp.headers.get('X-Server-Boot-ID');
+                if (hdrBoot) checkNexusTrackingBootId(hdrBoot);
+                return resp;
+              }
+            } catch (err) {
+              if (lanTid) clearTimeout(lanTid);
+              // LAN inacessível (ex: cliente no 4G). Transição imediata para Túnel 4G
+              activePathMode = 'CLOUD_4G';
+            }
+          }
+
+          // Rota Cloud / 4G (https://{loja}.nexusistemas.app.br)
+          try {
+            const cloudUrl = resolvedCloudTunnel + cleanPath;
+            const respCloud = await origFetch(cloudUrl, init);
+            if (respCloud && respCloud.status < 502) {
+              const hdrBoot = respCloud.headers && respCloud.headers.get && respCloud.headers.get('X-Server-Boot-ID');
+              if (hdrBoot) checkNexusTrackingBootId(hdrBoot);
+              return respCloud;
+            }
+          } catch (_) {}
+
+          // Fallback final para input original
+          const resp = await origFetch(input, init);
+          try {
             const hdrBoot = resp && resp.headers && resp.headers.get && resp.headers.get('X-Server-Boot-ID');
             if (hdrBoot) checkNexusTrackingBootId(hdrBoot);
-          }
-        } catch (_) {}
-        return resp;
+          } catch (_) {}
+          return resp;
+        }
+
+        return origFetch(input, init);
       };
     })();
 
