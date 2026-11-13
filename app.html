@@ -2042,34 +2042,80 @@
 
       const targetUrl = resolveApiTargetUrl(path);
       const isCloudTarget = /^https:\/\//i.test(targetUrl) || (location.protocol === 'https:' && !targetUrl.startsWith('http://'));
-      // Smart Dual-Path: Timeout curto de 1200ms na LAN para failover instantâneo quando o garçom ou motoboy migra para o 4G
-      const reqTimeoutMs = isCloudTarget ? 8000 : 1200;
-      const ctrl = (!opts.signal && typeof AbortController !== 'undefined') ? new AbortController() : null;
-      const tid = ctrl ? setTimeout(() => ctrl.abort(), reqTimeoutMs) : null;
-      if (ctrl) opts.signal = ctrl.signal;
 
       let res;
-      try {
-        res = await fetch(targetUrl, opts);
-        if (tid) clearTimeout(tid);
-      } catch (netErr) {
-        if (tid) clearTimeout(tid);
-        if (!_retriedHybrid) {
-          // Se falhou na LAN local, chaveia imediatamente para o Túnel Cloudflare sem espera
-          if (!isCloudTarget) {
-            const cached = loadStoredHybridHosts();
-            const candidates = await discoverCloudTunnelCandidatesFromGitHub(cached);
-            const cloudBase = (candidates && candidates[0]) || 'https://teste.nexusistemas.app.br';
+      // Smart Dual-Path: Corrida concorrente simultânea (Promise.any) entre LAN local e Túnel Cloudflare no 4G
+      if (!isCloudTarget && typeof Promise.any === 'function' && !_retriedHybrid) {
+        const cached = loadStoredHybridHosts();
+        const cloudBase = (cached && (cached.subdomainTunnelUrl || cached.tunnelUrl)) ||
+          (cached && cached.storeSlug ? `https://${cached.storeSlug}.nexusistemas.app.br` : 'https://teste.nexusistemas.app.br');
+        const cleanCloudPath = cloudBase.replace(/\/+$/, '') + (path.startsWith('/') ? path : '/' + path);
+
+        const lanCtrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const lanTid = lanCtrl ? setTimeout(() => lanCtrl.abort(), 1200) : null;
+        const lanOpts = Object.assign({}, opts, lanCtrl ? { signal: lanCtrl.signal } : {});
+
+        const cloudCtrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const cloudTid = cloudCtrl ? setTimeout(() => cloudCtrl.abort(), 6000) : null;
+        const cloudOpts = Object.assign({}, opts, cloudCtrl ? { signal: cloudCtrl.signal } : {});
+
+        try {
+          const winner = await Promise.any([
+            fetch(targetUrl, lanOpts).then(r => {
+              if (lanTid) clearTimeout(lanTid);
+              if (r && r.status < 500) return { res: r, mode: 'LAN' };
+              throw new Error('LAN_FAILED');
+            }),
+            fetch(cleanCloudPath, cloudOpts).then(r => {
+              if (cloudTid) clearTimeout(cloudTid);
+              if (r && r.status < 502) return { res: r, mode: 'CLOUD_4G' };
+              throw new Error('CLOUD_FAILED');
+            })
+          ]);
+          if (lanTid) clearTimeout(lanTid);
+          if (cloudTid) clearTimeout(cloudTid);
+          if (winner.mode === 'CLOUD_4G') {
             state.activeApiBase = cloudBase;
             updateHybridNetworkBadge('CLOUD_4G');
+          } else {
+            updateHybridNetworkBadge('LAN');
+          }
+          res = winner.res;
+        } catch (_) {
+          if (lanTid) clearTimeout(lanTid);
+          if (cloudTid) clearTimeout(cloudTid);
+        }
+      }
+
+      if (!res) {
+        // Fallback padrão se Promise.any não resolver
+        const reqTimeoutMs = isCloudTarget ? 8000 : 1200;
+        const ctrl = (!opts.signal && typeof AbortController !== 'undefined') ? new AbortController() : null;
+        const tid = ctrl ? setTimeout(() => ctrl.abort(), reqTimeoutMs) : null;
+        if (ctrl) opts.signal = ctrl.signal;
+
+        try {
+          res = await fetch(targetUrl, opts);
+          if (tid) clearTimeout(tid);
+        } catch (netErr) {
+          if (tid) clearTimeout(tid);
+          if (!_retriedHybrid) {
+            // Se falhou na LAN local, chaveia imediatamente para o Túnel Cloudflare sem espera
+            if (!isCloudTarget) {
+              const cached = loadStoredHybridHosts();
+              const candidates = await discoverCloudTunnelCandidatesFromGitHub(cached);
+              const cloudBase = (candidates && candidates[0]) || 'https://teste.nexusistemas.app.br';
+              state.activeApiBase = cloudBase;
+              updateHybridNetworkBadge('CLOUD_4G');
+              const cleanRetryOpts = Object.assign({}, options || {});
+              return apiFetch(path, cleanRetryOpts, true);
+            }
+            await resolveSuperAppHybridBase(true);
             const cleanRetryOpts = Object.assign({}, options || {});
             return apiFetch(path, cleanRetryOpts, true);
           }
-          await resolveSuperAppHybridBase(true);
-          const cleanRetryOpts = Object.assign({}, options || {});
-          return apiFetch(path, cleanRetryOpts, true);
+          throw netErr;
         }
-        throw netErr;
       }
 
       try {
@@ -4130,15 +4176,17 @@
         updateFloatingCartBar();
         playNotificationBeep(1200, 180);
 
-        await Promise.allSettled([
-          loadTablesAndComandas(),
-          loadOrdersAndDeliveries()
-        ]);
-
+        // Feedback instantâneo no mesmo milissegundo em que o servidor devolve 200 OK
         showSaAlert(
           `✅ Pedido #${(created && (created.order_code || created.id)) || 'OK'} enviado com sucesso para produção e impressão!`,
           '🚀 Pedido Lançado'
         );
+
+        // Sincronização de mesas, comandas e entregas 100% assíncrona desacoplada da UI
+        Promise.allSettled([
+          loadTablesAndComandas(),
+          loadOrdersAndDeliveries()
+        ]).catch(() => {});
       } catch (err) {
         showSaAlert(err.message || 'Falha ao enviar o pedido.');
       } finally {
