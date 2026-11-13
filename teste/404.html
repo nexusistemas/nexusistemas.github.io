@@ -1026,19 +1026,59 @@
 
         // Se estiver operando em LAN (192.168.x.x / local):
         if (activePathMode === 'LAN') {
-          // Timeout rápido de 1200ms na LAN para não prender celular ao migrar para 4G
-          const lanCtrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-          const lanTid = lanCtrl ? setTimeout(() => lanCtrl.abort(), 1200) : null;
-          const lanInit = Object.assign({}, init || {});
-          if (!lanInit.signal && lanCtrl) lanInit.signal = lanCtrl.signal;
-          try {
-            const rLan = await origFetch(cleanPath, lanInit);
-            if (lanTid) clearTimeout(lanTid);
-            if (rLan && rLan.status < 500) return rLan;
-          } catch (lanErr) {
-            if (lanTid) clearTimeout(lanTid);
-            // LAN inacessível (ex: cliente/garçom foi para o 4G). Transição imediata para Túnel 4G
-            activePathMode = 'CLOUD_4G';
+          let cloudBase = resolvedTunnelBase;
+          if (!cloudBase) {
+            try { cloudBase = localStorage.getItem('sirbeef_active_tunnel_url') || ''; } catch (_) {}
+          }
+          if (typeof Promise.any === 'function' && cloudBase && cloudBase.startsWith('https://')) {
+            const lanCtrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+            const lanTid = lanCtrl ? setTimeout(() => lanCtrl.abort(), 1200) : null;
+            const lanInit = Object.assign({}, init || {}, lanCtrl ? { signal: lanCtrl.signal } : {});
+
+            const cloudCtrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+            const cloudTid = cloudCtrl ? setTimeout(() => cloudCtrl.abort(), 6000) : null;
+            const cloudInit = Object.assign({}, init || {}, cloudCtrl ? { signal: cloudCtrl.signal } : {});
+
+            try {
+              const winner = await Promise.any([
+                origFetch(cleanPath, lanInit).then(r => {
+                  if (lanTid) clearTimeout(lanTid);
+                  if (r && r.status < 500) return { res: r, mode: 'LAN' };
+                  throw new Error('LAN_ERR');
+                }),
+                origFetch(cloudBase + cleanPath, cloudInit).then(r => {
+                  if (cloudTid) clearTimeout(cloudTid);
+                  if (r && r.status < 502) return { res: r, mode: 'CLOUD_4G' };
+                  throw new Error('CLOUD_ERR');
+                })
+              ]);
+              if (lanTid) clearTimeout(lanTid);
+              if (cloudTid) clearTimeout(cloudTid);
+              if (winner.mode === 'CLOUD_4G') {
+                activePathMode = 'CLOUD_4G';
+                resolvedTunnelBase = cloudBase;
+              }
+              return winner.res;
+            } catch (_) {
+              if (lanTid) clearTimeout(lanTid);
+              if (cloudTid) clearTimeout(cloudTid);
+              activePathMode = 'CLOUD_4G';
+            }
+          } else {
+            // Timeout rápido de 1200ms na LAN para não prender celular ao migrar para 4G
+            const lanCtrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+            const lanTid = lanCtrl ? setTimeout(() => lanCtrl.abort(), 1200) : null;
+            const lanInit = Object.assign({}, init || {});
+            if (!lanInit.signal && lanCtrl) lanInit.signal = lanCtrl.signal;
+            try {
+              const rLan = await origFetch(cleanPath, lanInit);
+              if (lanTid) clearTimeout(lanTid);
+              if (rLan && rLan.status < 500) return rLan;
+            } catch (lanErr) {
+              if (lanTid) clearTimeout(lanTid);
+              // LAN inacessível (ex: cliente/garçom foi para o 4G). Transição imediata para Túnel 4G
+              activePathMode = 'CLOUD_4G';
+            }
           }
         }
 
@@ -2777,37 +2817,16 @@
       const realTableId = isMesa ? await resolveRealTableIdByNumber(tableNum) : null;
       let preOpenedComandaId = null;
       let preOpenedComandaCode = '';
-      if (isMesa && realTableId) {
-        try {
-          const cmdRes = await fetch('/api/comandas', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'OPEN',
-              origin_type: 'MESA',
-              table_id: realTableId,
-              comanda_type: 'NOME_CELULAR',
-              customer_name: cName,
-              customer_phone: cPhone
-            })
-          });
-          if (cmdRes.ok) {
-            const cmdObj = await cmdRes.json();
-            if (cmdObj && (cmdObj.status === 'FECHAMENTO_SOLICITADO' || cmdObj.status === 'FECHADA')) {
-              isMyComandaClosedLock = true;
-              renderComandaLockedBannerUI();
-              hideLoading();
-              alert('🔒 COMANDA INDIVIDUAL BLOQUEADA PARA FECHAMENTO!\n\nSua comanda individual está em processo de fechamento e não aceita novos pedidos.\nSolicite ao Garçom ou ao Caixa para Reabrir sua Comanda caso deseje pedir mais itens.');
-              return;
-            }
-            if (cmdObj && cmdObj.id) {
-              preOpenedComandaId = cmdObj.id;
-              preOpenedComandaCode = cmdObj.comanda_code || '';
-              localStorage.setItem('sirbeef_my_comanda_id', String(cmdObj.id));
-              localStorage.setItem('sirbeef_my_comanda_code', preOpenedComandaCode);
-            }
-          }
-        } catch (e) {}
+      if (isMesa) {
+        if (isMyComandaClosedLock) {
+          hideLoading();
+          alert('🔒 COMANDA INDIVIDUAL BLOQUEADA PARA FECHAMENTO!\n\nSua comanda individual está em processo de fechamento e não aceita novos pedidos.\nSolicite ao Garçom ou ao Caixa para Reabrir sua Comanda caso deseje pedir mais itens.');
+          return;
+        }
+        const savedCmdId = Number(localStorage.getItem('sirbeef_my_comanda_id') || 0);
+        if (savedCmdId > 0) preOpenedComandaId = savedCmdId;
+        const savedCmdCode = localStorage.getItem('sirbeef_my_comanda_code') || '';
+        if (savedCmdCode) preOpenedComandaCode = savedCmdCode;
       }
 
       const clientOrderUid = 'WEB-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
@@ -2888,7 +2907,8 @@
         closeCheckoutModal();
         hideLoading();
 
-        await openMyOrdersModal();
+        // Abre modal de acompanhamento na mesma fração de segundo de forma desacoplada
+        openMyOrdersModal().catch(() => {});
       } catch (err) {
         hideLoading();
         alert('⚠️ Falha de conexão ao enviar pedido. Tente novamente.');
