@@ -244,7 +244,7 @@
         "waiter_call": false,
         "qr_token": "TESTE-MESA-15",
         "current_total": 282,
-        "updated_at": "09:14"
+        "updated_at": "09:17"
       },
       {
         "id": 16,
@@ -472,7 +472,7 @@
         "updated_at": "09:03"
       }
     ],
-    "updated_at": "2026-11-13T09:14:35-03:00"
+    "updated_at": "2026-11-13T09:17:23-03:00"
   },
   "catalog": [
     {
@@ -29295,7 +29295,7 @@
       "waiter_call": false,
       "qr_token": "TESTE-MESA-15",
       "current_total": 282,
-      "updated_at": "09:14"
+      "updated_at": "09:17"
     },
     {
       "id": 16,
