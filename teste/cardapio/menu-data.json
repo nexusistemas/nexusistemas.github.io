@@ -243,8 +243,8 @@
         "status": "OCUPADA",
         "waiter_call": false,
         "qr_token": "TESTE-MESA-15",
-        "current_total": 69,
-        "updated_at": "18:25"
+        "current_total": 105,
+        "updated_at": "18:46"
       },
       {
         "id": 16,
@@ -472,7 +472,7 @@
         "updated_at": "18:25"
       }
     ],
-    "updated_at": "2026-11-13T18:39:28-03:00"
+    "updated_at": "2026-11-13T18:49:29-03:00"
   },
   "catalog": [
     {
@@ -29294,8 +29294,8 @@
       "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "TESTE-MESA-15",
-      "current_total": 69,
-      "updated_at": "18:25"
+      "current_total": 105,
+      "updated_at": "18:46"
     },
     {
       "id": 16,
