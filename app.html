@@ -611,6 +611,15 @@
       /* 100% estático por padrão para Garçom, Comandas, Expedição e Motoboy */
     }
 
+    /* Oculta completamente a topbar do SuperApp em modo Kiosk/Tablet para dar lugar ao cabeçalho dourado do Kiosk */
+    body.mode-kiosk #superAppTopbar,
+    body.role-kiosk #superAppTopbar,
+    body.role-tablet #superAppTopbar,
+    [data-mode="kiosk"] #superAppTopbar,
+    .kiosk-active #superAppTopbar {
+      display: none !important;
+    }
+
     /* Animação Panorâmica Isolada EXCLUSIVAMENTE sob o seletor ativo do Modo Kiosk */
     body.mode-kiosk .prod-img-wrap .prod-img,
     body.role-kiosk .prod-img-wrap .prod-img,
@@ -2860,6 +2869,10 @@
         initKioskInactivityMonitoring();
       } else {
         document.body.removeAttribute('data-mode');
+      }
+      const topbarEl = document.getElementById('superAppTopbar');
+      if (topbarEl) {
+        topbarEl.style.display = isKiosk ? 'none' : '';
       }
       const topKioskBtn = document.getElementById('btnTopKioskHighlights');
       if (topKioskBtn) {
