@@ -23,8 +23,8 @@
   "lan_ip": "192.168.0.111:8080",
   "manual_force": false,
   "release_notes": "v9.4 (Build APK #105): SuperApp NexuSistemas (Wi-Fi LAN e 4G com Download Direto e Tablet Kiosk aprimorado).",
-  "server_build": 104,
-  "server_version": "9.3",
+  "server_build": 105,
+  "server_version": "9.4",
   "version": "9.4",
   "version_code": 105,
   "version_name": "9.4"
