@@ -2404,11 +2404,26 @@
       return base + (p.startsWith('/') ? p : '/' + p);
     }
 
+    function getSuperAppDeviceId() {
+      let did = '';
+      try {
+        did = localStorage.getItem('nexus_device_id') || '';
+        if (!did) {
+          did = 'dev-' + Math.random().toString(36).substring(2, 10) + '-' + Date.now().toString(36);
+          localStorage.setItem('nexus_device_id', did);
+        }
+      } catch (_) {
+        did = 'dev-temp-' + Date.now();
+      }
+      return did;
+    }
+
     async function apiFetch(path, options, _retriedHybrid) {
       const opts = Object.assign({ method: 'GET', headers: {} }, options || {});
       opts.headers = Object.assign({
         'Accept': 'application/json',
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'X-Device-ID': getSuperAppDeviceId()
       }, opts.headers || {});
       if (opts.body && typeof opts.body === 'object' && !(opts.body instanceof FormData)) {
         opts.headers['Content-Type'] = 'application/json';
@@ -2424,7 +2439,9 @@
 
       let res;
       // Smart Dual-Path: Corrida concorrente simultânea (Promise.any) entre LAN local e Túnel Cloudflare no 4G
-      if (!isCloudTarget && typeof Promise.any === 'function' && !_retriedHybrid) {
+      // Blindagem de Login: rotas de autenticação NUNCA concorrem em dual-path para evitar tokens concorrentes
+      const isAuthLoginRoute = String(path || '').includes('/api/auth/login') || String(path || '').includes('/api/login');
+      if (!isCloudTarget && typeof Promise.any === 'function' && !_retriedHybrid && !isAuthLoginRoute) {
         const cached = loadStoredHybridHosts();
         const cloudBase = (cached && (cached.subdomainTunnelUrl || cached.tunnelUrl)) ||
           (cached && cached.storeSlug ? `https://${cached.storeSlug}.nexusistemas.app.br` : 'https://teste.nexusistemas.app.br');
@@ -2809,7 +2826,8 @@
           body: {
             username: username,
             password: pin,
-            pin: pin
+            pin: pin,
+            device_id: getSuperAppDeviceId()
           }
         });
         const user = (res && res.user) ? res.user : res;
