@@ -688,6 +688,38 @@
       display: flex !important;
     }
 
+    @keyframes kioskCartBarFadeIn {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, 20px) scale(0.92);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+      }
+    }
+
+    body.mode-kiosk .floating-cart-bar {
+      bottom: 22px !important;
+      left: 50% !important;
+      right: auto !important;
+      transform: translateX(-50%) !important;
+      width: min(520px, 92vw) !important;
+      max-width: 520px !important;
+      min-width: 380px !important;
+      height: 50px !important;
+      border-radius: 14px !important;
+      padding: 0 20px !important;
+      justify-content: center !important;
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.85) !important;
+      border: 2px solid var(--secondary) !important;
+      white-space: nowrap !important;
+    }
+
+    body.mode-kiosk .floating-cart-bar.anim-enter {
+      animation: kioskCartBarFadeIn 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    }
+
     /* MODALS */
     .modal-backdrop {
       position: fixed;
@@ -1303,6 +1335,19 @@
       <span class="nav-badge" id="badgeMotoShiftStatus" style="display:none;background:var(--green);color:#000;">ON</span>
     </button>
   </nav>
+
+  <!-- =========================================================================
+       MODAL 0: LIGHTBOX / ZOOM DA FOTO DO PRODUTO (MODO KIOSK / CATÁLOGO)
+       ========================================================================= -->
+  <div class="modal-backdrop" id="saPhotoLightboxModal" onclick="closeSaPhotoLightbox()" style="z-index: 9999; background: rgba(5,5,8,0.88); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: #14141d; border: 2px solid var(--secondary); border-radius: 16px; padding: 18px; max-width: 520px; width: 100%; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.95); position: relative;" onclick="event.stopPropagation()">
+      <h3 id="saLightboxProductTitle" style="color: var(--secondary); font-size: 17px; font-weight: 800; margin-bottom: 12px; line-height: 1.3;"></h3>
+      <div style="width: 100%; max-height: 55vh; min-height: 220px; border-radius: 12px; overflow: hidden; background: #0b0b10; border: 1px solid rgba(212,175,55,0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+        <img id="saLightboxProductImg" src="" alt="" style="width: 100%; height: 100%; max-height: 55vh; object-fit: contain; display: block;" onerror="this.src='/api/public/og-logo.png'" />
+      </div>
+      <button type="button" class="sa-btn sa-btn-primary sa-btn-block" onclick="closeSaPhotoLightbox()" style="padding: 11px 18px; font-size: 14px; font-weight: 900;">✕ Fechar / Voltar</button>
+    </div>
+  </div>
 
   <!-- =========================================================================
        MODAL 1: DETALHES DA MESA (LANÇAR, VER CONTA, CHAMADO, FECHAR)
@@ -3170,7 +3215,7 @@
 
       grid.innerHTML = filtered.map(rawP => {
         const p = normalizeProductVariationsForSuperApp(rawP);
-        const img = p.image_url ? `<div class="prod-img-wrap"><img src="${escapeHtml(p.image_url)}" class="prod-img" alt="" onerror="this.closest('.prod-img-wrap').style.display='none'" /></div>` : '';
+        const img = p.image_url ? `<div class="prod-img-wrap" onclick="event.stopPropagation(); openSaPhotoLightbox('${escapeHtml(p.image_url)}', '${escapeHtml(p.name || '').replace(/'/g, "\\'")}')"><img src="${escapeHtml(p.image_url)}" class="prod-img" alt="" onerror="this.closest('.prod-img-wrap').style.display='none'" /></div>` : '';
         const varGroups = (p.modifier_groups || []).filter(g => Boolean(g._isVariation) || isVariationModifierGroup(g, p.price));
         let activeVarPrices = [];
         varGroups.forEach(vg => {
@@ -3606,6 +3651,22 @@
       updateFloatingCartBar();
     }
 
+    function openSaPhotoLightbox(url, title) {
+      const modal = document.getElementById('saPhotoLightboxModal');
+      const img = document.getElementById('saLightboxProductImg');
+      const titleEl = document.getElementById('saLightboxProductTitle');
+      if (!modal || !img) return;
+      img.src = url;
+      if (titleEl) titleEl.textContent = title || 'Foto do Produto';
+      modal.style.display = 'flex';
+    }
+
+    function closeSaPhotoLightbox() {
+      const modal = document.getElementById('saPhotoLightboxModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    let lastKnownSaCartCount = 0;
     function updateFloatingCartBar() {
       const bar = document.getElementById('floatingCartBar');
       if (!bar) return;
@@ -3615,32 +3676,57 @@
 
       if (count <= 0 || String(state.user?.role || '').toUpperCase() === 'MOTOBOY') {
         bar.classList.remove('visible');
+        bar.classList.remove('anim-enter');
+        lastKnownSaCartCount = 0;
         return;
       }
 
+      const isKiosk = document.body.classList.contains('mode-kiosk');
+      const wasHidden = (!bar.classList.contains('visible') || lastKnownSaCartCount === 0);
       bar.classList.add('visible');
+      if (isKiosk && wasHidden) {
+        bar.classList.add('anim-enter');
+      }
+      lastKnownSaCartCount = count;
+
       const titleEl = document.getElementById('floatingCartTitle');
       const targetEl = document.getElementById('floatingCartTargetLabel');
       const totalEl = document.getElementById('floatingCartTotal');
 
-      if (titleEl) titleEl.textContent = `🛒 ${count} ${count === 1 ? 'item selecionado' : 'itens selecionados'}`;
-      if (totalEl) totalEl.textContent = formatBRL(sum);
-
-      let targetText = 'Destino: ';
-      if (state.launcherMode === 'MESA') {
-        const tbl = document.getElementById('waiterTargetTableSelect')?.value || state.selectedTableId || 15;
-        const openCmds = getOpenComandasForTable(tbl);
-        const custStr = openCmds[0]?.customer_name ? ` (${openCmds[0].customer_name})` : '';
-        targetText += `Mesa ${String(tbl).padStart(2, '0')}${custStr}`;
-      } else if (state.launcherMode === 'COMANDA') {
-        const cmdSel = document.getElementById('waiterTargetComandaSelect');
-        targetText += cmdSel && cmdSel.options[cmdSel.selectedIndex] ? cmdSel.options[cmdSel.selectedIndex].text : 'Comanda Individual';
-      } else if (state.launcherMode === 'RETIRADA') {
-        targetText += 'Retirada no Balcão';
+      if (isKiosk) {
+        if (targetEl) targetEl.style.display = 'none';
+        if (titleEl) {
+          titleEl.textContent = `🛒 Enviar / Editar Pedido (${count}) • ${formatBRL(sum)}`;
+          titleEl.style.fontSize = '14px';
+        }
+        if (totalEl) totalEl.style.display = 'none';
       } else {
-        targetText += 'Entrega (Delivery)';
+        if (targetEl) targetEl.style.display = '';
+        if (titleEl) {
+          titleEl.textContent = `🛒 ${count} ${count === 1 ? 'item selecionado' : 'itens selecionados'}`;
+          titleEl.style.fontSize = '';
+        }
+        if (totalEl) {
+          totalEl.style.display = '';
+          totalEl.textContent = formatBRL(sum);
+        }
+
+        let targetText = 'Destino: ';
+        if (state.launcherMode === 'MESA') {
+          const tbl = document.getElementById('waiterTargetTableSelect')?.value || state.selectedTableId || 15;
+          const openCmds = getOpenComandasForTable(tbl);
+          const custStr = openCmds[0]?.customer_name ? ` (${openCmds[0].customer_name})` : '';
+          targetText += `Mesa ${String(tbl).padStart(2, '0')}${custStr}`;
+        } else if (state.launcherMode === 'COMANDA') {
+          const cmdSel = document.getElementById('waiterTargetComandaSelect');
+          targetText += cmdSel && cmdSel.options[cmdSel.selectedIndex] ? cmdSel.options[cmdSel.selectedIndex].text : 'Comanda Individual';
+        } else if (state.launcherMode === 'RETIRADA') {
+          targetText += 'Retirada no Balcão';
+        } else {
+          targetText += 'Entrega (Delivery)';
+        }
+        if (targetEl) targetEl.textContent = targetText;
       }
-      if (targetEl) targetEl.textContent = targetText;
     }
 
     function openCartReviewModal() {
