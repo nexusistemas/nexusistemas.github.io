@@ -784,7 +784,7 @@
         <div style="font-size:12px;color:var(--muted);" id="chkFeeInfoLbl">Taxa de Entrega: R$ 8,00</div>
         <div id="chkFinalTotal" style="font-size:24px;font-weight:900;color:var(--gold-light);">R$ 0,00</div>
       </div>
-      <button class="btn btn-green" style="padding:14px 22px;font-size:15px;" onclick="submitWebOrder()">
+      <button class="btn btn-green" id="btnSubmitWebOrder" style="padding:14px 22px;font-size:15px;" onclick="submitWebOrder()">
         ✅ Confirmar & Enviar Pedido
       </button>
     </div>
@@ -895,19 +895,22 @@
     }
   })();
 
-  // Roteador Automático 4G / GitHub Pages / nexusistemas.app.br/{nova-loja} -> Túnel HTTPS Cloudflare ({nova-loja}.nexusistemas.app.br) em Tempo Real
-  (function setupGitHubPagesLiveTunnelBridge() {
-    if (!window.isStaticCloudPagesHost()) return;
+  // =========================================================================
+  // ROTEADOR INTELIGENTE DE DUPLA VIA (Smart Dual-Path LAN + 4G Cloudflare)
+  // =========================================================================
+  (function setupSmartDualPathRouter() {
+    const isStaticHost = !!(window.isStaticCloudPagesHost && window.isStaticCloudPagesHost());
     const origFetch = window.fetch.bind(window);
     window.__origNativeFetch = origFetch;
-    let resolvedTunnelBase = '';
+    let resolvedTunnelBase = localStorage.getItem('nexus_cloud_tunnel_url') || '';
     let resolvingPromise = null;
+    let activePathMode = isStaticHost || location.protocol === 'https:' ? 'CLOUD_4G' : 'LAN';
 
-    async function probeLiveBase(cand) {
+    async function probeLiveBase(cand, timeoutMs) {
       if (!cand) return false;
       const clean = String(cand).replace(/\/$/, '');
       const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-      const tid = ctrl ? setTimeout(() => ctrl.abort(), 3200) : null;
+      const tid = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs || 1500) : null;
       try {
         const r = await origFetch(clean + '/api/health?t=' + Date.now(), {
           cache: 'no-store',
@@ -1006,23 +1009,67 @@
       let urlStr = typeof input === 'string' ? input : (input && input.url ? input.url : '');
       if (urlStr.startsWith('/api/') || urlStr.startsWith('api/')) {
         const cleanPath = urlStr.startsWith('/') ? urlStr : ('/' + urlStr);
-        let base = resolvedTunnelBase || (await discoverLiveTunnelBase(false));
-        if (base) {
+
+        // Se estiver em Static Cloud (GitHub Pages / domínio estático):
+        if (isStaticHost) {
+          let base = resolvedTunnelBase || (await discoverLiveTunnelBase(false));
+          if (base) {
+            try {
+              const r1 = await origFetch(base + cleanPath, init);
+              if (r1 && r1.status !== 405 && r1.status < 502) return r1;
+            } catch (_) {}
+          }
+          base = await discoverLiveTunnelBase(true);
+          if (base) return origFetch(base + cleanPath, init);
+          throw new Error('TUNNEL_OFFLINE');
+        }
+
+        // Se estiver operando em LAN (192.168.x.x / local):
+        if (activePathMode === 'LAN') {
+          // Timeout rápido de 1200ms na LAN para não prender celular ao migrar para 4G
+          const lanCtrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+          const lanTid = lanCtrl ? setTimeout(() => lanCtrl.abort(), 1200) : null;
+          const lanInit = Object.assign({}, init || {});
+          if (!lanInit.signal && lanCtrl) lanInit.signal = lanCtrl.signal;
           try {
-            const r1 = await origFetch(base + cleanPath, init);
-            if (r1 && r1.status !== 405 && r1.status < 502) {
-              return r1;
-            }
+            const rLan = await origFetch(cleanPath, lanInit);
+            if (lanTid) clearTimeout(lanTid);
+            if (rLan && rLan.status < 500) return rLan;
+          } catch (lanErr) {
+            if (lanTid) clearTimeout(lanTid);
+            // LAN inacessível (ex: cliente/garçom foi para o 4G). Transição imediata para Túnel 4G
+            activePathMode = 'CLOUD_4G';
+          }
+        }
+
+        // Rota 4G / Túnel Cloudflare com failover imediato
+        let cloudBase = resolvedTunnelBase || (await discoverLiveTunnelBase(false));
+        if (cloudBase) {
+          try {
+            const rCloud = await origFetch(cloudBase + cleanPath, init);
+            if (rCloud && rCloud.status < 502) return rCloud;
           } catch (_) {}
         }
-        base = await discoverLiveTunnelBase(true);
-        if (base) {
-          return origFetch(base + cleanPath, init);
+        cloudBase = await discoverLiveTunnelBase(true);
+        if (cloudBase) {
+          try {
+            return await origFetch(cloudBase + cleanPath, init);
+          } catch (_) {}
         }
-        throw new Error('TUNNEL_OFFLINE');
+        return origFetch(input, init);
       }
       return origFetch(input, init);
     };
+
+    // Monitor em background para restaurar LAN quando reconectar no Wi-Fi da loja
+    if (!isStaticHost) {
+      setInterval(async () => {
+        if (activePathMode === 'CLOUD_4G') {
+          const lanOk = await probeLiveBase(location.origin, 900);
+          if (lanOk) activePathMode = 'LAN';
+        }
+      }, 15000);
+    }
   })();
 
   // =========================================================================
@@ -1696,6 +1743,17 @@
         }
       }).catch(() => {});
     }
+    // Stale-While-Revalidate: renderiza imediatamente o cardápio em cache com 0ms de espera no 4G
+    try {
+      const cachedStr = localStorage.getItem('sirbeef_cached_catalog');
+      if (cachedStr) {
+        const cached = JSON.parse(cachedStr);
+        if (Array.isArray(cached) && cached.length > 0 && catalog.length === 0) {
+          applyCatalogArrayToUI(cached);
+        }
+      }
+    } catch (_) {}
+
     try {
       fetch('/api/operational-settings').then(r => r.ok ? r.json() : null).then(cfg => {
         if (cfg) applyMenuModalities(cfg);
@@ -1704,7 +1762,12 @@
       const res = await fetch('/api/catalog');
       if (res && res.ok) {
         const data = await res.json();
-        applyCatalogArrayToUI(data || []);
+        if (Array.isArray(data) && data.length > 0) {
+          try { localStorage.setItem('sirbeef_cached_catalog', JSON.stringify(data)); } catch (_) {}
+          applyCatalogArrayToUI(data);
+        } else {
+          applyCatalogArrayToUI(data || []);
+        }
         return;
       }
     } catch (e) {
@@ -2632,173 +2695,211 @@
 
   setInterval(syncMyComandaClosedLockState, 4000);
 
+  let isSubmittingWebOrder = false;
   async function submitWebOrder() {
+    if (isSubmittingWebOrder) return;
     if (cart.length === 0) {
       alert('🛒 Adicione pelo menos 1 item ao seu pedido antes de confirmar!');
       return;
     }
 
-    const mode = document.getElementById('chkOrderMode').value;
-    const isMesa = mode === 'MESA';
-    const isDelivery = mode === 'DELIVERY';
-    const isRetirada = mode === 'RETIRADA';
-
-    if (isMesa && isMyComandaClosedLock) {
-      alert('🔒 CONTA BLOQUEADA PARA FECHAMENTO!\n\nSua comanda está em processo de fechamento e não aceita novos pedidos.\nSolicite ao Garçom, Caixa ou Admin para Reabrir sua Comanda caso deseje pedir mais itens.');
-      return;
+    const submitBtn = document.getElementById('btnSubmitWebOrder');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.7';
+      submitBtn.textContent = '⏳ Enviando Pedido...';
     }
-
-    if (isMesa && !isMesaSelfServicePage) {
-      alert('⚠️ Pedidos na mesa só podem ser feitos escaneando o QR Code exclusivo colado na sua mesa no salão.');
-      return;
-    }
-    if ((isMesa && menuModalities.MESA === false) || (isDelivery && menuModalities.DELIVERY === false) || (isRetirada && menuModalities.RETIRADA === false)) {
-      alert('🔒 Estamos indisponíveis no momento ou fechados para esta modalidade.');
-      return;
-    }
-
-    const cName = (document.getElementById('chkName').value || '').trim();
-    const cPhone = (document.getElementById('chkPhone').value || '').trim();
-    const cStreet = (document.getElementById('chkStreet')?.value || '').trim();
-    const cNum = (document.getElementById('chkHouseNum')?.value || '').trim();
-    const cBairro = (document.getElementById('chkNeighborhood')?.value || '').trim();
-    const cComp = (document.getElementById('chkComplement')?.value || '').trim();
-    const cAddr = syncCombinedAddressField();
-    const tableNum = parseInt(document.getElementById('chkTableNumber').value || String(selectedTableNum), 10) || 13;
-    if (isMesa && tableNum > 0) {
-      selectedTableNum = tableNum;
-      localStorage.setItem('sirbeef_my_table_num', String(tableNum));
-    }
-
-    if (!cName || !cPhone) {
-      alert('⚠️ Informe seu Nome e seu Celular/WhatsApp para identificarmos seu pedido!');
-      return;
-    }
-    if (isDelivery && (!cStreet || !cNum)) {
-      alert('📍 Para entrega (Delivery), puxe sua localização no GPS ou preencha a Rua e o Número da residência!');
-      return;
-    }
-
-    localStorage.setItem('sirbeef_customer_name', cName);
-    localStorage.setItem('sirbeef_customer_phone', cPhone);
-    if (cAddr) localStorage.setItem('sirbeef_customer_address', cAddr);
-    if (cStreet) localStorage.setItem('sirbeef_customer_street', cStreet);
-    if (cNum) localStorage.setItem('sirbeef_customer_num', cNum);
-    if (cBairro) localStorage.setItem('sirbeef_customer_bairro', cBairro);
-    localStorage.setItem('sirbeef_customer_comp', cComp);
-
-    let headerTag = 'ENTREGA';
-    if (isRetirada) headerTag = 'RETIRADA';
-    if (isMesa) headerTag = `MESA ${String(tableNum).padStart(2, '0')} • ${cName} (${cPhone})`;
-
-    const sub = cart.reduce((acc, i) => acc + i.total_price, 0);
-    const fee = isDelivery ? configuredDefaultDeliveryFee : 0.0;
-    const couponDisc = getAppliedWebCouponDiscount(sub + fee);
-
-    showLoading(
-      isMesa ? '🔥 Enviando Pedido para a Chapa...' : (isRetirada ? '🛍️ Registrando Pedido para Retirada...' : '🛵 Enviando Pedido de Delivery...'),
-      'Aguarde um instante, estamos registrando seu pedido...'
-    );
-
-    const realTableId = isMesa ? await resolveRealTableIdByNumber(tableNum) : null;
-    let preOpenedComandaId = null;
-    let preOpenedComandaCode = '';
-    if (isMesa && realTableId) {
-      try {
-        const cmdRes = await fetch('/api/comandas', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'OPEN',
-            origin_type: 'MESA',
-            table_id: realTableId,
-            comanda_type: 'NOME_CELULAR',
-            customer_name: cName,
-            customer_phone: cPhone
-          })
-        });
-        if (cmdRes.ok) {
-          const cmdObj = await cmdRes.json();
-          if (cmdObj && (cmdObj.status === 'FECHAMENTO_SOLICITADO' || cmdObj.status === 'FECHADA')) {
-            isMyComandaClosedLock = true;
-            renderComandaLockedBannerUI();
-            hideLoading();
-            alert('🔒 COMANDA INDIVIDUAL BLOQUEADA PARA FECHAMENTO!\n\nSua comanda individual está em processo de fechamento e não aceita novos pedidos.\nSolicite ao Garçom ou ao Caixa para Reabrir sua Comanda caso deseje pedir mais itens.');
-            return;
-          }
-          if (cmdObj && cmdObj.id) {
-            preOpenedComandaId = cmdObj.id;
-            preOpenedComandaCode = cmdObj.comanda_code || '';
-            localStorage.setItem('sirbeef_my_comanda_id', String(cmdObj.id));
-            localStorage.setItem('sirbeef_my_comanda_code', preOpenedComandaCode);
-          }
-        }
-      } catch (e) {}
-    }
-
-    const payload = {
-      origin_type: mode,
-      table_id: isMesa ? realTableId : null,
-      comanda_id: preOpenedComandaId,
-      comanda_code: isMesa ? preOpenedComandaCode : '',
-      header_tag: headerTag,
-      customer_name: cName,
-      customer_phone: cPhone,
-      address_text: isMesa
-        ? `MESA ${String(tableNum).padStart(2, '0')} (Comanda Individual)`
-        : (isRetirada ? 'Retirada no Balcão' : cAddr),
-      latitude: pinLat,
-      longitude: pinLng,
-      status: isMesa ? 'ENTREGUE' : 'PREPARANDO',
-      payment_method: isMesa ? 'CONTA_MESA' : document.getElementById('chkPayment').value,
-      status_pagamento: 'PENDENTE',
-      change_for: parseFloat(document.getElementById('chkChange').value || '0'),
-      delivery_fee: fee,
-      coupon_code: (appliedWebCoupon && appliedWebCoupon.code) ? appliedWebCoupon.code : '',
-      discount_amount: couponDisc,
-      items: cart
-    };
+    isSubmittingWebOrder = true;
 
     try {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const created = await res.json();
-      if (!res.ok) {
-        hideLoading();
-        if (res.status === 403 && created && created.error && created.error.includes('CONTA BLOQUEADA')) {
-          isMyComandaClosedLock = true;
-          renderComandaLockedBannerUI();
-        }
-        alert((created && created.error) ? created.error : '🔒 Estamos indisponíveis no momento ou fechados.');
+      const mode = document.getElementById('chkOrderMode').value;
+      const isMesa = mode === 'MESA';
+      const isDelivery = mode === 'DELIVERY';
+      const isRetirada = mode === 'RETIRADA';
+
+      if (isMesa && isMyComandaClosedLock) {
+        alert('🔒 CONTA BLOQUEADA PARA FECHAMENTO!\n\nSua comanda está em processo de fechamento e não aceita novos pedidos.\nSolicite ao Garçom, Caixa ou Admin para Reabrir sua Comanda caso deseje pedir mais itens.');
         return;
       }
 
-      // Salva no histórico local do cliente para acompanhamento e vincula estritamente o comanda_id no localStorage
-      if (isMesa && created && created.comanda_id) {
-        localStorage.setItem('sirbeef_my_comanda_id', String(created.comanda_id));
-        if (created.comanda_code) {
-          localStorage.setItem('sirbeef_my_comanda_code', String(created.comanda_code));
+      if (isMesa && !isMesaSelfServicePage) {
+        alert('⚠️ Pedidos na mesa só podem ser feitos escaneando o QR Code exclusivo colado na sua mesa no salão.');
+        return;
+      }
+      if ((isMesa && menuModalities.MESA === false) || (isDelivery && menuModalities.DELIVERY === false) || (isRetirada && menuModalities.RETIRADA === false)) {
+        alert('🔒 Estamos indisponíveis no momento ou fechados para esta modalidade.');
+        return;
+      }
+
+      const cName = (document.getElementById('chkName').value || '').trim();
+      const cPhone = (document.getElementById('chkPhone').value || '').trim();
+      const cStreet = (document.getElementById('chkStreet')?.value || '').trim();
+      const cNum = (document.getElementById('chkHouseNum')?.value || '').trim();
+      const cBairro = (document.getElementById('chkNeighborhood')?.value || '').trim();
+      const cComp = (document.getElementById('chkComplement')?.value || '').trim();
+      const cAddr = syncCombinedAddressField();
+      const tableNum = parseInt(document.getElementById('chkTableNumber').value || String(selectedTableNum), 10) || 13;
+      if (isMesa && tableNum > 0) {
+        selectedTableNum = tableNum;
+        localStorage.setItem('sirbeef_my_table_num', String(tableNum));
+      }
+
+      if (!cName || !cPhone) {
+        alert('⚠️ Informe seu Nome e seu Celular/WhatsApp para identificarmos seu pedido!');
+        return;
+      }
+      if (isDelivery && (!cStreet || !cNum)) {
+        alert('📍 Para entrega (Delivery), puxe sua localização no GPS ou preencha a Rua e o Número da residência!');
+        return;
+      }
+
+      localStorage.setItem('sirbeef_customer_name', cName);
+      localStorage.setItem('sirbeef_customer_phone', cPhone);
+      if (cAddr) localStorage.setItem('sirbeef_customer_address', cAddr);
+      if (cStreet) localStorage.setItem('sirbeef_customer_street', cStreet);
+      if (cNum) localStorage.setItem('sirbeef_customer_num', cNum);
+      if (cBairro) localStorage.setItem('sirbeef_customer_bairro', cBairro);
+      localStorage.setItem('sirbeef_customer_comp', cComp);
+
+      let headerTag = 'ENTREGA';
+      if (isRetirada) headerTag = 'RETIRADA';
+      if (isMesa) headerTag = `MESA ${String(tableNum).padStart(2, '0')} • ${cName} (${cPhone})`;
+
+      const sub = cart.reduce((acc, i) => acc + i.total_price, 0);
+      const fee = isDelivery ? configuredDefaultDeliveryFee : 0.0;
+      const couponDisc = getAppliedWebCouponDiscount(sub + fee);
+
+      showLoading(
+        isMesa ? '🔥 Enviando Pedido para a Chapa...' : (isRetirada ? '🛍️ Registrando Pedido para Retirada...' : '🛵 Enviando Pedido de Delivery...'),
+        'Aguarde um instante, estamos registrando seu pedido...'
+      );
+
+      const realTableId = isMesa ? await resolveRealTableIdByNumber(tableNum) : null;
+      let preOpenedComandaId = null;
+      let preOpenedComandaCode = '';
+      if (isMesa && realTableId) {
+        try {
+          const cmdRes = await fetch('/api/comandas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'OPEN',
+              origin_type: 'MESA',
+              table_id: realTableId,
+              comanda_type: 'NOME_CELULAR',
+              customer_name: cName,
+              customer_phone: cPhone
+            })
+          });
+          if (cmdRes.ok) {
+            const cmdObj = await cmdRes.json();
+            if (cmdObj && (cmdObj.status === 'FECHAMENTO_SOLICITADO' || cmdObj.status === 'FECHADA')) {
+              isMyComandaClosedLock = true;
+              renderComandaLockedBannerUI();
+              hideLoading();
+              alert('🔒 COMANDA INDIVIDUAL BLOQUEADA PARA FECHAMENTO!\n\nSua comanda individual está em processo de fechamento e não aceita novos pedidos.\nSolicite ao Garçom ou ao Caixa para Reabrir sua Comanda caso deseje pedir mais itens.');
+              return;
+            }
+            if (cmdObj && cmdObj.id) {
+              preOpenedComandaId = cmdObj.id;
+              preOpenedComandaCode = cmdObj.comanda_code || '';
+              localStorage.setItem('sirbeef_my_comanda_id', String(cmdObj.id));
+              localStorage.setItem('sirbeef_my_comanda_code', preOpenedComandaCode);
+            }
+          }
+        } catch (e) {}
+      }
+
+      const clientOrderUid = 'WEB-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
+      const sanitizedItems = cart.map(it => ({
+        product_id: Number(it.product_id || 0),
+        product_name: String(it.product_name || ''),
+        category_id: Number(it.category_id || 0),
+        category_name: String(it.category_name || ''),
+        quantity: Number(it.quantity || 1),
+        unit_price: Number(it.unit_price || 0),
+        total_price: Number(it.total_price || 0),
+        selected_modifiers: Array.isArray(it.selected_modifiers) ? it.selected_modifiers.map(m => ({
+          group_name: String(m.group_name || ''),
+          option_name: String(m.option_name || ''),
+          price: Number(m.price || 0)
+        })) : [],
+        notes: String(it.notes || ''),
+        sector_abc: String(it.sector_abc || 'HAMBURGUERIA')
+      }));
+
+      const payload = {
+        client_order_uid: clientOrderUid,
+        origin_type: mode,
+        table_id: isMesa ? realTableId : null,
+        comanda_id: preOpenedComandaId,
+        comanda_code: isMesa ? preOpenedComandaCode : '',
+        header_tag: headerTag,
+        customer_name: cName,
+        customer_phone: cPhone,
+        address_text: isMesa
+          ? `MESA ${String(tableNum).padStart(2, '0')} (Comanda Individual)`
+          : (isRetirada ? 'Retirada no Balcão' : cAddr),
+        latitude: pinLat,
+        longitude: pinLng,
+        status: isMesa ? 'ENTREGUE' : 'PREPARANDO',
+        payment_method: isMesa ? 'CONTA_MESA' : document.getElementById('chkPayment').value,
+        status_pagamento: 'PENDENTE',
+        change_for: parseFloat(document.getElementById('chkChange').value || '0'),
+        delivery_fee: fee,
+        coupon_code: (appliedWebCoupon && appliedWebCoupon.code) ? appliedWebCoupon.code : '',
+        discount_amount: couponDisc,
+        items: sanitizedItems
+      };
+
+      try {
+        const res = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const created = await res.json();
+        if (!res.ok) {
+          hideLoading();
+          if (res.status === 403 && created && created.error && created.error.includes('CONTA BLOQUEADA')) {
+            isMyComandaClosedLock = true;
+            renderComandaLockedBannerUI();
+          }
+          alert((created && created.error) ? created.error : '🔒 Estamos indisponíveis no momento ou fechados.');
+          return;
         }
-      }
-      const myIds = JSON.parse(localStorage.getItem('sirbeef_my_order_ids') || '[]');
-      if (created && created.id && !myIds.includes(created.id)) {
-        myIds.unshift(created.id);
-        localStorage.setItem('sirbeef_my_order_ids', JSON.stringify(myIds.slice(0, 15)));
-      }
 
-      cart = [];
-      clearAppliedWebCoupon();
-      updateCartBar();
-      closeCheckoutModal();
-      hideLoading();
+        // Salva no histórico local do cliente para acompanhamento e vincula estritamente o comanda_id no localStorage
+        if (isMesa && created && created.comanda_id) {
+          localStorage.setItem('sirbeef_my_comanda_id', String(created.comanda_id));
+          if (created.comanda_code) {
+            localStorage.setItem('sirbeef_my_comanda_code', String(created.comanda_code));
+          }
+        }
+        const myIds = JSON.parse(localStorage.getItem('sirbeef_my_order_ids') || '[]');
+        if (created && created.id && !myIds.includes(created.id)) {
+          myIds.unshift(created.id);
+          localStorage.setItem('sirbeef_my_order_ids', JSON.stringify(myIds.slice(0, 15)));
+        }
 
-      await openMyOrdersModal();
-    } catch (err) {
-      hideLoading();
-      alert('⚠️ Falha de conexão ao enviar pedido. Tente novamente.');
+        cart = [];
+        clearAppliedWebCoupon();
+        updateCartBar();
+        closeCheckoutModal();
+        hideLoading();
+
+        await openMyOrdersModal();
+      } catch (err) {
+        hideLoading();
+        alert('⚠️ Falha de conexão ao enviar pedido. Tente novamente.');
+      }
+    } finally {
+      isSubmittingWebOrder = false;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.textContent = '✅ Confirmar & Enviar Pedido';
+      }
     }
   }
 
