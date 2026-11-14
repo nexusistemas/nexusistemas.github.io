@@ -206,27 +206,42 @@
     }
     .cat-bar {
       display: flex;
-      gap: 8px;
+      gap: 12px;
       overflow-x: auto;
-      padding-bottom: 6px;
+      padding-bottom: 10px;
       scrollbar-width: thin;
+      -webkit-overflow-scrolling: touch;
     }
     .cat-pill {
       white-space: nowrap;
-      padding: 10px 18px;
+      min-height: 50px;
+      padding: 10px 22px;
       border-radius: 999px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text);
+      background: #14141d;
+      border: 1.5px solid rgba(212, 175, 55, 0.35);
+      color: #f1f5f9;
       cursor: pointer;
-      font-weight: 700;
-      font-size: 13px;
-      transition: 0.15s;
+      font-weight: 800;
+      font-size: 1.05rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+    }
+    .cat-pill:hover {
+      border-color: rgba(212, 175, 55, 0.7);
+      background: #1b1b26;
+      transform: translateY(-1px);
     }
     .cat-pill.active {
-      background: linear-gradient(135deg, var(--gold-light), var(--gold));
-      color: #000;
-      border-color: var(--gold);
+      background: linear-gradient(135deg, #f3d87d 0%, #d4af37 100%);
+      color: #0b0b0e;
+      border-color: #f3d87d;
+      font-weight: 900;
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.45), 0 0 12px rgba(243, 216, 125, 0.35);
+      transform: translateY(-2px) scale(1.02);
     }
     .products-grid {
       display: grid;
@@ -642,7 +657,7 @@
       <select id="topTableSelect" onchange="syncSelectedTable(this.value)" style="width:auto;margin:0;padding:8px 12px;font-weight:700;"></select>
       <button class="btn" onclick="callWaiterFromWeb()" style="height:46px;font-weight:700;">🔔 Chamar Garçom</button>
       <button class="btn" onclick="openMyOrdersModal()" style="height:46px;padding:0 22px;font-size:1.08rem;font-weight:800;background:linear-gradient(135deg, #10b981 0%, #059669 100%);color:#ffffff;border:2px solid #34d399;border-radius:12px;box-shadow:0 4px 14px rgba(16,185,129,0.35);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;">💸 Conta</button>
-      <button class="btn" id="btnMesaKioskHighlights" onclick="triggerKioskHighlightsMode(true)" style="height:46px;padding:0 18px;font-size:1.05rem;font-weight:800;background:rgba(212,175,55,0.18);color:#f3d87d;border:2px solid #d4af37;border-radius:12px;box-shadow:0 4px 14px rgba(212,175,55,0.25);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;">✨ Destaque</button>
+      <button class="btn" id="btnMesaKioskHighlights" onclick="triggerKioskHighlightsMode(true)" style="height:46px;padding:0 18px;font-size:1.05rem;font-weight:800;background:rgba(212,175,55,0.18);color:#f3d87d;border:2px solid #d4af37;border-radius:12px;box-shadow:0 4px 14px rgba(212,175,55,0.25);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;">🖼️ Descanso</button>
     </div>
   </div>
 
@@ -889,9 +904,6 @@
   <!-- Carrossel de Fotos com Deslizamento Lateral Fluido (translate3d) -->
   <div id="kioskHlSlidesContainer" style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;"></div>
 
-  <!-- Fileira Centralizada de até 5 Cards Quadrados de Produtos Recomendados -->
-  <div id="kioskHlFeaturedProductsRow" style="position:fixed;bottom:84px;left:50%;transform:translateX(-50%);z-index:1000002;display:flex;justify-content:center;align-items:center;gap:12px;max-width:96vw;flex-wrap:wrap;pointer-events:auto;"></div>
-
   <!-- Aviso Inferior de Toque Para Abrir Cardápio -->
   <div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:1000001;background:rgba(18,18,26,0.88);border:1.5px solid #d4af37;border-radius:30px;padding:10px 24px;color:#ffffff;font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:8px;box-shadow:0 6px 24px rgba(0,0,0,0.8);pointer-events:none;letter-spacing:0.4px;">
     <span>👆</span> <span>TOQUE EM QUALQUER LUGAR PARA VER O CARDÁPIO</span>
@@ -976,6 +988,7 @@
   function applyKioskHighlightsConfig(data) {
     if (!data || typeof data !== 'object') return;
     kioskHighlightsConfig.enabled = data.enabled !== false;
+    kioskHighlightsConfig.show_highlight_category = data.show_highlight_category !== false;
     kioskHighlightsConfig.slide_duration_seconds = Number(data.slide_duration_seconds) || 5;
     kioskHighlightsConfig.idle_timeout_seconds = Number(data.idle_timeout_seconds) || 10;
     kioskHighlightsConfig.dimmer_brightness_percent = Number(data.dimmer_brightness_percent) || 15;
@@ -986,6 +999,9 @@
       localStorage.setItem(WEB_STORAGE_KIOSK_HL_KEY, JSON.stringify(kioskHighlightsConfig));
     } catch (_) {}
     resetKioskInactivityTimer();
+    if (typeof renderCategories === 'function' && catalog && catalog.length > 0) {
+      renderCategories();
+    }
   }
 
   function resetKioskInactivityTimer() {
@@ -1069,7 +1085,6 @@
     }
 
     renderKioskHighlightsSlides();
-    renderKioskHighlightsFeaturedProducts();
     overlay.style.display = 'block';
 
     // Redução de brilho p/ economia de bateria
@@ -1254,14 +1269,16 @@
       overlay.style.display = 'none';
     }
 
-    // Ao tocar: restaura brilho, fecha carrossel e posiciona rolagem no topo da tela (scrollTo(0, 0)) na primeira categoria!
+    // Ao tocar: restaura brilho, fecha carrossel e posiciona rolagem no topo da tela (scrollTo(0, 0)) na categoria ✨ Destaques (se ativa) ou na primeira categoria!
     try {
       window.scrollTo(0, 0);
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
       const catBar = document.getElementById('catBar');
       if (catBar) catBar.scrollLeft = 0;
-      if (catalog && catalog.length > 0) {
+      if (kioskHighlightsConfig.show_highlight_category !== false) {
+        selectCategory('destaques');
+      } else if (catalog && catalog.length > 0) {
         selectCategory(catalog[0].id);
       }
     } catch (_) {}
@@ -2186,8 +2203,13 @@
       items: (c.items || []).filter(p => p.active !== false && !isBoutiqueOrMarketCategory(p) && (isMesaSelfServicePage || !p.hide_in_delivery) && (typeof p.stock_qty !== 'number' || p.stock_qty < 0 || p.stock_qty > 0))
     })).filter(c => c.items.length > 0);
 
-    if (catalog.length > 0 && (!activeCatId || !catalog.some(c => c.id === activeCatId) || activeCatId === 900)) {
-      activeCatId = catalog[0].id;
+    const isDestaquesActive = activeCatId === 'destaques' && kioskHighlightsConfig.show_highlight_category !== false;
+    if (!isDestaquesActive && catalog.length > 0 && (!activeCatId || !catalog.some(c => c.id === activeCatId) || activeCatId === 900)) {
+      if (kioskHighlightsConfig.show_highlight_category !== false) {
+        activeCatId = 'destaques';
+      } else {
+        activeCatId = catalog[0].id;
+      }
     }
     renderCategories();
     renderProducts();
@@ -2268,9 +2290,18 @@
     return '🍔';
   }
 
+  let panoramicSlideTimer = null;
+  let panoramicSlideIdx = 0;
+
   function renderCategories() {
     const bar = document.getElementById('catBar');
-    bar.innerHTML = catalog.map(c => `
+    if (!bar) return;
+    const destaquesBtn = (kioskHighlightsConfig.show_highlight_category !== false) ? `
+      <button class="cat-pill ${activeCatId === 'destaques' ? 'active' : ''}" onclick="selectCategory('destaques')">
+        ✨ Destaques
+      </button>
+    ` : '';
+    bar.innerHTML = destaquesBtn + catalog.map(c => `
       <button class="cat-pill ${c.id === activeCatId ? 'active' : ''}" onclick="selectCategory(${c.id})">
         ${getMenuCategoryIcon(c)} ${c.name} (${c.items.length})
       </button>
@@ -2282,6 +2313,126 @@
     document.getElementById('menuSearchInput').value = '';
     renderCategories();
     renderProducts();
+  }
+
+  function renderHighlightsCategoryView(grid) {
+    const banners = (kioskHighlightsConfig && Array.isArray(kioskHighlightsConfig.items)) ? kioskHighlightsConfig.items : [];
+    const featIds = (kioskHighlightsConfig && Array.isArray(kioskHighlightsConfig.featured_product_ids)) ? kioskHighlightsConfig.featured_product_ids : [];
+
+    let featProducts = [];
+    featIds.forEach(id => {
+      const p = findProductInWebCatalog(id);
+      if (p) featProducts.push(p);
+    });
+
+    if (featProducts.length === 0 && Array.isArray(catalog)) {
+      catalog.forEach(cat => {
+        (cat.items || []).forEach(it => {
+          if (featProducts.length < 15 && it.active !== false && (it.promo_from > it.price || it.promo_discount_percent > 0 || cat.id === 137)) {
+            featProducts.push(it);
+          }
+        });
+      });
+    }
+
+    let bannerHtml = '';
+    if (banners.length > 0) {
+      bannerHtml = `
+        <div id="kioskPanoramicBannerWrap" style="position:relative;width:100%;height:240px;border-radius:18px;overflow:hidden;border:2px solid rgba(212,175,55,0.45);box-shadow:0 12px 36px rgba(0,0,0,0.85);margin-bottom:24px;background:#09090c;">
+          <div id="kioskPanoramicSlides" style="width:100%;height:100%;position:relative;">
+            ${banners.map((b, idx) => `
+              <div class="kiosk-pano-slide" id="kioskPanoSlide_${idx}" style="position:absolute;top:0;left:0;width:100%;height:100%;background-image:url('${resolveMenuAssetUrl(b.image_url)}');background-size:cover;background-position:center;transition:opacity 0.6s ease, transform 0.6s ease;opacity:${idx === 0 ? '1' : '0'};transform:${idx === 0 ? 'scale(1)' : 'scale(1.04)'};"></div>
+            `).join('')}
+          </div>
+          <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:2;">
+            ${banners.map((_, idx) => `
+              <div id="kioskPanoDot_${idx}" style="width:${idx === 0 ? '20px' : '7px'};height:7px;border-radius:4px;background:${idx === 0 ? '#f3d87d' : 'rgba(255,255,255,0.4)'};transition:all 0.3s ease;"></div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    let productsHtml = '';
+    if (featProducts.length > 0) {
+      productsHtml = `
+        <div style="width:100%;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:20px;">🔥</span>
+              <h2 style="font-size:1.15rem;font-weight:900;color:#f3d87d;margin:0;letter-spacing:0.5px;">Produtos Recomendados em Destaque</h2>
+            </div>
+            <span style="font-size:12px;color:#94a3b8;font-weight:700;">Deslize para o lado ➔</span>
+          </div>
+          <div style="display:flex;gap:14px;overflow-x:auto;padding-bottom:12px;scrollbar-width:thin;-webkit-overflow-scrolling:touch;">
+            ${featProducts.map(p => {
+              const basePrice = Number(p.price) || 0;
+              let promoFrom = Number(p.promo_from) || 0;
+              const hasPromo = promoFrom > basePrice;
+              const imgUrl = resolveMenuAssetUrl(p.image_url);
+              return `
+                <div class="kiosk-feat-card" onclick='openItemModal(${JSON.stringify(p).replace(/'/g, "&#39;")})' style="flex:0 0 160px;width:160px;min-height:210px;background:#14141d;border:1.5px solid rgba(212,175,55,0.35);border-radius:16px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.5);transition:all 0.2s ease;">
+                  <div style="width:90px;height:90px;border-radius:12px;overflow:hidden;background:#0c0c10;border:1px solid rgba(255,255,255,0.08);margin-bottom:8px;display:flex;align-items:center;justify-content:center;">
+                    ${imgUrl ? `<img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'" />` : `<span style="font-size:36px;">🍔</span>`}
+                  </div>
+                  <div style="font-size:13px;font-weight:800;color:#ffffff;text-align:center;line-height:1.2;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;width:100%;">
+                    ${p.name}
+                  </div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:8px;">
+                    ${hasPromo ? `<span style="font-size:11px;color:#94a3b8;text-decoration:line-through;">R$ ${promoFrom.toFixed(2)}</span>` : ''}
+                    <span style="font-size:14px;font-weight:900;color:${hasPromo ? '#22c55e' : '#f3d87d'};">R$ ${basePrice.toFixed(2)}</span>
+                  </div>
+                  <button type="button" class="btn btn-gold" style="width:100%;padding:6px 0;font-size:11.5px;font-weight:800;border-radius:8px;">+ Personalizar</button>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    grid.innerHTML = `
+      <div style="grid-column:1/-1;width:100%;">
+        ${bannerHtml}
+        ${productsHtml}
+      </div>
+    `;
+
+    startPanoramicSlideInterval(banners.length);
+  }
+
+  function startPanoramicSlideInterval(numBanners) {
+    if (panoramicSlideTimer) {
+      clearInterval(panoramicSlideTimer);
+      panoramicSlideTimer = null;
+    }
+    if (numBanners <= 1) return;
+    panoramicSlideIdx = 0;
+    const durMs = Math.max(2, kioskHighlightsConfig.slide_duration_seconds || 5) * 1000;
+    panoramicSlideTimer = setInterval(() => {
+      const prev = panoramicSlideIdx;
+      panoramicSlideIdx = (panoramicSlideIdx + 1) % numBanners;
+      const prevEl = document.getElementById('kioskPanoSlide_' + prev);
+      const nextEl = document.getElementById('kioskPanoSlide_' + panoramicSlideIdx);
+      const prevDot = document.getElementById('kioskPanoDot_' + prev);
+      const nextDot = document.getElementById('kioskPanoDot_' + panoramicSlideIdx);
+      if (prevEl) {
+        prevEl.style.opacity = '0';
+        prevEl.style.transform = 'scale(1.04)';
+      }
+      if (nextEl) {
+        nextEl.style.opacity = '1';
+        nextEl.style.transform = 'scale(1)';
+      }
+      if (prevDot) {
+        prevDot.style.width = '7px';
+        prevDot.style.background = 'rgba(255,255,255,0.4)';
+      }
+      if (nextDot) {
+        nextDot.style.width = '20px';
+        nextDot.style.background = '#f3d87d';
+      }
+    }, durMs);
   }
 
   function renderProducts() {
@@ -2296,6 +2447,17 @@
       return;
     }
     const q = (document.getElementById('menuSearchInput').value || '').toLowerCase().trim();
+
+    // Se estiver na Categoria Fixa ✨ Destaques
+    if (!q && activeCatId === 'destaques') {
+      renderHighlightsCategoryView(grid);
+      return;
+    }
+
+    if (panoramicSlideTimer) {
+      clearInterval(panoramicSlideTimer);
+      panoramicSlideTimer = null;
+    }
     let itemsToShow = [];
 
     if (q) {
