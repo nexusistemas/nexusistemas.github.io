@@ -1930,42 +1930,44 @@
       }
     }
 
-    function resetKioskInactivityTimer() {
-      if (kioskHighlightsTimer) {
-        clearTimeout(kioskHighlightsTimer);
-        kioskHighlightsTimer = null;
-      }
-      const isKiosk = document.body.classList.contains('mode-kiosk') || 
-                      document.body.getAttribute('data-mode') === 'kiosk' ||
-                      new URLSearchParams(window.location.search || '').get('mode') === 'kiosk' ||
-                      (state.user && (String(state.user.role).toUpperCase() === 'TABLET' || String(state.user.role).toUpperCase() === 'KIOSK'));
-      if (!isKiosk) return;
-      if (!kioskHighlightsConfig.enabled) return;
-      if (isKioskHighlightsActive) return;
+    let lastUserActivityTime = Date.now();
 
-      const timeoutMs = Math.max(3, kioskHighlightsConfig.idle_timeout_seconds || 10) * 1000;
-      kioskHighlightsTimer = setTimeout(() => {
-        triggerKioskHighlightsMode(false);
-      }, timeoutMs);
+    function resetKioskInactivityTimer() {
+      lastUserActivityTime = Date.now();
     }
 
     function initKioskInactivityMonitoring() {
       if (kioskInactivityListenersBound) {
-        resetKioskInactivityTimer();
+        lastUserActivityTime = Date.now();
         return;
       }
       kioskInactivityListenersBound = true;
-      const events = ['touchstart', 'touchmove', 'touchend', 'mousedown', 'mousemove', 'keydown', 'scroll', 'click'];
+      const events = ['touchstart', 'touchend', 'mousedown', 'keydown', 'scroll', 'click'];
       events.forEach(ev => {
         window.addEventListener(ev, () => {
           if (isKioskHighlightsActive) {
             exitKioskHighlightsMode();
           } else {
-            resetKioskInactivityTimer();
+            lastUserActivityTime = Date.now();
           }
         }, { passive: true });
       });
-      resetKioskInactivityTimer();
+      lastUserActivityTime = Date.now();
+
+      // Heartbeat contínuo de inatividade a cada 1 segundo
+      setInterval(() => {
+        if (!kioskHighlightsConfig.enabled || isKioskHighlightsActive) return;
+        const isKiosk = document.body.classList.contains('mode-kiosk') || 
+                        document.body.getAttribute('data-mode') === 'kiosk' ||
+                        new URLSearchParams(window.location.search || '').get('mode') === 'kiosk' ||
+                        (state.user && (String(state.user.role).toUpperCase() === 'TABLET' || String(state.user.role).toUpperCase() === 'KIOSK'));
+        if (!isKiosk) return;
+
+        const timeoutMs = Math.max(3, Number(kioskHighlightsConfig.idle_timeout_seconds) || 10) * 1000;
+        if (Date.now() - lastUserActivityTime >= timeoutMs) {
+          triggerKioskHighlightsMode(false);
+        }
+      }, 1000);
     }
 
     function triggerKioskHighlightsMode(manual = false) {
