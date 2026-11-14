@@ -3462,11 +3462,23 @@
       const cleanCats = [];
       const flatProducts = [];
 
+      const isSuperAppArea2Active = () => {
+        const br = (state && state.branding) ? state.branding : {};
+        if (br.module_market === false) return false;
+        if (Array.isArray(br.cashier_cards)) {
+          const c2 = br.cashier_cards.find(c => c && (c.id === 2 || c.card_id === 2 || String(c.section_key).toUpperCase() === 'MERCADO'));
+          if (c2 && c2.enabled === false) return false;
+        }
+        return br.module_market !== false;
+      };
+      const a2On = isSuperAppArea2Active();
+
       cats.forEach((c, idx) => {
         if (c.is_active === false) return;
         const cSec = String(c.sector || '').toUpperCase();
         const cNameLower = String(c.name || '').toLowerCase();
-        if (c.id === 900 || cSec === 'MERCADO' || cNameLower.includes('boutique') || cNameLower.includes('mercado')) {
+        const isBoutiqueCat = c.id === 900 || cSec === 'MERCADO' || cNameLower.includes('boutique') || cNameLower.includes('mercado');
+        if (!a2On && isBoutiqueCat) {
           return;
         }
         if (hid.length > 0 && (hid.includes(c.id) || hid.includes(String(c.id)) || hid.map(x => String(x).toLowerCase()).includes(cNameLower))) {
@@ -3479,7 +3491,7 @@
         cleanCats.push({
           id: c.id,
           name: c.name,
-          icon: c.icon || '',
+          icon: c.icon || (isBoutiqueCat ? '🥩' : ''),
           sort_order: (typeof c.sort_order === 'number' && c.sort_order > 0) ? c.sort_order : (idx + 1)
         });
         activeItems.forEach(p => {
@@ -3745,13 +3757,22 @@
       let bannerHtml = '';
       if (banners.length > 0) {
         bannerHtml = `
-          <div id="saPanoramicBannerWrap" style="position:relative;width:100%;height:240px;border-radius:18px;overflow:hidden;border:2px solid rgba(212,175,55,0.45);box-shadow:0 12px 36px rgba(0,0,0,0.85);margin-bottom:24px;background:#09090c;">
+          <div id="saPanoramicBannerWrap" style="position:relative;width:100%;height:290px;border-radius:18px;overflow:hidden;border:2px solid rgba(212,175,55,0.45);box-shadow:0 12px 36px rgba(0,0,0,0.85);margin-bottom:24px;background:#050508;">
             <div id="saPanoramicSlides" style="width:100%;height:100%;position:relative;">
-              ${banners.map((b, idx) => `
-                <div class="kiosk-pano-slide" id="saPanoSlide_${idx}" style="position:absolute;top:0;left:0;width:100%;height:100%;background-image:url('${(typeof resolveSuperAppAssetUrl === 'function' ? resolveSuperAppAssetUrl(b.image_url) : (b.image_url || ''))}');background-size:cover;background-position:center;transition:opacity 0.6s ease, transform 0.6s ease;opacity:${idx === 0 ? '1' : '0'};transform:${idx === 0 ? 'scale(1)' : 'scale(1.04)'};"></div>
-              `).join('')}
+              ${banners.map((b, idx) => {
+                const bgUrl = typeof resolveSuperAppAssetUrl === 'function' ? resolveSuperAppAssetUrl(b.image_url) : (b.image_url || '');
+                return `
+                <div class="kiosk-pano-slide" id="saPanoSlide_${idx}" style="position:absolute;top:0;left:0;width:100%;height:100%;transition:opacity 0.6s ease, transform 0.6s ease;opacity:${idx === 0 ? '1' : '0'};transform:${idx === 0 ? 'scale(1)' : 'scale(1.04)'};overflow:hidden;">
+                  <!-- Fundo Ambient Blur em Alta Resolução -->
+                  <div style="position:absolute;inset:-15px;width:calc(100% + 30px);height:calc(100% + 30px);background-image:url('${bgUrl}');background-size:cover;background-position:center;filter:blur(24px) brightness(0.45);transform:scale(1.12);z-index:1;"></div>
+                  <!-- Imagem Principal em Primeiro Plano Nítida e Sem Cortes -->
+                  <div style="position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:2;padding:8px;">
+                    <img src="${bgUrl}" alt="Destaque #${idx+1}" style="max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 8px 24px rgba(0,0,0,0.85));border-radius:12px;" />
+                  </div>
+                </div>
+              `;}).join('')}
             </div>
-            <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:2;">
+            <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:3;">
               ${banners.map((_, idx) => `
                 <div id="saPanoDot_${idx}" style="width:${idx === 0 ? '20px' : '7px'};height:7px;border-radius:4px;background:${idx === 0 ? '#f3d87d' : 'rgba(255,255,255,0.4)'};transition:all 0.3s ease;"></div>
               `).join('')}
@@ -3777,10 +3798,12 @@
                 let promoFrom = Number(p.promo_from) || 0;
                 const hasPromo = promoFrom > basePrice;
                 const imgUrl = typeof resolveSuperAppAssetUrl === 'function' ? resolveSuperAppAssetUrl(p.image_url) : (p.image_url || '');
+                const isMktProd = String(p.sector || '').toUpperCase() === 'MERCADO' || Number(p.category_id) === 900;
+                const featEmoji = isMktProd ? '🥩' : (String(p.category_name || '').toLowerCase().includes('bebida') ? '🍺' : '🍔');
                 return `
                   <div class="kiosk-feat-card" onclick='openProductCustomizerModal(${JSON.stringify(p).replace(/'/g, "&#39;")}, null, null)' style="flex:0 0 160px;width:160px;min-height:210px;background:#14141d;border:1.5px solid rgba(212,175,55,0.35);border-radius:16px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.5);transition:all 0.2s ease;">
                     <div style="width:90px;height:90px;border-radius:12px;overflow:hidden;background:#0c0c10;border:1px solid rgba(255,255,255,0.08);margin-bottom:8px;display:flex;align-items:center;justify-content:center;">
-                      ${imgUrl ? `<img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'" />` : `<span style="font-size:36px;">🍔</span>`}
+                      ${imgUrl ? `<img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'" />` : `<span style="font-size:36px;">${featEmoji}</span>`}
                     </div>
                     <div style="font-size:13px;font-weight:800;color:#ffffff;text-align:center;line-height:1.2;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;width:100%;">
                       ${escapeHtml(p.name)}
