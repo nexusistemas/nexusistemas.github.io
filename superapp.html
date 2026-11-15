@@ -1828,6 +1828,46 @@
     const SA_STORAGE_BRAND_KEY = 'nexus_superapp_branding_cache_v1';
     const SA_FALLBACK_SVG_LOGO = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" rx="26" fill="#09090c"/><rect x="4" y="4" width="112" height="112" rx="22" fill="none" stroke="#d4af37" stroke-width="4"/><path d="M34 86V34h14l24 32V34h14v52H72L48 54v32H34z" fill="#d4af37"/></svg>');
 
+  const SR_BURGER_QR_REV_MAP = {"a1f5803f-0287-4944-83b4-a887422377b2": 1, "5f78fb53-4cb6-4055-a7c6-9d2fa0f12e2e": 2, "00768344-67e7-4ba3-866e-1d4892e3d447": 3, "1f35bc3b-6079-4cd1-91bf-62607b41dfb0": 4, "5d8923c9-590e-4da6-aea9-f5ff39e74173": 5, "bacb4bb3-ae41-4052-bd67-03d54eedea81": 6, "5daf5e45-e88c-4c17-927c-704ec1f94378": 7, "b1b8f268-6463-43e8-93b1-8a2c63566fa4": 8, "2ac27d9d-c06f-4abc-8b52-30e5a13aabf0": 9, "e605bdfa-e9df-4407-a477-196335921cbe": 10, "ad1392c7-de1e-40f8-a55f-385dd41ab1d0": 11, "e8fbc248-ebc7-481a-a001-f12acb2dc9f3": 12, "10694293-a947-4d67-8cbb-00cc032124a8": 13, "17bd1c9d-63f5-4ae2-87fe-6d6487e09a73": 14, "6c77a2ee-c1a0-4bc2-a320-88f6d2915fb9": 15, "e67f0f70-d256-4ae1-8366-cbdb686e76b0": 16, "349d1234-6a02-4d6c-b811-3ee999c6e168": 17, "3f731f13-49b2-49d5-b737-5860e24371ca": 18, "2ddba0c5-6ffc-4999-acef-e48986d9768a": 19, "2d5a93ac-c3d0-4c6f-9bbe-5f5cd3be6d32": 20, "ea28ca3a-33d7-408b-8ecb-48d3cb3d2d7b": 21, "ed660492-fa12-48d5-8345-382cbf2e10a1": 22, "3f0c91aa-d7f0-4716-b598-c376533a5357": 23, "1630d85a-5b85-438f-93b9-7726e15c2b95": 24, "68cf764c-5ea5-4bac-8c8f-14ddde3e18eb": 25, "6ea626f4-3747-4de8-b2e4-cd84dafda6f5": 26, "fdb50d97-ee57-4b7c-8a58-87a8cd7f7a94": 27, "113b082c-7a79-4957-9e36-3b43874c1bf8": 28, "1b1b34ea-b87f-4b3f-8d5f-5eb04783b530": 29, "6e507939-fb5a-406e-ab3f-c8e2c8c746ce": 30, "f06486f9-25b0-4e34-9cea-058baefd955e": 31, "b3e68a73-67f4-462e-854f-119b543cecc8": 32, "21409829-40f6-4a4e-945b-b6d4dd9ec715": 33, "27cb1cc7-17ba-414e-b04b-2e65e6c05b97": 34, "6d838d86-1c2e-438b-a298-f6b74283ce96": 35, "b2f6c174-1b8f-4a50-8ae6-bbd0b7b077ff": 36, "c20c3446-cc2b-4276-82dd-013c50f98b63": 37, "5e495514-7c90-42ad-961b-a30a2a23e975": 38, "77bbd5b9-31d6-4512-8f0f-6897feac5373": 39, "f5530634-d743-44ee-8605-b0c89c19e20d": 40, "926534e2-ff9d-4305-abc6-002e989be1b2": 41, "86ff5f84-0567-4fff-8bf6-87ebf60adcfc": 42, "930d209d-297b-4560-92bc-28601a0f4216": 43, "c4e5948e-9230-4579-a653-c99bc5a49083": 44, "c456f80d-35e5-4f1b-baf9-83d21bf6f0d2": 45, "59b64031-9970-4250-8e8a-22ed7d53c539": 46, "42cd3307-da51-4580-83d1-c162975ce0f4": 47, "7b72e2fd-1b5d-4c4c-af73-8715778ac588": 48, "a9c3a56f-a1be-4cb4-9646-cba8b191c0e1": 49, "dae524a1-0d6e-44c7-bc79-55142b4176c8": 50, "9b5d82a7-f6a4-4e17-ae57-d8fdae6b2e1a": 51, "af8cebad-d6dc-4766-ab22-76ed2ab70673": 52, "4d921d96-b185-4f92-b8dd-d11a14ed17f7": 53, "e4ffc82d-d9f1-48a3-84b4-3722212d2cb3": 54, "08998883-ea36-4b09-ad5e-af30d1e75d7d": 55, "ee4c65f5-b186-45fa-828d-7d53a9773a65": 56, "904730f1-3cff-4522-9882-b686d7ac5e28": 57, "e136076f-1b31-4046-b181-b967a11f5cce": 58, "14190317-9299-4762-8dd9-dfd3f95d2215": 59, "a8d1d7e0-acb5-431e-ae10-ebaed84978c5": 60, "69226cd4-bbaa-4b1f-905c-464e691004d8": 61, "ec9a5d9c-d362-4e8b-b087-bc9fe98d7754": 62, "494b1f37-df73-4e8b-a1a1-df7ced116256": 63, "3e4130d1-9f90-4a79-b87f-304643d69e71": 64, "48701e2e-62cc-4e8e-a54e-76e560390596": 65, "d6ba5889-558b-4bd0-9b64-a1c76eaaf3f7": 66, "c74425e2-03c6-4e35-b013-dcbc983e74af": 67, "eb5b8102-3a14-453a-871f-d4df13d6f06d": 68, "5b63a68b-e9c8-4f75-9389-554990b12036": 69, "9ceb503d-3c6c-4126-b00f-48218a3de5ab": 70, "b8b10ac1-1450-4e76-8c1c-d7ce39250255": 71, "f53ac196-4e5e-4c60-827e-4eeffc36878c": 72, "7f940736-9b19-4b9a-bc48-57c86e05d109": 73, "93d31cc1-93fe-4d2d-a55d-dd2ac9fa889e": 74, "3b8a5537-2301-462e-80ab-52bd01254efc": 75, "99b9e483-150e-4808-a7ad-46ea24f60057": 76, "41756fef-183d-4b6c-bb95-af50d539b24a": 77, "bad7d604-5bdd-4b28-a090-c946d3486233": 78, "5977dc23-0acb-4822-89fc-ebb5e2f5543f": 79, "f7edecc5-fb1e-4a3e-acd2-089d60cc2dab": 80, "e75078e0-7f50-4cb9-8ae4-575ba3ad741e": 81, "545e1e04-ec29-4b53-85c5-ff5fe6382fcc": 82, "7ccb1628-99f3-4575-9eb3-7970dcdfcd1f": 83, "4fb76be3-22b0-4602-ac9e-551eaedfd80a": 84, "9ed6899d-25ef-47c2-b171-a2d1df765109": 85, "bc70e4dd-505f-44d5-8546-1bde79fcef30": 86, "92fdfb2d-a1d3-4b1b-bd25-d42b40ce77ac": 87, "d45cfbe3-c9f9-4788-afc0-d586b6429b6d": 88, "2ccd298d-fc11-4112-ad46-01663ae037ce": 89, "b4eb0559-b121-4d00-9b76-a848f966350b": 90, "8103d2e3-e7e4-4353-a5c6-4a970f9ce220": 91, "180b90aa-3444-405c-a8ca-9f4dd16d250a": 92, "810c61fc-3c10-43f6-ac0a-10373526ed8a": 93, "9ffaef4d-fce5-483d-b36f-2f3d307144e4": 94, "cffadd1e-6bdf-4d93-9dfc-b34f9bf90c9f": 95, "2a915bbd-f52f-4687-a6d5-7858a3875e6e": 96, "6f23db3d-f0f9-4cd4-8523-8ad7caf11524": 97, "26083773-727d-478c-b323-4668988049dd": 98, "9b79324c-8733-484c-a0ca-100441a6abb9": 99, "33d05121-d76a-431c-adad-a0fdc541d513": 100};
+  const SR_BURGER_QR_NUM_MAP = {"1": "a1f5803f-0287-4944-83b4-a887422377b2", "2": "5f78fb53-4cb6-4055-a7c6-9d2fa0f12e2e", "3": "00768344-67e7-4ba3-866e-1d4892e3d447", "4": "1f35bc3b-6079-4cd1-91bf-62607b41dfb0", "5": "5d8923c9-590e-4da6-aea9-f5ff39e74173", "6": "bacb4bb3-ae41-4052-bd67-03d54eedea81", "7": "5daf5e45-e88c-4c17-927c-704ec1f94378", "8": "b1b8f268-6463-43e8-93b1-8a2c63566fa4", "9": "2ac27d9d-c06f-4abc-8b52-30e5a13aabf0", "10": "e605bdfa-e9df-4407-a477-196335921cbe", "11": "ad1392c7-de1e-40f8-a55f-385dd41ab1d0", "12": "e8fbc248-ebc7-481a-a001-f12acb2dc9f3", "13": "10694293-a947-4d67-8cbb-00cc032124a8", "14": "17bd1c9d-63f5-4ae2-87fe-6d6487e09a73", "15": "6c77a2ee-c1a0-4bc2-a320-88f6d2915fb9", "16": "e67f0f70-d256-4ae1-8366-cbdb686e76b0", "17": "349d1234-6a02-4d6c-b811-3ee999c6e168", "18": "3f731f13-49b2-49d5-b737-5860e24371ca", "19": "2ddba0c5-6ffc-4999-acef-e48986d9768a", "20": "2d5a93ac-c3d0-4c6f-9bbe-5f5cd3be6d32", "21": "ea28ca3a-33d7-408b-8ecb-48d3cb3d2d7b", "22": "ed660492-fa12-48d5-8345-382cbf2e10a1", "23": "3f0c91aa-d7f0-4716-b598-c376533a5357", "24": "1630d85a-5b85-438f-93b9-7726e15c2b95", "25": "68cf764c-5ea5-4bac-8c8f-14ddde3e18eb", "26": "6ea626f4-3747-4de8-b2e4-cd84dafda6f5", "27": "fdb50d97-ee57-4b7c-8a58-87a8cd7f7a94", "28": "113b082c-7a79-4957-9e36-3b43874c1bf8", "29": "1b1b34ea-b87f-4b3f-8d5f-5eb04783b530", "30": "6e507939-fb5a-406e-ab3f-c8e2c8c746ce", "31": "f06486f9-25b0-4e34-9cea-058baefd955e", "32": "b3e68a73-67f4-462e-854f-119b543cecc8", "33": "21409829-40f6-4a4e-945b-b6d4dd9ec715", "34": "27cb1cc7-17ba-414e-b04b-2e65e6c05b97", "35": "6d838d86-1c2e-438b-a298-f6b74283ce96", "36": "b2f6c174-1b8f-4a50-8ae6-bbd0b7b077ff", "37": "c20c3446-cc2b-4276-82dd-013c50f98b63", "38": "5e495514-7c90-42ad-961b-a30a2a23e975", "39": "77bbd5b9-31d6-4512-8f0f-6897feac5373", "40": "f5530634-d743-44ee-8605-b0c89c19e20d", "41": "926534e2-ff9d-4305-abc6-002e989be1b2", "42": "86ff5f84-0567-4fff-8bf6-87ebf60adcfc", "43": "930d209d-297b-4560-92bc-28601a0f4216", "44": "c4e5948e-9230-4579-a653-c99bc5a49083", "45": "c456f80d-35e5-4f1b-baf9-83d21bf6f0d2", "46": "59b64031-9970-4250-8e8a-22ed7d53c539", "47": "42cd3307-da51-4580-83d1-c162975ce0f4", "48": "7b72e2fd-1b5d-4c4c-af73-8715778ac588", "49": "a9c3a56f-a1be-4cb4-9646-cba8b191c0e1", "50": "dae524a1-0d6e-44c7-bc79-55142b4176c8", "51": "9b5d82a7-f6a4-4e17-ae57-d8fdae6b2e1a", "52": "af8cebad-d6dc-4766-ab22-76ed2ab70673", "53": "4d921d96-b185-4f92-b8dd-d11a14ed17f7", "54": "e4ffc82d-d9f1-48a3-84b4-3722212d2cb3", "55": "08998883-ea36-4b09-ad5e-af30d1e75d7d", "56": "ee4c65f5-b186-45fa-828d-7d53a9773a65", "57": "904730f1-3cff-4522-9882-b686d7ac5e28", "58": "e136076f-1b31-4046-b181-b967a11f5cce", "59": "14190317-9299-4762-8dd9-dfd3f95d2215", "60": "a8d1d7e0-acb5-431e-ae10-ebaed84978c5", "61": "69226cd4-bbaa-4b1f-905c-464e691004d8", "62": "ec9a5d9c-d362-4e8b-b087-bc9fe98d7754", "63": "494b1f37-df73-4e8b-a1a1-df7ced116256", "64": "3e4130d1-9f90-4a79-b87f-304643d69e71", "65": "48701e2e-62cc-4e8e-a54e-76e560390596", "66": "d6ba5889-558b-4bd0-9b64-a1c76eaaf3f7", "67": "c74425e2-03c6-4e35-b013-dcbc983e74af", "68": "eb5b8102-3a14-453a-871f-d4df13d6f06d", "69": "5b63a68b-e9c8-4f75-9389-554990b12036", "70": "9ceb503d-3c6c-4126-b00f-48218a3de5ab", "71": "b8b10ac1-1450-4e76-8c1c-d7ce39250255", "72": "f53ac196-4e5e-4c60-827e-4eeffc36878c", "73": "7f940736-9b19-4b9a-bc48-57c86e05d109", "74": "93d31cc1-93fe-4d2d-a55d-dd2ac9fa889e", "75": "3b8a5537-2301-462e-80ab-52bd01254efc", "76": "99b9e483-150e-4808-a7ad-46ea24f60057", "77": "41756fef-183d-4b6c-bb95-af50d539b24a", "78": "bad7d604-5bdd-4b28-a090-c946d3486233", "79": "5977dc23-0acb-4822-89fc-ebb5e2f5543f", "80": "f7edecc5-fb1e-4a3e-acd2-089d60cc2dab", "81": "e75078e0-7f50-4cb9-8ae4-575ba3ad741e", "82": "545e1e04-ec29-4b53-85c5-ff5fe6382fcc", "83": "7ccb1628-99f3-4575-9eb3-7970dcdfcd1f", "84": "4fb76be3-22b0-4602-ac9e-551eaedfd80a", "85": "9ed6899d-25ef-47c2-b171-a2d1df765109", "86": "bc70e4dd-505f-44d5-8546-1bde79fcef30", "87": "92fdfb2d-a1d3-4b1b-bd25-d42b40ce77ac", "88": "d45cfbe3-c9f9-4788-afc0-d586b6429b6d", "89": "2ccd298d-fc11-4112-ad46-01663ae037ce", "90": "b4eb0559-b121-4d00-9b76-a848f966350b", "91": "8103d2e3-e7e4-4353-a5c6-4a970f9ce220", "92": "180b90aa-3444-405c-a8ca-9f4dd16d250a", "93": "810c61fc-3c10-43f6-ac0a-10373526ed8a", "94": "9ffaef4d-fce5-483d-b36f-2f3d307144e4", "95": "cffadd1e-6bdf-4d93-9dfc-b34f9bf90c9f", "96": "2a915bbd-f52f-4687-a6d5-7858a3875e6e", "97": "6f23db3d-f0f9-4cd4-8523-8ad7caf11524", "98": "26083773-727d-478c-b323-4668988049dd", "99": "9b79324c-8733-484c-a0ca-100441a6abb9", "100": "33d05121-d76a-431c-adad-a0fdc541d513"};
+
+  function normalizeComandaTokenOrQr(raw) {
+    if (!raw) return { number: 0, code: '' };
+    const trimmed = String(raw).trim();
+    if (!trimmed) return { number: 0, code: '' };
+    const lower = trimmed.toLowerCase();
+    if (SR_BURGER_QR_REV_MAP[lower]) {
+      const num = SR_BURGER_QR_REV_MAP[lower];
+      return { number: num, code: 'CMD-' + String(num).padStart(3, '0') };
+    }
+    let clean = trimmed.toUpperCase()
+      .replace(/^SIRBEEF:COMANDA:/i, '')
+      .replace(/^SIRBEEF-COMANDA-/i, '')
+      .replace(/^SIRBEEF:CMD:/i, '')
+      .replace(/^SIRBEEF-CMD-/i, '')
+      .replace(/^NEXUS:COMANDA:/i, '')
+      .replace(/^NEXUS-COMANDA-/i, '')
+      .replace(/^NEXUS:CMD:/i, '')
+      .replace(/^NEXUS-CMD-/i, '')
+      .replace(/^COMANDA:/i, '')
+      .replace(/^COMANDA-/i, '')
+      .replace(/^COMANDA\s+/i, '')
+      .replace(/^CMD:/i, '')
+      .replace(/^CMD-/i, '')
+      .replace(/^CMD\s+/i, '')
+      .replace(/^#/i, '')
+      .trim();
+    const parsedNum = parseInt(clean, 10);
+    if (!isNaN(parsedNum) && parsedNum > 0 && String(parsedNum) === clean) {
+      return { number: parsedNum, code: 'CMD-' + String(parsedNum).padStart(3, '0') };
+    }
+    if (clean.startsWith('MESA ') || clean.startsWith('M-')) {
+      return { number: 0, code: clean };
+    }
+    return { number: parsedNum || 0, code: clean ? 'CMD-' + clean : '' };
+  }
+
+
     const state = {
       user: null,
       branding: {
@@ -5083,9 +5123,12 @@
         badge.textContent = String(openCmds.length);
       }
 
-      const q = (document.getElementById('comandaSearchInput')?.value || '').trim().toLowerCase();
+      const rawQ = (document.getElementById('comandaSearchInput')?.value || '').trim();
+      const q = rawQ.toLowerCase();
+      const normSearch = normalizeComandaTokenOrQr(rawQ);
       const filtered = openCmds.filter(c => {
         if (!q) return true;
+        if (normSearch && normSearch.code && String(c.comanda_code || '').toUpperCase() === normSearch.code) return true;
         return String(c.comanda_code || '').toLowerCase().includes(q) ||
           String(c.customer_name || '').toLowerCase().includes(q) ||
           String(c.customer_phone || '').toLowerCase().includes(q) ||
@@ -5368,8 +5411,9 @@
             if (codes && codes.length > 0 && codes[0].rawValue) {
               const raw = String(codes[0].rawValue).trim();
               stopComandaQrCamera();
+              const normObj = normalizeComandaTokenOrQr(raw);
               const inp = document.getElementById('newComandaCodeInput');
-              if (inp) inp.value = raw;
+              if (inp) inp.value = (normObj && normObj.code) ? normObj.code : raw;
               playNotificationBeep(1120, 120);
             }
           } catch (_) {}
@@ -5412,8 +5456,11 @@
         return;
       }
 
+      const normCmd = normalizeComandaTokenOrQr(code);
+      const effectiveCode = (normCmd && normCmd.code) ? normCmd.code : code;
+
       if (mode === 'qr_code') {
-        if (!code) {
+        if (!effectiveCode) {
           showSaAlert('💳 Leia o QR Code do Cartão na câmera ou digite o Nº do Cartão (Ex: CMD-001 ou 1 a 500).');
           return;
         }
@@ -5444,7 +5491,7 @@
           body: {
             action: 'OPEN',
             table_id: tblId,
-            comanda_code: mode === 'qr_code' ? code : '',
+            comanda_code: mode === 'qr_code' ? effectiveCode : '',
             comanda_type: mode === 'qr_code' ? 'QR_TABLET' : 'NOME_CELULAR',
             entry_mode: mode,
             customer_name: customer,
