@@ -29,11 +29,11 @@
       "is_kiosk": true,
       "is_custom": false,
       "active": false,
-      "status": "LIVRE",
+      "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "",
-      "current_total": 0,
-      "updated_at": "10:48"
+      "current_total": 33,
+      "updated_at": "10:52"
     },
     {
       "id": 2,
@@ -471,5 +471,5 @@
       "updated_at": "10:48"
     }
   ],
-  "updated_at": "2026-11-15T10:50:55-03:00"
+  "updated_at": "2026-11-15T10:53:47-03:00"
 }
