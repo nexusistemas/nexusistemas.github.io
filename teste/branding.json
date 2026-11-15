@@ -33,7 +33,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "10:05"
+      "updated_at": "10:06"
     },
     {
       "id": 2,
@@ -471,5 +471,5 @@
       "updated_at": "09:45"
     }
   ],
-  "updated_at": "2026-11-15T10:05:40-03:00"
+  "updated_at": "2026-11-15T10:15:41-03:00"
 }
