@@ -696,16 +696,14 @@
       overflow: hidden !important;
     }
 
-    /* Estilos do Carrossel de Destaques em Tela Cheia no Modo Kiosk */
+    /* Estilos do Carrossel de Destaques em Tela Cheia no Modo Kiosk (Composição em Dupla Camada com Fundo Ambient Blur) */
     .kiosk-hl-slide {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+      overflow: hidden;
       will-change: transform, opacity;
       transition: transform 0.65s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.65s ease;
     }
@@ -720,6 +718,37 @@
     .kiosk-hl-slide.slide-exit {
       transform: translate3d(-100%, 0, 0);
       opacity: 0;
+    }
+    .kiosk-hl-ambient {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      filter: blur(28px) brightness(0.38);
+      transform: scale(1.08);
+      pointer-events: none;
+    }
+    .kiosk-hl-main-wrap {
+      position: absolute;
+      inset: 68px 7vw 80px 7vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .kiosk-hl-main-img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 16px;
+      border: 1.5px solid rgba(212, 175, 55, 0.45);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
+      pointer-events: auto;
     }
 
     .prod-info {
@@ -2089,7 +2118,13 @@
         const slide = document.createElement('div');
         slide.className = 'kiosk-hl-slide ' + (idx === 0 ? 'slide-active' : 'slide-enter');
         slide.id = 'kioskSlide_' + idx;
-        slide.style.backgroundImage = 'url("' + (item.image_url || '') + '")';
+        const imgUrl = item.image_url || '';
+        slide.innerHTML = `
+          <div class="kiosk-hl-ambient" style="background-image:url('${imgUrl}');"></div>
+          <div class="kiosk-hl-main-wrap">
+            <img class="kiosk-hl-main-img" src="${imgUrl}" alt="${escapeHtml(item.title || 'Destaque')}" onerror="this.style.display='none'" />
+          </div>
+        `;
         container.appendChild(slide);
       });
     }
