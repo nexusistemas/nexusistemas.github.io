@@ -472,7 +472,7 @@
         "updated_at": "15:13"
       }
     ],
-    "updated_at": "2026-11-16T15:26:56-03:00"
+    "updated_at": "2026-11-16T15:29:50-03:00"
   },
   "catalog": [
     {
@@ -8381,10 +8381,10 @@
           "category_id": 145,
           "category_name": "Sobremesas e Doces",
           "sector": "HAMBURGUERIA",
-          "sector_abc": "MERCADO_BEBIDAS",
+          "sector_abc": "HAMBURGUERIA",
           "name": "Pudim no copo",
           "description": "",
-          "price": 15,
+          "price": 16,
           "cost_price": 6.3,
           "ean13": "7898900001049",
           "is_weighted": false,
@@ -8394,15 +8394,23 @@
           "image_url": "/assets/products/item_648.jpg",
           "modifier_groups": [
             {
-              "name": "Sabores",
+              "name": "Sabores:",
               "min": 1,
-              "max": 5,
+              "max": 1,
               "required": true,
               "options": [
                 {
                   "name": "Tradicional",
                   "description": "",
-                  "price": 15,
+                  "price": 16,
+                  "visible": true,
+                  "active": true,
+                  "available": true
+                },
+                {
+                  "name": "Doce de leite",
+                  "description": "",
+                  "price": 16,
                   "visible": true,
                   "active": true,
                   "available": true
@@ -8410,15 +8418,7 @@
                 {
                   "name": "Leite em Pó",
                   "description": "",
-                  "price": 15,
-                  "visible": true,
-                  "active": true,
-                  "available": true
-                },
-                {
-                  "name": "Doce de Leite",
-                  "description": "",
-                  "price": 15,
+                  "price": 16,
                   "visible": true,
                   "active": true,
                   "available": true
