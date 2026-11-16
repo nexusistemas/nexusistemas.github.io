@@ -30,11 +30,11 @@
         "is_kiosk": true,
         "is_custom": false,
         "active": true,
-        "status": "LIVRE",
+        "status": "OCUPADA",
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "09:24"
+        "updated_at": "09:28"
       },
       {
         "id": 2,
@@ -472,7 +472,7 @@
         "updated_at": "09:24"
       }
     ],
-    "updated_at": "2026-11-16T09:27:43-03:00"
+    "updated_at": "2026-11-16T09:30:34-03:00"
   },
   "catalog": [
     {
@@ -2487,11 +2487,11 @@
       "is_kiosk": true,
       "is_custom": false,
       "active": true,
-      "status": "LIVRE",
+      "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "09:24"
+      "updated_at": "09:28"
     },
     {
       "id": 2,
