@@ -30,11 +30,11 @@
         "is_kiosk": true,
         "is_custom": false,
         "active": false,
-        "status": "LIVRE",
+        "status": "OCUPADA",
         "waiter_call": false,
         "qr_token": "",
-        "current_total": 0,
-        "updated_at": "15:13"
+        "current_total": 73.9,
+        "updated_at": "15:21"
       },
       {
         "id": 2,
@@ -472,7 +472,7 @@
         "updated_at": "15:13"
       }
     ],
-    "updated_at": "2026-11-16T15:16:29-03:00"
+    "updated_at": "2026-11-16T15:23:44-03:00"
   },
   "catalog": [
     {
@@ -30061,11 +30061,11 @@
       "is_kiosk": true,
       "is_custom": false,
       "active": false,
-      "status": "LIVRE",
+      "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "",
-      "current_total": 0,
-      "updated_at": "15:13"
+      "current_total": 73.9,
+      "updated_at": "15:21"
     },
     {
       "id": 2,
