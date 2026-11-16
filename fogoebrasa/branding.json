@@ -47,8 +47,8 @@
       "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-02",
-      "current_total": 152,
-      "updated_at": "15:37"
+      "current_total": 534,
+      "updated_at": "15:41"
     },
     {
       "id": 3,
@@ -471,5 +471,5 @@
       "updated_at": "15:37"
     }
   ],
-  "updated_at": "2026-11-16T15:37:57-03:00"
+  "updated_at": "2026-11-16T15:41:14-03:00"
 }
