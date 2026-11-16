@@ -688,7 +688,7 @@
       <button class="btn" onclick="openMyOrdersModal()" style="height:46px;padding:0 22px;font-size:1.08rem;font-weight:800;background:linear-gradient(135deg, #10b981 0%, #059669 100%);color:#ffffff;border:2px solid #34d399;border-radius:12px;box-shadow:0 4px 14px rgba(16,185,129,0.35);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;">💸 Conta</button>
       <div style="display:flex;gap:6px;align-items:center;">
         <button class="btn" id="btnMesaKioskSearch" onclick="openMesaQuickSearchModal()" style="height:46px;padding:0 12px;font-size:0.95rem;font-weight:800;background:rgba(56,189,248,0.16);color:#38bdf8;border:2px solid #0284c7;border-radius:12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px;flex:1;">🔍 Buscar</button>
-        <button class="btn" id="btnMesaKioskHighlights" onclick="triggerKioskHighlightsMode(true)" style="height:46px;padding:0 12px;font-size:0.95rem;font-weight:800;background:rgba(212,175,55,0.18);color:#f3d87d;border:2px solid #d4af37;border-radius:12px;box-shadow:0 4px 14px rgba(212,175,55,0.25);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px;flex:1;">🖼️ Descanso</button>
+        <button class="btn" id="btnMesaKioskHighlights" onclick="triggerKioskHighlightsMode(true)" style="display:none;height:46px;padding:0 12px;font-size:0.95rem;font-weight:800;background:rgba(212,175,55,0.18);color:#f3d87d;border:2px solid #d4af37;border-radius:12px;box-shadow:0 4px 14px rgba(212,175,55,0.25);cursor:pointer;align-items:center;justify-content:center;gap:4px;flex:1;">🖼️ Descanso</button>
       </div>
     </div>
   </div>
@@ -1099,12 +1099,45 @@
   }
 
   let lastUserActivityTime = Date.now();
+  let kioskInactivityInterval = null;
+
+  // Modo Descanso (carrossel tela cheia, timer de inatividade e dimmer de brilho) é ESTRITAMENTE exclusivo do Tablet Kiosk,
+  // nunca ativando no navegador /mesa do cliente.
+  function isTabletKioskModoDescansoAllowed() {
+    return Boolean(
+      document.body.classList.contains('mode-kiosk') ||
+      isKioskModeParam ||
+      window.Android ||
+      window.AndroidBridge
+    );
+  }
+
+  function syncBtnMesaKioskHighlightsVisibility() {
+    const hlBtn = document.getElementById('btnMesaKioskHighlights');
+    if (hlBtn) {
+      hlBtn.style.display = isTabletKioskModoDescansoAllowed() ? 'inline-flex' : 'none';
+    }
+    if (!isTabletKioskModoDescansoAllowed()) {
+      const overlay = document.getElementById('kioskHighlightsFullscreenOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+  }
 
   function resetKioskInactivityTimer() {
+    if (!isTabletKioskModoDescansoAllowed()) return;
     lastUserActivityTime = Date.now();
   }
 
   function initKioskInactivityMonitoring() {
+    syncBtnMesaKioskHighlightsVisibility();
+    if (!isTabletKioskModoDescansoAllowed()) {
+      if (kioskInactivityInterval) {
+        clearInterval(kioskInactivityInterval);
+        kioskInactivityInterval = null;
+      }
+      isKioskHighlightsActive = false;
+      return;
+    }
     if (kioskInactivityListenersBound) {
       lastUserActivityTime = Date.now();
       return;
@@ -1122,14 +1155,9 @@
     });
     lastUserActivityTime = Date.now();
 
-    // Heartbeat contínuo de inatividade a cada 1 segundo
-    setInterval(() => {
-      if (!kioskHighlightsConfig.enabled || isKioskHighlightsActive) return;
-      const isMesa = customerMode === 'MESA' || isMesaSelfServicePage ||
-                     document.body.classList.contains('mode-kiosk') ||
-                     new URLSearchParams(window.location.search || '').get('mode') === 'kiosk' ||
-                     new URLSearchParams(window.location.search || '').has('mesa');
-      if (!isMesa) return;
+    // Heartbeat contínuo de inatividade exclusivo do Tablet Modo Kiosk
+    kioskInactivityInterval = setInterval(() => {
+      if (!isTabletKioskModoDescansoAllowed() || !kioskHighlightsConfig.enabled || isKioskHighlightsActive) return;
 
       const timeoutMs = Math.max(3, Number(kioskHighlightsConfig.idle_timeout_seconds) || 10) * 1000;
       if (Date.now() - lastUserActivityTime >= timeoutMs) {
@@ -1139,6 +1167,7 @@
   }
 
   function triggerKioskHighlightsMode(manual = false) {
+    if (!isTabletKioskModoDescansoAllowed()) return;
     if (!manual && !kioskHighlightsConfig.enabled) return;
     if (!kioskHighlightsConfig.items || kioskHighlightsConfig.items.length === 0) {
       if (manual) {
@@ -2026,6 +2055,7 @@
 
   function applyMenuModalities(cfg) {
     if (!cfg) return;
+    window.webOperationalSettings = { ...(window.webOperationalSettings || {}), ...cfg };
     if (typeof cfg.default_delivery_fee === 'number' && !isNaN(cfg.default_delivery_fee) && cfg.default_delivery_fee >= 0) {
       configuredDefaultDeliveryFee = cfg.default_delivery_fee;
     }
@@ -2124,6 +2154,7 @@
 
     const mesaBar = document.getElementById('mesaServiceBar');
     mesaBar.style.display = (isMesaSelfServicePage && mode === 'MESA' && menuModalities.MESA && !isSelectedTableKiosk()) ? 'flex' : 'none';
+    if (typeof syncBtnMesaKioskHighlightsVisibility === 'function') syncBtnMesaKioskHighlightsVisibility();
 
     const isMesa = isMesaSelfServicePage && mode === 'MESA';
     const isDelivery = mode === 'DELIVERY';
@@ -3452,22 +3483,131 @@
     return false;
   }
 
+  function getScopedComandaStorageKey(tableNum) {
+    const br = window.systemBrandingConfig || {};
+    const pathSeg = String(window.location.pathname || '/').split('/').filter(Boolean)[0] || 'root';
+    const storeSlug = String(br.company_name || br.client_name || 'store').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const hostKey = String(window.location.hostname || 'local').toLowerCase();
+    const tNum = Number(tableNum || selectedTableNum || 0);
+    return `nexus_mesa_comanda_v2::${hostKey}::${pathSeg}::${storeSlug}::mesa_${tNum}`;
+  }
+
+  function getMyMesaComandaBinding(tableNum) {
+    const tNum = Number(tableNum || selectedTableNum || 0);
+    try {
+      const raw = localStorage.getItem(getScopedComandaStorageKey(tNum));
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && (Number(parsed.comanda_id) > 0 || String(parsed.comanda_code || '').trim())) {
+          return {
+            comanda_id: Number(parsed.comanda_id || 0),
+            comanda_code: String(parsed.comanda_code || '').trim(),
+            customer_name: String(parsed.customer_name || '').trim(),
+            customer_phone: String(parsed.customer_phone || '').trim(),
+            table_num: tNum
+          };
+        }
+      }
+    } catch (_) {}
+    const legId = Number(localStorage.getItem('sirbeef_my_comanda_id') || '0');
+    const legTbl = Number(localStorage.getItem('sirbeef_my_table_num') || '0');
+    const legCode = String(localStorage.getItem('sirbeef_my_comanda_code') || '').trim();
+    if (legId > 0 && legTbl > 0 && legTbl === tNum) {
+      return { comanda_id: legId, comanda_code: legCode, table_num: tNum };
+    }
+    return { comanda_id: 0, comanda_code: '', table_num: tNum };
+  }
+
+  function setMyMesaComandaBinding(tableNum, comandaId, comandaCode, custName, custPhone) {
+    const tNum = Number(tableNum || selectedTableNum || 0);
+    const cid = Number(comandaId || 0);
+    const ccode = String(comandaCode || '').trim();
+    if (cid <= 0 && !ccode) return;
+    const obj = {
+      comanda_id: cid,
+      comanda_code: ccode,
+      customer_name: String(custName || '').trim(),
+      customer_phone: String(custPhone || '').trim(),
+      table_num: tNum,
+      updated_at: Date.now()
+    };
+    try { localStorage.setItem(getScopedComandaStorageKey(tNum), JSON.stringify(obj)); } catch (_) {}
+    if (cid > 0) localStorage.setItem('sirbeef_my_comanda_id', String(cid));
+    if (ccode) localStorage.setItem('sirbeef_my_comanda_code', ccode);
+    if (tNum > 0) localStorage.setItem('sirbeef_my_table_num', String(tNum));
+  }
+
+  function clearMyMesaComandaBinding(tableNum) {
+    const tNum = Number(tableNum || selectedTableNum || 0);
+    try { localStorage.removeItem(getScopedComandaStorageKey(tNum)); } catch (_) {}
+    localStorage.removeItem('sirbeef_my_comanda_id');
+    localStorage.removeItem('sirbeef_my_comanda_code');
+  }
+
+  function computeComandaBillFinancials(comandaObj) {
+    const items = (comandaObj && Array.isArray(comandaObj.items)) ? comandaObj.items : [];
+    let subLanch = 0;
+    let subMerc = 0;
+    items.forEach(it => {
+      const qty = Number(it.quantity || 1);
+      const tot = Number(it.total_price || (Number(it.unit_price || 0) * qty));
+      const sec = String(it.sector_abc || it.sector || '').toUpperCase();
+      const nm = String(it.category_name || it.product_name || '').toUpperCase();
+      const cid = Number(it.category_id || 0);
+      if (cid === 900 || sec === 'MERCADO' || sec.includes('MERCADO') || nm.includes('BOUTIQUE')) {
+        subMerc += tot;
+      } else {
+        subLanch += tot;
+      }
+    });
+    let subtotal = Math.round((subLanch + subMerc) * 100) / 100;
+    if (subtotal <= 0 && Number(comandaObj && comandaObj.total || 0) > 0) {
+      subtotal = Math.round(Number(comandaObj.total) * 100) / 100;
+      subLanch = subtotal;
+    }
+    const op = window.webOperationalSettings || {};
+    const svcEnabled = op.enable_service_fee === true || (op.enable_service_fee === undefined ? false : false);
+    const pct = (typeof op.service_fee_pct === 'number' && !isNaN(op.service_fee_pct) && op.service_fee_pct >= 0) ? op.service_fee_pct : 10;
+    const area1On = op.service_fee_area_lanchonete !== false;
+    const area2On = op.service_fee_area_mercado !== false;
+    let serviceFee = 0;
+    if (svcEnabled && pct > 0 && subtotal > 0) {
+      let base = 0;
+      if (area1On) base += subLanch;
+      if (area2On) base += subMerc;
+      serviceFee = Math.round(base * (pct / 100) * 100) / 100;
+    }
+    const total = Math.round((subtotal + serviceFee) * 100) / 100;
+    return { subtotal, serviceFee, serviceFeePct: pct, serviceFeeEnabled: svcEnabled && serviceFee > 0.004, total };
+  }
+
   async function syncAndPurgeLocalOrdersWithBackend(prefetchedOrders, prefetchedComandas, prefetchedTables) {
     try {
+      const isMesaScopeNow = isMesaSelfServicePage || customerMode === 'MESA';
+      const realTblIdForFetch = isMesaScopeNow ? await resolveRealTableIdByNumber(selectedTableNum) : 0;
+      const myBinding = isMesaScopeNow ? getMyMesaComandaBinding(selectedTableNum) : { comanda_id: 0, comanda_code: '' };
+
+      // Privacidade estrita no /mesa: nunca baixa listagem geral de comandas de terceiros;
+      // consulta apenas a comanda individual isolada deste aparelho (comanda_id / comanda_code).
+      const shouldFetchComanda = isMesaScopeNow && (Number(myBinding.comanda_id) > 0 || Boolean(myBinding.comanda_code));
+      const cmdQueryUrl = shouldFetchComanda
+        ? `/api/comandas?origin=MESA&self_service=1&only_active=1&table_id=${encodeURIComponent(realTblIdForFetch || selectedTableNum)}&comanda_id=${encodeURIComponent(myBinding.comanda_id || 0)}&comanda_code=${encodeURIComponent(myBinding.comanda_code || '')}`
+        : null;
+
       const [ordRes, cmdRes, tblRes] = await Promise.all([
         prefetchedOrders ? Promise.resolve(null) : fetch('/api/orders'),
-        prefetchedComandas ? Promise.resolve(null) : fetch('/api/comandas'),
+        prefetchedComandas ? Promise.resolve(null) : (cmdQueryUrl ? fetch(cmdQueryUrl) : Promise.resolve(null)),
         prefetchedTables ? Promise.resolve(null) : fetch('/api/tables')
       ]);
       const allOrders = prefetchedOrders || (ordRes && ordRes.ok ? await ordRes.json() : null);
-      const allComandas = prefetchedComandas || (cmdRes && cmdRes.ok ? await cmdRes.json() : null);
+      const allComandas = prefetchedComandas || (cmdRes && cmdRes.ok ? await cmdRes.json() : (isMesaScopeNow ? [] : null));
       const allTables = prefetchedTables || (tblRes && tblRes.ok ? await tblRes.json() : null);
 
       if (Array.isArray(allTables)) {
         hostTablesList = allTables;
       }
 
-      // 1. Expurga imediatamente do localStorage qualquer pedido excluído ou cancelado no PDV
+      // 1. Expurga imediatamente do localStorage qualquer pedido excluído, cancelado ou pago
       if (Array.isArray(allOrders)) {
         const activeBackendMap = new Map();
         allOrders.forEach(o => {
@@ -3477,8 +3617,7 @@
         });
         const rawStored = JSON.parse(localStorage.getItem('sirbeef_my_order_ids') || '[]');
         if (Array.isArray(rawStored) && rawStored.length > 0) {
-          const isMesaScopeNow = isMesaSelfServicePage || customerMode === 'MESA';
-          const realTblId = isMesaScopeNow ? await resolveRealTableIdByNumber(selectedTableNum) : 0;
+          const realTblId = isMesaScopeNow ? realTblIdForFetch : 0;
           const currentTable = Array.isArray(allTables)
             ? allTables.find(t => Number(t.number) === Number(selectedTableNum) || Number(t.id) === Number(realTblId))
             : null;
@@ -3490,10 +3629,9 @@
 
           const cleanedIds = rawStored.filter(id => {
             const ord = activeBackendMap.get(Number(id));
-            if (!ord) return false; // Excluído no PDV -> remove do localStorage
+            if (!ord) return false;
             if (isMesaScopeNow && isOrderMesaScope(ord) && doesOrderBelongToTable(ord, selectedTableNum, realTblId)) {
-              // Se a mesa já foi fechada/liberada no PDV e o pedido já está PAGO, não mantém preso como consumo ativo da mesa
-              if (isTableFree && String(ord.status_pagamento || '').toUpperCase() === 'PAGO') {
+              if (String(ord.status_pagamento || '').toUpperCase() === 'PAGO' || isTableFree) {
                 return false;
               }
             }
@@ -3505,56 +3643,73 @@
         }
       }
 
-      // 2. Sincroniza trava de fechamento de comanda/mesa (vincular estritamente pelo comanda_id salvo no navegador)
-      if (!isMesaSelfServicePage && customerMode !== 'MESA') {
+      // 2. Sincroniza trava e vínculo isolado por aparelho/mesa
+      if (!isMesaScopeNow) {
         isMyComandaClosedLock = false;
         renderComandaLockedBannerUI();
-      } else if (Array.isArray(allComandas) && Array.isArray(allTables)) {
-        let savedComandaId = Number(localStorage.getItem('sirbeef_my_comanda_id') || '0');
+      } else if (Array.isArray(allComandas)) {
+        let savedComandaId = Number(myBinding.comanda_id || 0);
+        let savedComandaCode = String(myBinding.comanda_code || '');
         const myIdsNow = JSON.parse(localStorage.getItem('sirbeef_my_order_ids') || '[]').map(x => Number(x));
 
-        // Se ainda não tinha comanda_id salvo mas possui pedido criado neste dispositivo, recupera o comanda_id exato daquele pedido
+        // Se ainda não tinha comanda vinculada para esta mesa, mas possui pedido ativo deste aparelho nesta mesa, vincula pelo comanda_id canônico do pedido
         if (savedComandaId <= 0 && myIdsNow.length > 0 && Array.isArray(allOrders)) {
-          const myActiveOrd = allOrders.find(o => o && myIdsNow.includes(Number(o.id)) && Number(o.comanda_id) > 0 && String(o.status || '').toUpperCase() !== 'CANCELADO');
+          const myActiveOrd = allOrders.find(o =>
+            o &&
+            myIdsNow.includes(Number(o.id)) &&
+            Number(o.comanda_id) > 0 &&
+            String(o.status || '').toUpperCase() !== 'CANCELADO' &&
+            String(o.status_pagamento || '').toUpperCase() !== 'PAGO' &&
+            doesOrderBelongToTable(o, selectedTableNum, realTblIdForFetch)
+          );
           if (myActiveOrd && Number(myActiveOrd.comanda_id) > 0) {
             savedComandaId = Number(myActiveOrd.comanda_id);
-            localStorage.setItem('sirbeef_my_comanda_id', String(savedComandaId));
-            if (myActiveOrd.comanda_code) {
-              localStorage.setItem('sirbeef_my_comanda_code', String(myActiveOrd.comanda_code));
+            savedComandaCode = String(myActiveOrd.comanda_code || '');
+            setMyMesaComandaBinding(selectedTableNum, savedComandaId, savedComandaCode, myActiveOrd.customer_name, myActiveOrd.customer_phone);
+            if (!prefetchedComandas) {
+              try {
+                const isoRes = await fetch(`/api/comandas?origin=MESA&self_service=1&only_active=1&table_id=${encodeURIComponent(realTblIdForFetch || selectedTableNum)}&comanda_id=${encodeURIComponent(savedComandaId)}&comanda_code=${encodeURIComponent(savedComandaCode)}`);
+                if (isoRes && isoRes.ok) {
+                  const isoList = await isoRes.json();
+                  if (Array.isArray(isoList)) {
+                    allComandas.splice(0, allComandas.length, ...isoList);
+                  }
+                }
+              } catch (_) {}
             }
           }
         }
 
         const myComandas = (allComandas || []).filter(c => {
-          if (!c || c.status === 'PAGA' || c.status === 'CANCELADA') return false;
-          if (savedComandaId > 0) {
-            return Number(c.id) === savedComandaId;
-          }
+          if (!c) return false;
+          const stUp = String(c.status || '').toUpperCase();
+          if (stUp === 'PAGA' || stUp === 'FECHADA' || stUp === 'CANCELADA') return false;
+          if (savedComandaId > 0 && Number(c.id) === savedComandaId) return true;
+          if (savedComandaCode && String(c.comanda_code || '').toUpperCase() === savedComandaCode.toUpperCase()) return true;
           return false;
         });
 
-        // Se a comanda vinculada já foi PAGA ou encerrada, limpa o comanda_id local para permitir nova abertura limpa
-        if (savedComandaId > 0 && myComandas.length === 0) {
-          const paidOrGone = !(allComandas || []).some(c => c && Number(c.id) === savedComandaId && c.status !== 'PAGA' && c.status !== 'CANCELADA');
-          if (paidOrGone) {
-            localStorage.removeItem('sirbeef_my_comanda_id');
-            localStorage.removeItem('sirbeef_my_comanda_code');
+        // Se a comanda vinculada já foi paga/encerrada no caixa, limpa automaticamente o vínculo local para liberar próximo cliente
+        if ((savedComandaId > 0 || savedComandaCode) && myComandas.length === 0) {
+          clearMyMesaComandaBinding(selectedTableNum);
+          if (Array.isArray(allOrders) && savedComandaId > 0) {
+            const curIds = JSON.parse(localStorage.getItem('sirbeef_my_order_ids') || '[]').map(Number);
+            const filtered = curIds.filter(oid => {
+              const ord = allOrders.find(x => Number(x.id) === oid);
+              return ord && Number(ord.comanda_id) !== savedComandaId && String(ord.status_pagamento || '').toUpperCase() !== 'PAGO';
+            });
+            localStorage.setItem('sirbeef_my_order_ids', JSON.stringify(filtered));
           }
         } else if (myComandas.length > 0) {
-          const linkedTblNum = Number(myComandas[0].table_number || myComandas[0].table_id || 0);
-          if (linkedTblNum > 0 && linkedTblNum !== Number(selectedTableNum)) {
-            selectedTableNum = linkedTblNum;
-            const selEl = document.getElementById('chkTableNumber');
-            if (selEl) selEl.value = String(linkedTblNum);
-          }
+          setMyMesaComandaBinding(selectedTableNum, myComandas[0].id, myComandas[0].comanda_code, myComandas[0].customer_name, myComandas[0].customer_phone);
         }
 
-        const hasClosingComanda = myComandas.some(c => c.status === 'FECHAMENTO_SOLICITADO' || c.status === 'FECHADA');
+        const hasClosingComanda = myComandas.some(c => String(c.status || '').toUpperCase() === 'FECHAMENTO_SOLICITADO');
         isMyComandaClosedLock = Boolean(hasClosingComanda);
         renderComandaLockedBannerUI();
       }
 
-      // 3. Se o modal "Meus Pedidos & Comanda" estiver aberto no DOM, atualiza imediatamente sem dados fantasmas
+      // 3. Se o modal "Meus Pedidos & Comanda" estiver aberto no DOM, atualiza imediatamente sem dados de terceiros
       const modalEl = document.getElementById('myOrdersModal');
       if (modalEl && modalEl.style.display === 'flex' && Array.isArray(allOrders)) {
         await renderMyOrdersModalContent(allOrders, allComandas || [], allTables || hostTablesList || []);
@@ -3660,10 +3815,9 @@
           alert('🔒 COMANDA INDIVIDUAL BLOQUEADA PARA FECHAMENTO!\n\nSua comanda individual está em processo de fechamento e não aceita novos pedidos.\nSolicite ao Garçom ou ao Caixa para Reabrir sua Comanda caso deseje pedir mais itens.');
           return;
         }
-        const savedCmdId = Number(localStorage.getItem('sirbeef_my_comanda_id') || 0);
-        if (savedCmdId > 0) preOpenedComandaId = savedCmdId;
-        const savedCmdCode = localStorage.getItem('sirbeef_my_comanda_code') || '';
-        if (savedCmdCode) preOpenedComandaCode = savedCmdCode;
+        const myBindingNow = getMyMesaComandaBinding(tableNum);
+        if (myBindingNow.comanda_id > 0) preOpenedComandaId = myBindingNow.comanda_id;
+        if (myBindingNow.comanda_code) preOpenedComandaCode = myBindingNow.comanda_code;
       }
 
       const clientOrderUid = 'WEB-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
@@ -3725,12 +3879,9 @@
           return;
         }
 
-        // Salva no histórico local do cliente para acompanhamento e vincula estritamente o comanda_id no localStorage
-        if (isMesa && created && created.comanda_id) {
-          localStorage.setItem('sirbeef_my_comanda_id', String(created.comanda_id));
-          if (created.comanda_code) {
-            localStorage.setItem('sirbeef_my_comanda_code', String(created.comanda_code));
-          }
+        // Salva no histórico local do cliente e vincula estritamente o comanda_id / comanda_code canônico por loja + mesa
+        if (isMesa && created && (created.comanda_id || created.comanda_code)) {
+          setMyMesaComandaBinding(tableNum, created.comanda_id, created.comanda_code, cName, cPhone);
         }
         const myIds = JSON.parse(localStorage.getItem('sirbeef_my_order_ids') || '[]');
         if (created && created.id && !myIds.includes(created.id)) {
@@ -3781,29 +3932,37 @@
 
     // Escopo estritamente separado e privacidade total por comanda_id:
     // - Em /cardapio (Delivery / Retirada): NUNCA exibe comandas de mesa nem pedidos CONTA_MESA / MESA.
-    // - Em /mesa (QR Code de autoatendimento): exibe EXCLUSIVAMENTE a própria comanda individual (sirbeef_my_comanda_id) e os próprios pedidos abertos neste celular, sem jamais exibir comandas de terceiros na mesma mesa.
+    // - Em /mesa (QR Code de autoatendimento): exibe EXCLUSIVAMENTE a própria comanda individual vinculada ao aparelho/mesa,
+    //   com subtotal, taxa de serviço ativa e total, sem jamais exibir comandas de terceiros na mesma mesa.
+    const bindingNow = isMesaScope ? getMyMesaComandaBinding(selectedTableNum) : { comanda_id: 0, comanda_code: '' };
+    let savedComandaId = Number(bindingNow.comanda_id || 0);
+    let savedComandaCode = String(bindingNow.comanda_code || '');
     let myComandas = [];
-    let savedComandaId = Number(localStorage.getItem('sirbeef_my_comanda_id') || '0');
     if (isMesaScope && savedComandaId <= 0 && myIds.length > 0) {
-      const myOwnOrder = (allOrders || []).find(o => o && myIds.includes(Number(o.id)) && Number(o.comanda_id) > 0 && String(o.status || '').toUpperCase() !== 'CANCELADO');
+      const myOwnOrder = (allOrders || []).find(o =>
+        o &&
+        myIds.includes(Number(o.id)) &&
+        Number(o.comanda_id) > 0 &&
+        String(o.status || '').toUpperCase() !== 'CANCELADO' &&
+        String(o.status_pagamento || '').toUpperCase() !== 'PAGO' &&
+        doesOrderBelongToTable(o, selectedTableNum, realTblId)
+      );
       if (myOwnOrder && Number(myOwnOrder.comanda_id) > 0) {
         savedComandaId = Number(myOwnOrder.comanda_id);
-        localStorage.setItem('sirbeef_my_comanda_id', String(savedComandaId));
+        savedComandaCode = String(myOwnOrder.comanda_code || '');
+        setMyMesaComandaBinding(selectedTableNum, savedComandaId, savedComandaCode, myOwnOrder.customer_name, myOwnOrder.customer_phone);
       }
     }
     if (isMesaScope) {
       myComandas = (allComandas || []).filter(c => {
-        if (!c || c.status === 'PAGA' || c.status === 'CANCELADA') return false;
-        if (savedComandaId > 0) {
-          return Number(c.id) === savedComandaId;
-        }
+        if (!c) return false;
+        const stUp = String(c.status || '').toUpperCase();
+        if (stUp === 'PAGA' || stUp === 'FECHADA' || stUp === 'CANCELADA') return false;
+        if (savedComandaId > 0 && Number(c.id) === savedComandaId) return true;
+        if (savedComandaCode && String(c.comanda_code || '').toUpperCase() === savedComandaCode.toUpperCase()) return true;
         return false;
       });
-      if (myComandas.length > 0) {
-        const myTblNum = Number(myComandas[0].table_number || myComandas[0].table_id || 0);
-        if (myTblNum > 0) selectedTableNum = myTblNum;
-      }
-      isMyComandaClosedLock = myComandas.some(c => c.status === 'FECHAMENTO_SOLICITADO' || c.status === 'FECHADA');
+      isMyComandaClosedLock = myComandas.some(c => String(c.status || '').toUpperCase() === 'FECHAMENTO_SOLICITADO');
       renderComandaLockedBannerUI();
     } else {
       isMyComandaClosedLock = false;
@@ -3820,12 +3979,13 @@
       const orderIsMesa = isOrderMesaScope(o);
       if (isMesaScope) {
         if (!orderIsMesa) return false;
+        if (!doesOrderBelongToTable(o, selectedTableNum, realTblId)) return false;
         if (savedComandaId > 0 && Number(o.comanda_id) === savedComandaId) {
           if (myComandas.length === 0 && String(o.status_pagamento || '').toUpperCase() === 'PAGO') return false;
           return true;
         }
         if (o.comanda_id && activeComandaIds.has(Number(o.comanda_id))) return true;
-        if (myIds.includes(Number(o.id)) && String(o.status_pagamento || '').toUpperCase() !== 'PAGO') return true;
+        if (savedComandaId <= 0 && myIds.includes(Number(o.id)) && String(o.status_pagamento || '').toUpperCase() !== 'PAGO') return true;
         return false;
       } else {
         // Na rota /cardapio (Delivery e Retirada): NUNCA exibe pedidos de MESA / CONTA_MESA
@@ -3842,7 +4002,9 @@
     if (isMesaScope && myComandas.length > 0) {
       html += `<div style="margin-bottom:14px;">
         <h4 style="color:var(--gold-light);margin-bottom:8px;">🪪 Minha Comanda Individual na Mesa</h4>
-        ${myComandas.map(c => `
+        ${myComandas.map(c => {
+          const fin = computeComandaBillFinancials(c);
+          return `
           <div style="background:#101015;border:1px solid var(--gold);border-radius:12px;padding:12px;margin-bottom:8px;">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
               <strong>${c.table_label || ('MESA ' + String(selectedTableNum).padStart(2, '0'))} • ${c.customer_name} (${c.comanda_code})</strong>
@@ -3851,16 +4013,29 @@
             <div style="margin:8px 0;font-size:12.5px;color:#d1d5db;">
               ${(c.items || []).map(i => `<div>• ${i.quantity}x ${i.product_name} — R$ ${(i.total_price || 0).toFixed(2)}</div>`).join('') || 'Nenhum item lançado ainda.'}
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:8px;flex-wrap:wrap;gap:8px;">
-              <strong style="font-size:16px;color:var(--gold-light);">Total da Minha Comanda: R$ ${(c.total || 0).toFixed(2)}</strong>
-              ${c.status !== 'FECHAMENTO_SOLICITADO' && c.status !== 'FECHADA' ? `
-                <button class="btn btn-gold" style="padding:6px 12px;font-size:12px;" onclick="requestCloseMyComanda(${c.id}, '${(c.comanda_code || '').replace(/'/g, "\\'")}')">
-                  🧾 Solicitar Fechamento da Minha Comanda
-                </button>
-              ` : `<span style="color:#fca5a5;font-size:12px;font-weight:700;">🔒 Comanda Fechada p/ Conferência (Somente o Garçom ou Caixa pode Reabrir)</span>`}
+            <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:6px;display:flex;flex-direction:column;gap:4px;">
+              <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#cbd5e1;">
+                <span>Subtotal dos Itens:</span>
+                <strong>R$ ${fin.subtotal.toFixed(2)}</strong>
+              </div>
+              ${fin.serviceFeeEnabled ? `
+                <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#93c5fd;">
+                  <span>Taxa de Serviço (${fin.serviceFeePct}%):</span>
+                  <strong>+ R$ ${fin.serviceFee.toFixed(2)}</strong>
+                </div>
+              ` : ''}
+              <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed rgba(212,175,55,0.3);padding-top:6px;margin-top:2px;flex-wrap:wrap;gap:8px;">
+                <strong style="font-size:16px;color:var(--gold-light);">Total da Minha Comanda: R$ ${fin.total.toFixed(2)}</strong>
+                ${c.status !== 'FECHAMENTO_SOLICITADO' && c.status !== 'FECHADA' ? `
+                  <button class="btn btn-gold" style="padding:7px 14px;font-size:12.5px;font-weight:800;" onclick="requestCloseMyComanda(${c.id}, '${(c.comanda_code || '').replace(/'/g, "\\'")}')">
+                    🧾 Solicitar Fechamento da Minha Comanda
+                  </button>
+                ` : `<span style="color:#fca5a5;font-size:12px;font-weight:700;">🔒 Fechamento Solicitado (Aguardando Caixa / Garçom)</span>`}
+              </div>
             </div>
           </div>
-        `).join('')}
+        `;
+        }).join('')}
       </div>`;
     } else if (isMesaScope && myOrders.length > 0) {
       const partialTableTotal = myOrders
@@ -3894,13 +4069,65 @@
     }
 
     if (!html) {
-      html = `<div style="text-align:center;padding:24px;color:var(--muted);">
-        Você ainda não possui ${isMesaScope ? 'pedidos ou comandas abertas nesta mesa' : 'pedidos ativos de entrega/retirada neste dispositivo'}.<br/>
+      html = `<div style="text-align:center;padding:20px;color:var(--muted);">
+        Você ainda não possui ${isMesaScope ? 'pedidos ou comanda ativa vinculada a este aparelho nesta mesa' : 'pedidos ativos de entrega/retirada neste dispositivo'}.<br/>
         Escolha seus itens no cardápio e clique em <strong>Finalizar Pedido</strong>!
       </div>`;
+      if (isMesaScope) {
+        html += `
+          <div style="margin-top:12px;background:#0d1018;border:1px dashed var(--border);border-radius:12px;padding:12px;">
+            <div style="font-size:12px;font-weight:800;color:var(--gold-light);margin-bottom:6px;">
+              🔑 Limpou o navegador ou trocou de aparelho? Recupere apenas a SUA comanda:
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input type="text" id="recoverMyComandaInput" placeholder="Seu Celular (DDD + número) ou Cartão QR" style="flex:1;min-width:190px;padding:8px 10px;border-radius:8px;background:#141722;color:#fff;border:1px solid #334155;font-size:12.5px;" />
+              <button type="button" class="btn btn-gold" style="padding:8px 14px;font-size:12px;" onclick="recoverMyIsolatedComandaOnMesa()">🔍 Recuperar Minha Comanda</button>
+            </div>
+          </div>
+        `;
+      }
     }
 
     box.innerHTML = html;
+  }
+
+  async function recoverMyIsolatedComandaOnMesa() {
+    const inp = document.getElementById('recoverMyComandaInput');
+    const raw = (inp ? inp.value : '').trim();
+    if (!raw) {
+      alert('Informe o mesmo Celular usado no pedido ou o código do Cartão QR individual.');
+      return;
+    }
+    const realTblId = await resolveRealTableIdByNumber(selectedTableNum);
+    const digits = raw.replace(/\D/g, '');
+    try {
+      let url = '';
+      if (raw.toUpperCase().startsWith('CMD-') || /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(raw)) {
+        url = `/api/kiosk/comandas?table_id=${encodeURIComponent(realTblId)}&origin=MESA&qr_code=${encodeURIComponent(raw)}`;
+      } else {
+        if (digits.length < 8) {
+          alert('Para proteger sua privacidade, informe seu celular completo com DDD.');
+          return;
+        }
+        url = `/api/kiosk/comandas?table_id=${encodeURIComponent(realTblId)}&origin=MESA&mode=name_phone&q=${encodeURIComponent(digits)}`;
+      }
+      const res = await fetch(url);
+      const list = res.ok ? await res.json() : [];
+      const match = (Array.isArray(list) ? list : []).find(c => {
+        if (!c || c.status === 'PAGA' || c.status === 'FECHADA' || c.status === 'CANCELADA') return false;
+        if (raw.toUpperCase().startsWith('CMD-') || /^[0-9a-f]{8}-/i.test(raw)) return true;
+        const cDigits = String(c.customer_phone || '').replace(/\D/g, '');
+        return cDigits && (cDigits === digits || cDigits.endsWith(digits) || digits.endsWith(cDigits));
+      });
+      if (!match) {
+        alert('Nenhuma comanda individual ativa encontrada nesta mesa para os dados informados.');
+        return;
+      }
+      setMyMesaComandaBinding(selectedTableNum, match.id, match.comanda_code, match.customer_name, match.customer_phone);
+      await openMyOrdersModal();
+    } catch (e) {
+      alert('Erro ao buscar sua comanda. Tente novamente.');
+    }
   }
 
   async function openMyOrdersModal() {
@@ -3911,13 +4138,17 @@
     try {
       const synced = await syncAndPurgeLocalOrdersWithBackend();
       if (!synced || !Array.isArray(synced.allOrders)) {
+        const isMesaScopeNow = isMesaSelfServicePage || customerMode === 'MESA';
+        const realTblIdNow = isMesaScopeNow ? await resolveRealTableIdByNumber(selectedTableNum) : 0;
+        const myBindingNow = isMesaScopeNow ? getMyMesaComandaBinding(selectedTableNum) : { comanda_id: 0, comanda_code: '' };
+        const hasBoundCmd = isMesaScopeNow && (myBindingNow.comanda_id > 0 || Boolean(myBindingNow.comanda_code));
         const [ordRes, cmdRes, tblRes] = await Promise.all([
           fetch('/api/orders'),
-          fetch('/api/comandas'),
+          hasBoundCmd ? fetch(`/api/comandas?origin=MESA&self_service=1&only_active=1&table_id=${encodeURIComponent(realTblIdNow || selectedTableNum)}&comanda_id=${encodeURIComponent(myBindingNow.comanda_id || 0)}&comanda_code=${encodeURIComponent(myBindingNow.comanda_code || '')}`) : Promise.resolve(null),
           fetch('/api/tables')
         ]);
         const allOrders = ordRes.ok ? await ordRes.json() : [];
-        const allComandas = cmdRes.ok ? await cmdRes.json() : [];
+        const allComandas = (cmdRes && cmdRes.ok) ? await cmdRes.json() : [];
         const allTables = tblRes.ok ? await tblRes.json() : [];
         await renderMyOrdersModalContent(allOrders, allComandas, allTables);
       } else {
@@ -3928,20 +4159,26 @@
     }
   }
 
+  let isRequestingComandaClose = false;
   async function requestCloseMyComanda(comandaId, comandaCode) {
+    if (isRequestingComandaClose) return;
     if (!confirm('Deseja solicitar o fechamento e a impressão da conferência da sua Comanda Individual?\n\nAtenção: Após confirmar, sua comanda ficará bloqueada para novos pedidos e somente o Garçom ou o Caixa poderá reabri-la.')) {
       return;
     }
-    showLoading('🧾 Solicitando Fechamento Individual...', 'Imprimindo conferência da sua comanda e avisando o Garçom/Caixa...');
+    isRequestingComandaClose = true;
+    showLoading('🧾 Solicitando Fechamento Individual...', 'Imprimindo conferência da sua comanda no Caixa e avisando o Garçom...');
     try {
+      const realTableId = await resolveRealTableIdByNumber(selectedTableNum);
+      const bindingNow = getMyMesaComandaBinding(selectedTableNum);
       const res = await fetch('/api/comandas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'REQUEST_CLOSE',
           origin_type: 'MESA',
-          comanda_id: comandaId,
-          comanda_code: comandaCode || localStorage.getItem('sirbeef_my_comanda_code') || ''
+          table_id: realTableId,
+          comanda_id: comandaId || bindingNow.comanda_id || 0,
+          comanda_code: comandaCode || bindingNow.comanda_code || ''
         })
       });
       if (!res.ok) {
@@ -3956,9 +4193,11 @@
       renderComandaLockedBannerUI();
       hideLoading();
       await openMyOrdersModal();
-      alert('✅ Solicitação enviada! A conferência da sua Comanda Individual foi impressa e sua comanda foi bloqueada para fechamento.\n\nCaso deseje pedir mais itens depois, solicite ao Garçom ou ao Caixa para Reabrir sua Comanda.');
+      alert('✅ Solicitação enviada! A conferência da sua Comanda Individual foi enviada para impressão no Caixa e sua comanda foi bloqueada para fechamento.\n\nCaso deseje pedir mais itens depois, solicite ao Garçom ou ao Caixa para Reabrir sua Comanda.');
     } catch (e) {
       hideLoading();
+    } finally {
+      isRequestingComandaClose = false;
     }
   }
 
