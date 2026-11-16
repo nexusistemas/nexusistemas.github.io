@@ -49,7 +49,7 @@
         "waiter_call": false,
         "qr_token": "",
         "current_total": 0,
-        "updated_at": "13:37"
+        "updated_at": "15:49"
       },
       {
         "id": 3,
@@ -472,7 +472,7 @@
         "updated_at": "13:37"
       }
     ],
-    "updated_at": "2026-11-16T15:38:24-03:00"
+    "updated_at": "2026-11-16T16:08:29-03:00"
   },
   "catalog": [
     {
@@ -29100,7 +29100,7 @@
       "waiter_call": false,
       "qr_token": "",
       "current_total": 0,
-      "updated_at": "13:37"
+      "updated_at": "15:49"
     },
     {
       "id": 3,
