@@ -2,7 +2,7 @@
   "client_logo_base64": "/assets/nexus/nexus-icon.png",
   "client_name": "NexuSistemas",
   "company_name": "NexuSistemas",
-  "delivery_menu_url": "https://fogoebrasa.nexusistemas.app.br/cardapio",
+  "delivery_menu_url": "https://teste.nexusistemas.app.br/cardapio",
   "logo_url": "/assets/nexus/nexus-icon.png",
   "modules": {
     "module_counter": true,
@@ -10,14 +10,14 @@
     "module_individual_tabs": true,
     "module_kiosk": true,
     "module_kitchen_menu": true,
-    "module_market": false,
+    "module_market": true,
     "module_pickup": true,
     "module_tables_qr": true
   },
   "primary_color": "#d4af37",
   "secondary_color": "#f3d87d",
-  "superapp_url": "https://fogoebrasa.nexusistemas.app.br/app",
-  "table_menu_url": "https://fogoebrasa.nexusistemas.app.br/mesa",
+  "superapp_url": "https://teste.nexusistemas.app.br/app",
+  "table_menu_url": "https://teste.nexusistemas.app.br/mesa",
   "table_token_prefix": "NEXUS",
   "tables": [
     {
@@ -28,207 +28,207 @@
       "origin_prefix": "",
       "is_kiosk": true,
       "is_custom": false,
-      "active": true,
-      "status": "LIVRE",
+      "active": false,
+      "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "",
-      "current_total": 0,
-      "updated_at": "14:57"
+      "current_total": 88.9,
+      "updated_at": "13:37"
     },
     {
       "id": 2,
       "number": 2,
       "label": "MESA 02",
       "complement": "",
-      "origin_prefix": "[Q]",
-      "is_kiosk": false,
+      "origin_prefix": "",
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUS-MESA-02",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 3,
       "number": 3,
       "label": "MESA 03",
       "complement": "",
-      "origin_prefix": "[Q]",
-      "is_kiosk": false,
+      "origin_prefix": "",
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUS-MESA-03",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 4,
       "number": 4,
       "label": "MESA 04",
       "complement": "",
-      "origin_prefix": "[Q]",
-      "is_kiosk": false,
+      "origin_prefix": "",
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUS-MESA-04",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 5,
       "number": 5,
       "label": "MESA 05",
       "complement": "",
-      "origin_prefix": "[Q]",
-      "is_kiosk": false,
+      "origin_prefix": "",
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUS-MESA-05",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 6,
       "number": 6,
       "label": "MESA 06",
       "complement": "",
-      "origin_prefix": "[Q]",
-      "is_kiosk": false,
+      "origin_prefix": "",
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUS-MESA-06",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 7,
       "number": 7,
       "label": "MESA 07",
       "complement": "",
-      "origin_prefix": "[Q]",
-      "is_kiosk": false,
+      "origin_prefix": "",
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUS-MESA-07",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 8,
       "number": 8,
       "label": "MESA 08",
       "complement": "",
-      "origin_prefix": "[Q]",
-      "is_kiosk": false,
+      "origin_prefix": "",
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUS-MESA-08",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 9,
       "number": 9,
       "label": "MESA 09",
       "complement": "",
-      "origin_prefix": "[Q]",
-      "is_kiosk": false,
+      "origin_prefix": "",
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUS-MESA-09",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 10,
       "number": 10,
       "label": "MESA 10",
       "complement": "",
-      "origin_prefix": "[Q]",
-      "is_kiosk": false,
+      "origin_prefix": "",
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUS-MESA-10",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 11,
       "number": 11,
       "label": "MESA 11",
       "complement": "",
-      "origin_prefix": "[Q]",
-      "is_kiosk": false,
+      "origin_prefix": "",
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUS-MESA-11",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 12,
       "number": 12,
       "label": "MESA 12",
       "complement": "",
-      "origin_prefix": "[Q]",
-      "is_kiosk": false,
+      "origin_prefix": "",
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUS-MESA-12",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 13,
       "number": 13,
       "label": "MESA 13",
       "complement": "",
-      "origin_prefix": "[Q]",
-      "is_kiosk": false,
+      "origin_prefix": "",
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUS-MESA-13",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 14,
       "number": 14,
       "label": "MESA 14",
       "complement": "",
-      "origin_prefix": "[Q]",
-      "is_kiosk": false,
+      "origin_prefix": "",
+      "is_kiosk": true,
       "is_custom": false,
-      "active": true,
+      "active": false,
       "status": "LIVRE",
       "waiter_call": false,
-      "qr_token": "NEXUS-MESA-14",
+      "qr_token": "",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 15,
@@ -239,11 +239,11 @@
       "is_kiosk": false,
       "is_custom": false,
       "active": true,
-      "status": "LIVRE",
+      "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-15",
-      "current_total": 0,
-      "updated_at": "14:57"
+      "current_total": 135,
+      "updated_at": "13:37"
     },
     {
       "id": 16,
@@ -258,7 +258,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-16",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 17,
@@ -273,7 +273,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-17",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 18,
@@ -288,7 +288,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-18",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 19,
@@ -303,7 +303,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-19",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 20,
@@ -318,7 +318,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-20",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 21,
@@ -333,7 +333,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-21",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 22,
@@ -348,7 +348,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-22",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 23,
@@ -363,7 +363,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-23",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 24,
@@ -378,7 +378,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-24",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 25,
@@ -393,7 +393,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-25",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 26,
@@ -408,7 +408,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-26",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 27,
@@ -423,7 +423,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-27",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 28,
@@ -438,7 +438,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-28",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 29,
@@ -453,7 +453,7 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-29",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     },
     {
       "id": 30,
@@ -468,8 +468,8 @@
       "waiter_call": false,
       "qr_token": "NEXUS-MESA-30",
       "current_total": 0,
-      "updated_at": "14:57"
+      "updated_at": "13:37"
     }
   ],
-  "updated_at": "2026-11-16T15:02:50-03:00"
+  "updated_at": "2026-11-16T15:08:18-03:00"
 }
