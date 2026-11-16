@@ -32,8 +32,8 @@
       "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "",
-      "current_total": 88.9,
-      "updated_at": "13:37"
+      "current_total": 430.8,
+      "updated_at": "15:21"
     },
     {
       "id": 2,
@@ -471,5 +471,5 @@
       "updated_at": "13:37"
     }
   ],
-  "updated_at": "2026-11-16T15:18:19-03:00"
+  "updated_at": "2026-11-16T15:38:24-03:00"
 }
