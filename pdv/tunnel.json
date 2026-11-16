@@ -1,26 +1,26 @@
 {
-  "tunnel_url": "https://teste.nexusistemas.app.br",
-  "subdomain_tunnel_url": "https://teste.nexusistemas.app.br",
-  "custom_domain": "https://teste.nexusistemas.app.br",
-  "store_slug": "teste",
-  "lan_url": "http://192.168.18.157:8080",
-  "lan_no_port_url": "http://192.168.18.157",
-  "lan_ip": "192.168.18.157",
+  "tunnel_url": "https://sirbeef.nexusistemas.app.br",
+  "subdomain_tunnel_url": "https://sirbeef.nexusistemas.app.br",
+  "custom_domain": "https://sirbeef.nexusistemas.app.br",
+  "store_slug": "sirbeef",
+  "lan_url": "http://192.168.1.36:8080",
+  "lan_no_port_url": "http://192.168.1.36",
+  "lan_ip": "192.168.1.36",
   "lan_ips": [
-    "192.168.18.157"
+    "192.168.1.36"
   ],
   "lan_urls": [
-    "http://192.168.18.157:8080"
+    "http://192.168.1.36:8080"
   ],
-  "hostname_url": "http://gui:8080",
-  "cardapio_fixed_url": "https://teste.nexusistemas.app.br/cardapio",
-  "mesa_fixed_url": "https://teste.nexusistemas.app.br/mesa",
-  "rastreio_fixed_url": "https://teste.nexusistemas.app.br/rastreio",
-  "pdv_fixed_url": "https://teste.nexusistemas.app.br/pdv",
-  "superapp_fixed_url": "https://teste.nexusistemas.app.br/app",
+  "hostname_url": "http://sirbeefnot:8080",
+  "cardapio_fixed_url": "https://sirbeef.nexusistemas.app.br/cardapio",
+  "mesa_fixed_url": "https://sirbeef.nexusistemas.app.br/mesa",
+  "rastreio_fixed_url": "https://sirbeef.nexusistemas.app.br/rastreio",
+  "pdv_fixed_url": "https://sirbeef.nexusistemas.app.br/pdv",
+  "superapp_fixed_url": "https://sirbeef.nexusistemas.app.br/app",
   "apk_fixed_url": "https://nexusistemas.app.br/apk",
   "apk_direct_url": "https://raw.githubusercontent.com/nexusistemas/nexusistemas.github.io/main/NexuSistemas-SuperApp.apk",
-  "apk_version_code": 129,
-  "apk_version_name": "10.3",
-  "updated_at": "2026-11-16T11:50:36-03:00"
+  "apk_version_code": 127,
+  "apk_version_name": "9.9",
+  "updated_at": "2026-11-16T11:52:11-03:00"
 }
