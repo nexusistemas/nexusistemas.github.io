@@ -540,22 +540,37 @@
     }
 
     .cat-chip {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-muted);
-      padding: 8px 13px;
+      background: #14141d;
+      border: 1.5px solid rgba(212, 175, 55, 0.35);
+      color: #f1f5f9;
+      min-height: 48px;
+      padding: 10px 20px;
       border-radius: 999px;
-      font-size: 12px;
+      font-size: 1.05rem;
       font-weight: 800;
       white-space: nowrap;
       cursor: pointer;
       flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .cat-chip:hover {
+      border-color: rgba(212, 175, 55, 0.7);
+      background: #1b1b26;
+      transform: translateY(-1px);
     }
 
     .cat-chip.active {
-      background: var(--primary);
+      background: linear-gradient(135deg, #f3d87d 0%, #d4af37 100%);
       color: #09090c;
-      border-color: var(--primary);
+      border-color: #f3d87d;
+      font-weight: 900;
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.45), 0 0 12px rgba(243, 216, 125, 0.35);
+      transform: translateY(-2px) scale(1.02);
     }
 
     .products-grid {
@@ -581,14 +596,159 @@
       transform: scale(0.985);
     }
 
-    .prod-img {
+    @keyframes nexusClientPhotoPan {
+      0% {
+        transform: scale(1.14) translate3d(-4.5%, 0, 0);
+      }
+      100% {
+        transform: scale(1.14) translate3d(4.5%, 0, 0);
+      }
+    }
+
+    .prod-img-wrap {
       width: 54px;
       height: 54px;
       border-radius: 10px;
-      object-fit: cover;
+      overflow: hidden;
       background: #0d0d13;
       border: 1px solid var(--border-subtle);
       flex-shrink: 0;
+      position: relative;
+    }
+
+    .prod-img-wrap .prod-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+      border: none;
+      object-fit: cover;
+      display: block;
+      /* 100% estático por padrão para Garçom, Comandas, Expedição e Motoboy */
+    }
+
+    /* Oculta completamente a topbar do SuperApp em modo Kiosk/Tablet para dar lugar ao cabeçalho dourado do Kiosk */
+    body.mode-kiosk #superAppTopbar,
+    body.role-kiosk #superAppTopbar,
+    body.role-tablet #superAppTopbar,
+    [data-mode="kiosk"] #superAppTopbar,
+    .kiosk-active #superAppTopbar {
+      display: none !important;
+    }
+
+    /* Animação Panorâmica Isolada EXCLUSIVAMENTE sob o seletor ativo do Modo Kiosk */
+    body.mode-kiosk .prod-img-wrap .prod-img,
+    body.role-kiosk .prod-img-wrap .prod-img,
+    body.role-tablet .prod-img-wrap .prod-img,
+    [data-mode="kiosk"] .prod-img-wrap .prod-img,
+    .kiosk-active .prod-img-wrap .prod-img {
+      will-change: transform;
+      animation: nexusClientPhotoPan 5s ease-in-out infinite alternate;
+    }
+
+    /* Grade de 2 Colunas e Cards Retangulares-Quadrados no Modo Kiosk / Tablet Web */
+    body.mode-kiosk .products-grid,
+    body.role-kiosk .products-grid,
+    body.role-tablet .products-grid,
+    [data-mode="kiosk"] .products-grid,
+    .kiosk-active .products-grid {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 14px !important;
+      align-items: stretch !important;
+    }
+    body.mode-kiosk .prod-card,
+    body.role-kiosk .prod-card,
+    body.role-tablet .prod-card,
+    [data-mode="kiosk"] .prod-card,
+    .kiosk-active .prod-card {
+      min-height: 225px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      padding: 14px !important;
+      border-radius: 16px !important;
+    }
+    body.mode-kiosk .prod-img-wrap,
+    body.role-kiosk .prod-img-wrap,
+    body.role-tablet .prod-img-wrap,
+    [data-mode="kiosk"] .prod-img-wrap,
+    .kiosk-active .prod-img-wrap {
+      width: 104px !important;
+      height: 104px !important;
+      border-radius: 12px !important;
+    }
+    body.mode-kiosk .prod-name,
+    body.role-kiosk .prod-name,
+    body.role-tablet .prod-name,
+    [data-mode="kiosk"] .prod-name,
+    .kiosk-active .prod-name {
+      font-size: 1.12rem !important;
+      font-weight: 800 !important;
+    }
+    body.mode-kiosk .prod-desc,
+    body.role-kiosk .prod-desc,
+    body.role-tablet .prod-desc,
+    [data-mode="kiosk"] .prod-desc,
+    .kiosk-active .prod-desc {
+      display: -webkit-box !important;
+      -webkit-line-clamp: 3 !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
+    }
+
+    /* Estilos do Carrossel de Destaques em Tela Cheia no Modo Kiosk (Composição em Dupla Camada com Fundo Ambient Blur) */
+    .kiosk-hl-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      will-change: transform, opacity;
+      transition: transform 0.65s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.65s ease;
+    }
+    .kiosk-hl-slide.slide-enter {
+      transform: translate3d(100%, 0, 0);
+      opacity: 0;
+    }
+    .kiosk-hl-slide.slide-active {
+      transform: translate3d(0, 0, 0);
+      opacity: 1;
+    }
+    .kiosk-hl-slide.slide-exit {
+      transform: translate3d(-100%, 0, 0);
+      opacity: 0;
+    }
+    .kiosk-hl-ambient {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      filter: blur(28px) brightness(0.38);
+      transform: scale(1.08);
+      pointer-events: none;
+    }
+    .kiosk-hl-main-wrap {
+      position: absolute;
+      inset: 68px 7vw 80px 7vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .kiosk-hl-main-img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 16px;
+      border: 1.5px solid rgba(212, 175, 55, 0.45);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
+      pointer-events: auto;
     }
 
     .prod-info {
@@ -656,6 +816,38 @@
 
     .floating-cart-bar.visible {
       display: flex !important;
+    }
+
+    @keyframes kioskCartBarFadeIn {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, 20px) scale(0.92);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+      }
+    }
+
+    body.mode-kiosk .floating-cart-bar {
+      bottom: 22px !important;
+      left: 50% !important;
+      right: auto !important;
+      transform: translateX(-50%) !important;
+      width: min(520px, 92vw) !important;
+      max-width: 520px !important;
+      min-width: 380px !important;
+      height: 50px !important;
+      border-radius: 14px !important;
+      padding: 0 20px !important;
+      justify-content: center !important;
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.85) !important;
+      border: 2px solid var(--secondary) !important;
+      white-space: nowrap !important;
+    }
+
+    body.mode-kiosk .floating-cart-bar.anim-enter {
+      animation: kioskCartBarFadeIn 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
     }
 
     /* MODALS */
@@ -924,6 +1116,8 @@
     </div>
     <div class="topbar-actions">
       <span class="chip-user" id="topOperatorBadge">👤 Equipe</span>
+      <button type="button" class="btn-icon-top" id="btnTopKioskSearch" style="display:none;background:rgba(56,189,248,0.16);color:#38bdf8;border-color:#0284c7;font-weight:800;" onclick="openSuperAppQuickSearchModal()" title="Buscar Produto no Cardápio">🔍 Buscar</button>
+      <button type="button" class="btn-icon-top" id="btnTopKioskHighlights" style="display:none;background:rgba(16,185,129,0.16);color:#6ee7b7;border-color:#10b981;font-weight:800;" onclick="triggerKioskHighlightsMode()" title="Ativar Modo Descanso">🖼️ Descanso</button>
       <button type="button" class="btn-icon-top" id="btnTopMotoboyCaixa" style="display:none;background:rgba(212,175,55,0.16);color:var(--primary);border-color:var(--primary);font-weight:900;" onclick="switchSuperAppTab('motoboy-caixa')" title="Abrir Meu Caixa do Motoboy">💰 Meu Caixa</button>
       <button type="button" class="btn-icon-top" onclick="refreshAllSuperAppData(true)" title="Sincronizar Agora">🔄</button>
       <button type="button" class="btn-icon-top" style="color:#fca5a5;border-color:rgba(239,68,68,0.35);" onclick="logoutSuperApp()" title="Sair / Trocar Operador">🚪 Sair</button>
@@ -1011,7 +1205,7 @@
         <div class="sa-card-header" style="flex-wrap:wrap;">
           <div>
             <div class="sa-title">➕ Lançamento Rápido de Pedido</div>
-            <div class="sa-subtitle">Escolha o destino (Mesa, Comanda Individual, Retirada ou Entrega) e adicione os itens.</div>
+            <div class="sa-subtitle">Escolha o destino (Mesa, Comanda Individual, Balcão / Retirada ou Entrega) e adicione os itens.</div>
           </div>
         </div>
 
@@ -1019,7 +1213,7 @@
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">
           <button type="button" class="sa-btn sa-btn-primary" id="btnModeMesa" style="padding:9px 4px;font-size:11px;" onclick="setWaiterLauncherMode('MESA')">🍽️ Mesa</button>
           <button type="button" class="sa-btn sa-btn-outline" id="btnModeComanda" style="padding:9px 4px;font-size:11px;" onclick="setWaiterLauncherMode('COMANDA')">🏷️ Comanda</button>
-          <button type="button" class="sa-btn sa-btn-outline" id="btnModeRetirada" style="padding:9px 4px;font-size:11px;" onclick="setWaiterLauncherMode('RETIRADA')">🛍️ Retirada</button>
+          <button type="button" class="sa-btn sa-btn-outline" id="btnModeRetirada" style="padding:9px 4px;font-size:11px;" onclick="setWaiterLauncherMode('RETIRADA')">🛍️ Balcão / Retirada</button>
           <button type="button" class="sa-btn sa-btn-outline" id="btnModeDelivery" style="padding:9px 4px;font-size:11px;" onclick="setWaiterLauncherMode('DELIVERY')">🛵 Entrega</button>
         </div>
 
@@ -1046,18 +1240,25 @@
 
         <div id="launcherTargetCustomerBox" style="display:none;flex-direction:column;gap:8px;margin-top:4px;">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <input type="text" id="waiterCustomerName" class="sa-input" placeholder="👤 Nome do Cliente *" />
-            <input type="tel" id="waiterCustomerPhone" class="sa-input" placeholder="📱 00 0 0000 0000" maxlength="14" inputmode="numeric" oninput="applyPhoneMaskSpaced11(this)" />
+            <input type="text" id="waiterCustomerName" class="sa-input" placeholder="👤 Nome do Cliente *" autocomplete="off" />
+            <input type="tel" id="waiterCustomerPhone" class="sa-input" placeholder="📱 00 0 0000 0000" maxlength="14" inputmode="numeric" oninput="applyPhoneMaskSpaced11(this)" autocomplete="off" />
           </div>
           <div id="launcherDeliveryAddressWrap" style="display:none;flex-direction:column;gap:8px;">
-            <input type="text" id="waiterDeliveryAddress" class="sa-input" placeholder="📍 Endereço Completo (Rua, Nº, Bairro, Ref.) *" />
+            <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">
+              <input type="text" id="waiterDeliveryStreet" class="sa-input" placeholder="📍 Rua / Logradouro *" autocomplete="off" />
+              <input type="text" id="waiterDeliveryNumber" class="sa-input" placeholder="🔢 Nº da Casa *" autocomplete="off" />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <input type="text" id="waiterDeliveryNeighborhood" class="sa-input" placeholder="🏘️ Bairro (Opcional)" autocomplete="off" />
+              <input type="text" id="waiterDeliveryComplement" class="sa-input" placeholder="Complemento / Ref. (Opcional)" autocomplete="off" />
+            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
               <select id="waiterPaymentMethod" class="sa-select">
                 <option value="PIX">💠 PIX</option>
                 <option value="CARTAO">💳 Cartão (Maquininha)</option>
                 <option value="DINHEIRO">💵 Dinheiro</option>
               </select>
-              <input type="number" step="0.01" id="waiterDeliveryFeeInput" class="sa-input" placeholder="Taxa Entrega (R$)" />
+              <input type="number" step="0.01" id="waiterDeliveryFeeInput" class="sa-input" placeholder="Taxa Entrega (R$)" autocomplete="off" />
             </div>
           </div>
         </div>
@@ -1275,6 +1476,19 @@
   </nav>
 
   <!-- =========================================================================
+       MODAL 0: LIGHTBOX / ZOOM DA FOTO DO PRODUTO (MODO KIOSK / CATÁLOGO)
+       ========================================================================= -->
+  <div class="modal-backdrop" id="saPhotoLightboxModal" onclick="closeSaPhotoLightbox()" style="z-index: 9999; background: rgba(5,5,8,0.88); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: #14141d; border: 2px solid var(--secondary); border-radius: 16px; padding: 18px; max-width: 520px; width: 100%; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.95); position: relative;" onclick="event.stopPropagation()">
+      <h3 id="saLightboxProductTitle" style="color: var(--secondary); font-size: 17px; font-weight: 800; margin-bottom: 12px; line-height: 1.3;"></h3>
+      <div style="width: 100%; max-height: 55vh; min-height: 220px; border-radius: 12px; overflow: hidden; background: #0b0b10; border: 1px solid rgba(212,175,55,0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+        <img id="saLightboxProductImg" src="" alt="" style="width: 100%; height: 100%; max-height: 55vh; object-fit: contain; display: block;" onerror="this.src='/api/public/og-logo.png'" />
+      </div>
+      <button type="button" class="sa-btn sa-btn-primary sa-btn-block" onclick="closeSaPhotoLightbox()" style="padding: 11px 18px; font-size: 14px; font-weight: 900;">✕ Fechar / Voltar</button>
+    </div>
+  </div>
+
+  <!-- =========================================================================
        MODAL 1: DETALHES DA MESA (LANÇAR, VER CONTA, CHAMADO, FECHAR)
        ========================================================================= -->
   <div class="modal-backdrop" id="modalTableDetail">
@@ -1366,6 +1580,79 @@
         <button type="button" class="sa-btn sa-btn-outline" onclick="clearActiveCart()">🗑️ Limpar</button>
         <button type="button" class="sa-btn sa-btn-green" style="flex:1;font-size:14px;" id="btnSubmitOrderNow" onclick="submitActiveCartOrder()">
           🚀 ENVIAR PEDIDO P/ COZINHA
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 3B: PREENCHIMENTO RÁPIDO DE DADOS DO CLIENTE (BALCÃO / RETIRADA & ENTREGA)
+       ========================================================================= -->
+  <div class="modal-backdrop" id="modalStaffQuickFill" style="z-index:1200;">
+    <div class="modal-sheet" style="max-width:480px;border:1.5px solid var(--primary);box-shadow:0 20px 60px rgba(0,0,0,0.9);">
+      <div class="modal-head">
+        <h3 id="quickFillModalTitle">🛍️ Dados do Cliente • Balcão / Retirada</h3>
+        <button type="button" class="btn-icon-top" onclick="closeModal('modalStaffQuickFill')">✕</button>
+      </div>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:12px;">
+        <div id="quickFillNoticeBanner" style="font-size:12.5px;color:#fde68a;background:rgba(245,158,11,0.14);border:1.5px solid #f59e0b;padding:10px 12px;border-radius:10px;line-height:1.4;">
+          ⚠️ <strong>Nome do Cliente Pendente:</strong> Informe o Nome do Cliente para identificar o pedido de <strong>Balcão / Retirada</strong> na Cozinha e no Caixa.
+        </div>
+        <div id="quickFillInlineAlert" style="display:none;font-size:12px;font-weight:800;color:#fca5a5;background:rgba(239,68,68,0.14);border:1px solid #ef4444;padding:8px 10px;border-radius:8px;"></div>
+
+        <div>
+          <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">👤 Nome do Cliente *</label>
+          <input type="text" id="quickFillCustomerName" class="sa-input" placeholder="Ex: Lucas Ferreira ou Consumidor..." autocomplete="off" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+        </div>
+
+        <div>
+          <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">📱 Celular / WhatsApp (00 0 0000 0000)</label>
+          <input type="tel" id="quickFillCustomerPhone" class="sa-input" placeholder="📱 00 0 0000 0000" maxlength="14" inputmode="numeric" oninput="applyPhoneMaskSpaced11(this)" autocomplete="off" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+        </div>
+
+        <div id="quickFillDeliveryFields" style="display:none;flex-direction:column;gap:10px;">
+          <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">
+            <div>
+              <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">📍 Rua / Logradouro *</label>
+              <input type="text" id="quickFillDeliveryStreet" class="sa-input" placeholder="Ex: Rua Brasil" autocomplete="off" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">🔢 Nº da Casa *</label>
+              <input type="text" id="quickFillDeliveryNumber" class="sa-input" placeholder="Ex: 120" autocomplete="off" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div>
+              <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">🏘️ Bairro (Opcional)</label>
+              <input type="text" id="quickFillDeliveryNeighborhood" class="sa-input" placeholder="Ex: Centro" autocomplete="off" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">Complemento / Ref. (Opcional)</label>
+              <input type="text" id="quickFillDeliveryComplement" class="sa-input" placeholder="Ex: Ap 12, Fundos" autocomplete="off" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div>
+              <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">Forma de Pagamento</label>
+              <select id="quickFillPaymentMethod" class="sa-select">
+                <option value="PIX">💠 PIX</option>
+                <option value="CARTAO">💳 Cartão (Maquininha)</option>
+                <option value="DINHEIRO">💵 Dinheiro</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:4px;">Taxa Entrega (R$)</label>
+              <input type="number" step="0.01" id="quickFillDeliveryFee" class="sa-input" placeholder="0.00" autocomplete="off" onkeydown="if(event.key==='Enter')confirmQuickFillAndSubmitOrder()" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="sa-btn sa-btn-outline" onclick="closeModal('modalStaffQuickFill')">Voltar</button>
+        <button type="button" class="sa-btn sa-btn-green" style="flex:1;font-size:14px;font-weight:900;" id="btnQuickFillConfirm" onclick="confirmQuickFillAndSubmitOrder()">
+          ✅ Confirmar Dados e Enviar p/ Cozinha
         </button>
       </div>
     </div>
@@ -1539,6 +1826,29 @@
   </div>
 
   <!-- =========================================================================
+       MODO DESTAQUE EM TELA CHEIA (CARROSSEL DE FOTOS & CONTROLE DE BRILHO)
+       ========================================================================= -->
+  <div id="kioskHighlightsFullscreenOverlay" onclick="exitKioskHighlightsMode()" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:999999;background:#000;overflow:hidden;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;">
+    <!-- Dimmer para controle de brilho via software caso não haja ponte nativa -->
+    <div id="kioskHlSoftwareDimmer" style="position:absolute;top:0;left:0;width:100%;height:100%;background:#000;opacity:0;pointer-events:none;z-index:1000000;transition:opacity 0.4s ease;"></div>
+
+    <!-- Badge Superior Elegante Centralizado de Alto Contraste -->
+    <div style="position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:1000001;background:rgba(18,18,26,0.92);border:2px solid #d4af37;border-radius:999px;padding:8px 24px;box-shadow:0 8px 32px rgba(0,0,0,0.85);display:flex;align-items:center;gap:12px;pointer-events:none;backdrop-filter:blur(8px);">
+      <div id="kioskHlBadgeStoreName" style="font-family:'Bayformance',sans-serif;font-size:18px;color:#f3d87d;letter-spacing:1px;font-weight:900;">NEXUSISTEMAS</div>
+      <div style="width:5px;height:5px;border-radius:50%;background:#86efac;"></div>
+      <div id="kioskHlBadgeTable" style="font-size:13px;font-weight:800;color:#86efac;background:rgba(34,197,94,0.18);padding:3px 12px;border-radius:999px;border:1px solid #22c55e;letter-spacing:0.5px;">MESA 01</div>
+    </div>
+
+    <!-- Carrossel de Fotos com Deslizamento Lateral Fluido (translate3d) -->
+    <div id="kioskHlSlidesContainer" style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;"></div>
+
+    <!-- Aviso Inferior de Toque Para Abrir Cardápio -->
+    <div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:1000001;background:rgba(18,18,26,0.88);border:1.5px solid #d4af37;border-radius:30px;padding:10px 24px;color:#ffffff;font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:8px;box-shadow:0 6px 24px rgba(0,0,0,0.8);pointer-events:none;letter-spacing:0.4px;">
+      <span>👆</span> <span>TOQUE EM QUALQUER LUGAR PARA VER O CARDÁPIO</span>
+    </div>
+  </div>
+
+  <!-- =========================================================================
        MOTOR JAVASCRIPT PURO (VANILLA JS) — ZERO DEPENDÊNCIAS EXTERNAS
        ========================================================================= -->
   <script>
@@ -1546,6 +1856,46 @@
     const SA_STORAGE_CART_KEY = 'nexus_superapp_web_cart_v2';
     const SA_STORAGE_BRAND_KEY = 'nexus_superapp_branding_cache_v1';
     const SA_FALLBACK_SVG_LOGO = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" rx="26" fill="#09090c"/><rect x="4" y="4" width="112" height="112" rx="22" fill="none" stroke="#d4af37" stroke-width="4"/><path d="M34 86V34h14l24 32V34h14v52H72L48 54v32H34z" fill="#d4af37"/></svg>');
+
+  const SR_BURGER_QR_REV_MAP = {"a1f5803f-0287-4944-83b4-a887422377b2": 1, "5f78fb53-4cb6-4055-a7c6-9d2fa0f12e2e": 2, "00768344-67e7-4ba3-866e-1d4892e3d447": 3, "1f35bc3b-6079-4cd1-91bf-62607b41dfb0": 4, "5d8923c9-590e-4da6-aea9-f5ff39e74173": 5, "bacb4bb3-ae41-4052-bd67-03d54eedea81": 6, "5daf5e45-e88c-4c17-927c-704ec1f94378": 7, "b1b8f268-6463-43e8-93b1-8a2c63566fa4": 8, "2ac27d9d-c06f-4abc-8b52-30e5a13aabf0": 9, "e605bdfa-e9df-4407-a477-196335921cbe": 10, "ad1392c7-de1e-40f8-a55f-385dd41ab1d0": 11, "e8fbc248-ebc7-481a-a001-f12acb2dc9f3": 12, "10694293-a947-4d67-8cbb-00cc032124a8": 13, "17bd1c9d-63f5-4ae2-87fe-6d6487e09a73": 14, "6c77a2ee-c1a0-4bc2-a320-88f6d2915fb9": 15, "e67f0f70-d256-4ae1-8366-cbdb686e76b0": 16, "349d1234-6a02-4d6c-b811-3ee999c6e168": 17, "3f731f13-49b2-49d5-b737-5860e24371ca": 18, "2ddba0c5-6ffc-4999-acef-e48986d9768a": 19, "2d5a93ac-c3d0-4c6f-9bbe-5f5cd3be6d32": 20, "ea28ca3a-33d7-408b-8ecb-48d3cb3d2d7b": 21, "ed660492-fa12-48d5-8345-382cbf2e10a1": 22, "3f0c91aa-d7f0-4716-b598-c376533a5357": 23, "1630d85a-5b85-438f-93b9-7726e15c2b95": 24, "68cf764c-5ea5-4bac-8c8f-14ddde3e18eb": 25, "6ea626f4-3747-4de8-b2e4-cd84dafda6f5": 26, "fdb50d97-ee57-4b7c-8a58-87a8cd7f7a94": 27, "113b082c-7a79-4957-9e36-3b43874c1bf8": 28, "1b1b34ea-b87f-4b3f-8d5f-5eb04783b530": 29, "6e507939-fb5a-406e-ab3f-c8e2c8c746ce": 30, "f06486f9-25b0-4e34-9cea-058baefd955e": 31, "b3e68a73-67f4-462e-854f-119b543cecc8": 32, "21409829-40f6-4a4e-945b-b6d4dd9ec715": 33, "27cb1cc7-17ba-414e-b04b-2e65e6c05b97": 34, "6d838d86-1c2e-438b-a298-f6b74283ce96": 35, "b2f6c174-1b8f-4a50-8ae6-bbd0b7b077ff": 36, "c20c3446-cc2b-4276-82dd-013c50f98b63": 37, "5e495514-7c90-42ad-961b-a30a2a23e975": 38, "77bbd5b9-31d6-4512-8f0f-6897feac5373": 39, "f5530634-d743-44ee-8605-b0c89c19e20d": 40, "926534e2-ff9d-4305-abc6-002e989be1b2": 41, "86ff5f84-0567-4fff-8bf6-87ebf60adcfc": 42, "930d209d-297b-4560-92bc-28601a0f4216": 43, "c4e5948e-9230-4579-a653-c99bc5a49083": 44, "c456f80d-35e5-4f1b-baf9-83d21bf6f0d2": 45, "59b64031-9970-4250-8e8a-22ed7d53c539": 46, "42cd3307-da51-4580-83d1-c162975ce0f4": 47, "7b72e2fd-1b5d-4c4c-af73-8715778ac588": 48, "a9c3a56f-a1be-4cb4-9646-cba8b191c0e1": 49, "dae524a1-0d6e-44c7-bc79-55142b4176c8": 50, "9b5d82a7-f6a4-4e17-ae57-d8fdae6b2e1a": 51, "af8cebad-d6dc-4766-ab22-76ed2ab70673": 52, "4d921d96-b185-4f92-b8dd-d11a14ed17f7": 53, "e4ffc82d-d9f1-48a3-84b4-3722212d2cb3": 54, "08998883-ea36-4b09-ad5e-af30d1e75d7d": 55, "ee4c65f5-b186-45fa-828d-7d53a9773a65": 56, "904730f1-3cff-4522-9882-b686d7ac5e28": 57, "e136076f-1b31-4046-b181-b967a11f5cce": 58, "14190317-9299-4762-8dd9-dfd3f95d2215": 59, "a8d1d7e0-acb5-431e-ae10-ebaed84978c5": 60, "69226cd4-bbaa-4b1f-905c-464e691004d8": 61, "ec9a5d9c-d362-4e8b-b087-bc9fe98d7754": 62, "494b1f37-df73-4e8b-a1a1-df7ced116256": 63, "3e4130d1-9f90-4a79-b87f-304643d69e71": 64, "48701e2e-62cc-4e8e-a54e-76e560390596": 65, "d6ba5889-558b-4bd0-9b64-a1c76eaaf3f7": 66, "c74425e2-03c6-4e35-b013-dcbc983e74af": 67, "eb5b8102-3a14-453a-871f-d4df13d6f06d": 68, "5b63a68b-e9c8-4f75-9389-554990b12036": 69, "9ceb503d-3c6c-4126-b00f-48218a3de5ab": 70, "b8b10ac1-1450-4e76-8c1c-d7ce39250255": 71, "f53ac196-4e5e-4c60-827e-4eeffc36878c": 72, "7f940736-9b19-4b9a-bc48-57c86e05d109": 73, "93d31cc1-93fe-4d2d-a55d-dd2ac9fa889e": 74, "3b8a5537-2301-462e-80ab-52bd01254efc": 75, "99b9e483-150e-4808-a7ad-46ea24f60057": 76, "41756fef-183d-4b6c-bb95-af50d539b24a": 77, "bad7d604-5bdd-4b28-a090-c946d3486233": 78, "5977dc23-0acb-4822-89fc-ebb5e2f5543f": 79, "f7edecc5-fb1e-4a3e-acd2-089d60cc2dab": 80, "e75078e0-7f50-4cb9-8ae4-575ba3ad741e": 81, "545e1e04-ec29-4b53-85c5-ff5fe6382fcc": 82, "7ccb1628-99f3-4575-9eb3-7970dcdfcd1f": 83, "4fb76be3-22b0-4602-ac9e-551eaedfd80a": 84, "9ed6899d-25ef-47c2-b171-a2d1df765109": 85, "bc70e4dd-505f-44d5-8546-1bde79fcef30": 86, "92fdfb2d-a1d3-4b1b-bd25-d42b40ce77ac": 87, "d45cfbe3-c9f9-4788-afc0-d586b6429b6d": 88, "2ccd298d-fc11-4112-ad46-01663ae037ce": 89, "b4eb0559-b121-4d00-9b76-a848f966350b": 90, "8103d2e3-e7e4-4353-a5c6-4a970f9ce220": 91, "180b90aa-3444-405c-a8ca-9f4dd16d250a": 92, "810c61fc-3c10-43f6-ac0a-10373526ed8a": 93, "9ffaef4d-fce5-483d-b36f-2f3d307144e4": 94, "cffadd1e-6bdf-4d93-9dfc-b34f9bf90c9f": 95, "2a915bbd-f52f-4687-a6d5-7858a3875e6e": 96, "6f23db3d-f0f9-4cd4-8523-8ad7caf11524": 97, "26083773-727d-478c-b323-4668988049dd": 98, "9b79324c-8733-484c-a0ca-100441a6abb9": 99, "33d05121-d76a-431c-adad-a0fdc541d513": 100};
+  const SR_BURGER_QR_NUM_MAP = {"1": "a1f5803f-0287-4944-83b4-a887422377b2", "2": "5f78fb53-4cb6-4055-a7c6-9d2fa0f12e2e", "3": "00768344-67e7-4ba3-866e-1d4892e3d447", "4": "1f35bc3b-6079-4cd1-91bf-62607b41dfb0", "5": "5d8923c9-590e-4da6-aea9-f5ff39e74173", "6": "bacb4bb3-ae41-4052-bd67-03d54eedea81", "7": "5daf5e45-e88c-4c17-927c-704ec1f94378", "8": "b1b8f268-6463-43e8-93b1-8a2c63566fa4", "9": "2ac27d9d-c06f-4abc-8b52-30e5a13aabf0", "10": "e605bdfa-e9df-4407-a477-196335921cbe", "11": "ad1392c7-de1e-40f8-a55f-385dd41ab1d0", "12": "e8fbc248-ebc7-481a-a001-f12acb2dc9f3", "13": "10694293-a947-4d67-8cbb-00cc032124a8", "14": "17bd1c9d-63f5-4ae2-87fe-6d6487e09a73", "15": "6c77a2ee-c1a0-4bc2-a320-88f6d2915fb9", "16": "e67f0f70-d256-4ae1-8366-cbdb686e76b0", "17": "349d1234-6a02-4d6c-b811-3ee999c6e168", "18": "3f731f13-49b2-49d5-b737-5860e24371ca", "19": "2ddba0c5-6ffc-4999-acef-e48986d9768a", "20": "2d5a93ac-c3d0-4c6f-9bbe-5f5cd3be6d32", "21": "ea28ca3a-33d7-408b-8ecb-48d3cb3d2d7b", "22": "ed660492-fa12-48d5-8345-382cbf2e10a1", "23": "3f0c91aa-d7f0-4716-b598-c376533a5357", "24": "1630d85a-5b85-438f-93b9-7726e15c2b95", "25": "68cf764c-5ea5-4bac-8c8f-14ddde3e18eb", "26": "6ea626f4-3747-4de8-b2e4-cd84dafda6f5", "27": "fdb50d97-ee57-4b7c-8a58-87a8cd7f7a94", "28": "113b082c-7a79-4957-9e36-3b43874c1bf8", "29": "1b1b34ea-b87f-4b3f-8d5f-5eb04783b530", "30": "6e507939-fb5a-406e-ab3f-c8e2c8c746ce", "31": "f06486f9-25b0-4e34-9cea-058baefd955e", "32": "b3e68a73-67f4-462e-854f-119b543cecc8", "33": "21409829-40f6-4a4e-945b-b6d4dd9ec715", "34": "27cb1cc7-17ba-414e-b04b-2e65e6c05b97", "35": "6d838d86-1c2e-438b-a298-f6b74283ce96", "36": "b2f6c174-1b8f-4a50-8ae6-bbd0b7b077ff", "37": "c20c3446-cc2b-4276-82dd-013c50f98b63", "38": "5e495514-7c90-42ad-961b-a30a2a23e975", "39": "77bbd5b9-31d6-4512-8f0f-6897feac5373", "40": "f5530634-d743-44ee-8605-b0c89c19e20d", "41": "926534e2-ff9d-4305-abc6-002e989be1b2", "42": "86ff5f84-0567-4fff-8bf6-87ebf60adcfc", "43": "930d209d-297b-4560-92bc-28601a0f4216", "44": "c4e5948e-9230-4579-a653-c99bc5a49083", "45": "c456f80d-35e5-4f1b-baf9-83d21bf6f0d2", "46": "59b64031-9970-4250-8e8a-22ed7d53c539", "47": "42cd3307-da51-4580-83d1-c162975ce0f4", "48": "7b72e2fd-1b5d-4c4c-af73-8715778ac588", "49": "a9c3a56f-a1be-4cb4-9646-cba8b191c0e1", "50": "dae524a1-0d6e-44c7-bc79-55142b4176c8", "51": "9b5d82a7-f6a4-4e17-ae57-d8fdae6b2e1a", "52": "af8cebad-d6dc-4766-ab22-76ed2ab70673", "53": "4d921d96-b185-4f92-b8dd-d11a14ed17f7", "54": "e4ffc82d-d9f1-48a3-84b4-3722212d2cb3", "55": "08998883-ea36-4b09-ad5e-af30d1e75d7d", "56": "ee4c65f5-b186-45fa-828d-7d53a9773a65", "57": "904730f1-3cff-4522-9882-b686d7ac5e28", "58": "e136076f-1b31-4046-b181-b967a11f5cce", "59": "14190317-9299-4762-8dd9-dfd3f95d2215", "60": "a8d1d7e0-acb5-431e-ae10-ebaed84978c5", "61": "69226cd4-bbaa-4b1f-905c-464e691004d8", "62": "ec9a5d9c-d362-4e8b-b087-bc9fe98d7754", "63": "494b1f37-df73-4e8b-a1a1-df7ced116256", "64": "3e4130d1-9f90-4a79-b87f-304643d69e71", "65": "48701e2e-62cc-4e8e-a54e-76e560390596", "66": "d6ba5889-558b-4bd0-9b64-a1c76eaaf3f7", "67": "c74425e2-03c6-4e35-b013-dcbc983e74af", "68": "eb5b8102-3a14-453a-871f-d4df13d6f06d", "69": "5b63a68b-e9c8-4f75-9389-554990b12036", "70": "9ceb503d-3c6c-4126-b00f-48218a3de5ab", "71": "b8b10ac1-1450-4e76-8c1c-d7ce39250255", "72": "f53ac196-4e5e-4c60-827e-4eeffc36878c", "73": "7f940736-9b19-4b9a-bc48-57c86e05d109", "74": "93d31cc1-93fe-4d2d-a55d-dd2ac9fa889e", "75": "3b8a5537-2301-462e-80ab-52bd01254efc", "76": "99b9e483-150e-4808-a7ad-46ea24f60057", "77": "41756fef-183d-4b6c-bb95-af50d539b24a", "78": "bad7d604-5bdd-4b28-a090-c946d3486233", "79": "5977dc23-0acb-4822-89fc-ebb5e2f5543f", "80": "f7edecc5-fb1e-4a3e-acd2-089d60cc2dab", "81": "e75078e0-7f50-4cb9-8ae4-575ba3ad741e", "82": "545e1e04-ec29-4b53-85c5-ff5fe6382fcc", "83": "7ccb1628-99f3-4575-9eb3-7970dcdfcd1f", "84": "4fb76be3-22b0-4602-ac9e-551eaedfd80a", "85": "9ed6899d-25ef-47c2-b171-a2d1df765109", "86": "bc70e4dd-505f-44d5-8546-1bde79fcef30", "87": "92fdfb2d-a1d3-4b1b-bd25-d42b40ce77ac", "88": "d45cfbe3-c9f9-4788-afc0-d586b6429b6d", "89": "2ccd298d-fc11-4112-ad46-01663ae037ce", "90": "b4eb0559-b121-4d00-9b76-a848f966350b", "91": "8103d2e3-e7e4-4353-a5c6-4a970f9ce220", "92": "180b90aa-3444-405c-a8ca-9f4dd16d250a", "93": "810c61fc-3c10-43f6-ac0a-10373526ed8a", "94": "9ffaef4d-fce5-483d-b36f-2f3d307144e4", "95": "cffadd1e-6bdf-4d93-9dfc-b34f9bf90c9f", "96": "2a915bbd-f52f-4687-a6d5-7858a3875e6e", "97": "6f23db3d-f0f9-4cd4-8523-8ad7caf11524", "98": "26083773-727d-478c-b323-4668988049dd", "99": "9b79324c-8733-484c-a0ca-100441a6abb9", "100": "33d05121-d76a-431c-adad-a0fdc541d513"};
+
+  function normalizeComandaTokenOrQr(raw) {
+    if (!raw) return { number: 0, code: '' };
+    const trimmed = String(raw).trim();
+    if (!trimmed) return { number: 0, code: '' };
+    const lower = trimmed.toLowerCase();
+    if (SR_BURGER_QR_REV_MAP[lower]) {
+      const num = SR_BURGER_QR_REV_MAP[lower];
+      return { number: num, code: 'CMD-' + String(num).padStart(3, '0') };
+    }
+    let clean = trimmed.toUpperCase()
+      .replace(/^SIRBEEF:COMANDA:/i, '')
+      .replace(/^SIRBEEF-COMANDA-/i, '')
+      .replace(/^SIRBEEF:CMD:/i, '')
+      .replace(/^SIRBEEF-CMD-/i, '')
+      .replace(/^NEXUS:COMANDA:/i, '')
+      .replace(/^NEXUS-COMANDA-/i, '')
+      .replace(/^NEXUS:CMD:/i, '')
+      .replace(/^NEXUS-CMD-/i, '')
+      .replace(/^COMANDA:/i, '')
+      .replace(/^COMANDA-/i, '')
+      .replace(/^COMANDA\s+/i, '')
+      .replace(/^CMD:/i, '')
+      .replace(/^CMD-/i, '')
+      .replace(/^CMD\s+/i, '')
+      .replace(/^#/i, '')
+      .trim();
+    const parsedNum = parseInt(clean, 10);
+    if (!isNaN(parsedNum) && parsedNum > 0 && String(parsedNum) === clean) {
+      return { number: parsedNum, code: 'CMD-' + String(parsedNum).padStart(3, '0') };
+    }
+    if (clean.startsWith('MESA ') || clean.startsWith('M-')) {
+      return { number: 0, code: clean };
+    }
+    return { number: parsedNum || 0, code: clean ? 'CMD-' + clean : '' };
+  }
+
 
     const state = {
       user: null,
@@ -1596,6 +1946,342 @@
       lastCoords: null,
       deferredPwaPrompt: null
     };
+
+    /* =========================================================================
+       MODO DESTAQUE (CARROSSEL DE FOTOS & CONTROLE DE BRILHO P/ TABLET KIOSK)
+       ========================================================================= */
+    const SA_STORAGE_KIOSK_HL_KEY = 'nexus_superapp_kiosk_highlights_v1';
+    let kioskHighlightsConfig = {
+      enabled: true,
+      slide_duration_seconds: 5,
+      idle_timeout_seconds: 10,
+      dimmer_brightness_percent: 15,
+      items: [],
+      version: ''
+    };
+    let isKioskHighlightsActive = false;
+    let kioskHighlightsTimer = null;
+    let kioskSlideInterval = null;
+    let kioskCurrentSlideIdx = 0;
+    let kioskInactivityListenersBound = false;
+
+    async function loadKioskHighlightsConfig() {
+      try {
+        const res = await apiFetch('/api/kiosk/highlights');
+        if (res && typeof res === 'object') {
+          applyKioskHighlightsConfig(res);
+        }
+      } catch (_) {
+        try {
+          const cached = localStorage.getItem(SA_STORAGE_KIOSK_HL_KEY);
+          if (cached) {
+            applyKioskHighlightsConfig(JSON.parse(cached));
+          }
+        } catch (_) {}
+      }
+    }
+
+    function applyKioskHighlightsConfig(data) {
+      if (!data || typeof data !== 'object') return;
+      kioskHighlightsConfig.enabled = data.enabled !== false;
+      kioskHighlightsConfig.show_highlight_category = data.show_highlight_category !== false;
+      kioskHighlightsConfig.slide_duration_seconds = Number(data.slide_duration_seconds || data.slide_duration_sec) || 5;
+      kioskHighlightsConfig.idle_timeout_seconds = Number(data.idle_timeout_seconds || data.idle_timeout_sec) || 10;
+      kioskHighlightsConfig.dimmer_brightness_percent = Number(data.dimmer_brightness_percent || data.brightness_percent) || 15;
+      kioskHighlightsConfig.items = Array.isArray(data.items) ? data.items : [];
+      kioskHighlightsConfig.featured_product_ids = Array.isArray(data.featured_product_ids) ? data.featured_product_ids.map(Number).filter(n => n > 0) : [];
+      kioskHighlightsConfig.version = data.version || '';
+      try {
+        localStorage.setItem(SA_STORAGE_KIOSK_HL_KEY, JSON.stringify(kioskHighlightsConfig));
+      } catch (_) {}
+      resetKioskInactivityTimer();
+      if (typeof renderWaiterCategoryStrip === 'function') {
+        renderWaiterCategoryStrip();
+      }
+    }
+
+    let lastUserActivityTime = Date.now();
+
+    function resetKioskInactivityTimer() {
+      lastUserActivityTime = Date.now();
+    }
+
+    function initKioskInactivityMonitoring() {
+      if (kioskInactivityListenersBound) {
+        lastUserActivityTime = Date.now();
+        return;
+      }
+      kioskInactivityListenersBound = true;
+      const events = ['touchstart', 'touchend', 'mousedown', 'keydown', 'scroll', 'click'];
+      events.forEach(ev => {
+        window.addEventListener(ev, () => {
+          if (isKioskHighlightsActive) {
+            exitKioskHighlightsMode();
+          } else {
+            lastUserActivityTime = Date.now();
+          }
+        }, { passive: true });
+      });
+      lastUserActivityTime = Date.now();
+
+      // Heartbeat contínuo de inatividade a cada 1 segundo
+      setInterval(() => {
+        if (!kioskHighlightsConfig.enabled || isKioskHighlightsActive) return;
+        const isKiosk = document.body.classList.contains('mode-kiosk') || 
+                        document.body.getAttribute('data-mode') === 'kiosk' ||
+                        new URLSearchParams(window.location.search || '').get('mode') === 'kiosk' ||
+                        (state.user && (String(state.user.role).toUpperCase() === 'TABLET' || String(state.user.role).toUpperCase() === 'KIOSK'));
+        if (!isKiosk) return;
+
+        const timeoutMs = Math.max(3, Number(kioskHighlightsConfig.idle_timeout_seconds) || 10) * 1000;
+        if (Date.now() - lastUserActivityTime >= timeoutMs) {
+          triggerKioskHighlightsMode(false);
+        }
+      }, 1000);
+    }
+
+    function triggerKioskHighlightsMode(manual = false) {
+      if (!manual && !kioskHighlightsConfig.enabled) return;
+      if (!kioskHighlightsConfig.items || kioskHighlightsConfig.items.length === 0) {
+        if (manual) {
+          alert('Nenhuma foto de destaque cadastrada no momento.');
+        }
+        return;
+      }
+      isKioskHighlightsActive = true;
+      const overlay = document.getElementById('kioskHighlightsFullscreenOverlay');
+      if (!overlay) return;
+
+      // Wake Lock para manter a tela sempre acesa sem suspensão
+      try {
+        if ('wakeLock' in navigator && !window._kioskWakeLockSentinel) {
+          navigator.wakeLock.request('screen').then(lock => {
+            window._kioskWakeLockSentinel = lock;
+            lock.addEventListener('release', () => {
+              window._kioskWakeLockSentinel = null;
+            });
+          }).catch(() => {});
+        }
+      } catch (_) {}
+
+      // Atualiza badge superior de alto contraste
+      const storeEl = document.getElementById('kioskHlBadgeStoreName');
+      const tableEl = document.getElementById('kioskHlBadgeTable');
+      if (storeEl) {
+        storeEl.textContent = (state.branding && state.branding.company_name) ? state.branding.company_name.toUpperCase() : 'NEXUSISTEMAS';
+      }
+      if (tableEl) {
+        let mesaLabel = 'MESA 01';
+        if (state.selectedTableId) {
+          const tObj = (state.tables || []).find(t => Number(t.id) === Number(state.selectedTableId) || Number(t.number) === Number(state.selectedTableId));
+          mesaLabel = tObj ? (tObj.label || 'MESA ' + String(tObj.number || tObj.id).padStart(2, '0')) : 'MESA ' + String(state.selectedTableId).padStart(2, '0');
+        } else {
+          const qMesa = new URLSearchParams(window.location.search).get('mesa');
+          if (qMesa) mesaLabel = 'MESA ' + String(qMesa).padStart(2, '0');
+        }
+        tableEl.textContent = mesaLabel;
+      }
+
+      // Renderiza slides e abre overlay
+      renderKioskHighlightsSlides();
+      overlay.style.display = 'block';
+
+      // Reduz brilho para economizar bateria
+      const pct = Math.max(1, Math.min(100, kioskHighlightsConfig.dimmer_brightness_percent || 15));
+      try {
+        if (window.Android && typeof window.Android.setScreenBrightness === 'function') {
+          window.Android.setScreenBrightness(pct);
+        } else if (window.AndroidBridge && typeof window.AndroidBridge.setScreenBrightness === 'function') {
+          window.AndroidBridge.setScreenBrightness(pct);
+        }
+      } catch (_) {}
+
+      const dimmer = document.getElementById('kioskHlSoftwareDimmer');
+      if (dimmer) {
+        const dimOpacity = ((100 - pct) / 100) * 0.82;
+        dimmer.style.opacity = String(dimOpacity);
+      }
+
+      // Carrossel com transição fluida
+      if (kioskSlideInterval) clearInterval(kioskSlideInterval);
+      const slideDuration = Math.max(2, kioskHighlightsConfig.slide_duration_seconds || 5) * 1000;
+      kioskSlideInterval = setInterval(advanceKioskHighlightsSlide, slideDuration);
+    }
+
+    function renderKioskHighlightsSlides() {
+      const container = document.getElementById('kioskHlSlidesContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      kioskCurrentSlideIdx = 0;
+      const items = kioskHighlightsConfig.items || [];
+      items.forEach((item, idx) => {
+        const slide = document.createElement('div');
+        slide.className = 'kiosk-hl-slide ' + (idx === 0 ? 'slide-active' : 'slide-enter');
+        slide.id = 'kioskSlide_' + idx;
+        const imgUrl = item.image_url || '';
+        slide.innerHTML = `
+          <div class="kiosk-hl-ambient" style="background-image:url('${imgUrl}');"></div>
+          <div class="kiosk-hl-main-wrap">
+            <img class="kiosk-hl-main-img" src="${imgUrl}" alt="${escapeHtml(item.title || 'Destaque')}" onerror="this.style.display='none'" />
+          </div>
+        `;
+        container.appendChild(slide);
+      });
+    }
+
+    function renderKioskHighlightsFeaturedProducts() {
+      const container = document.getElementById('kioskHlFeaturedProductsRow');
+      if (!container) return;
+      container.innerHTML = '';
+      const productIds = kioskHighlightsConfig.featured_product_ids || [];
+      if (!Array.isArray(productIds) || productIds.length === 0) {
+        container.style.display = 'none';
+        return;
+      }
+      const products = [];
+      productIds.forEach(id => {
+        const numId = Number(id);
+        const prod = (state.products || []).find(p => Number(p.id) === numId);
+        if (prod && products.length < 5) products.push(prod);
+      });
+      if (products.length === 0) {
+        container.style.display = 'none';
+        return;
+      }
+      container.style.display = 'flex';
+      products.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'kiosk-hl-prod-card';
+        card.style.width = '130px';
+        card.style.height = '145px';
+        card.style.background = 'rgba(18,18,26,0.92)';
+        card.style.border = '1.5px solid rgba(212,175,55,0.7)';
+        card.style.borderRadius = '16px';
+        card.style.padding = '8px';
+        card.style.display = 'flex';
+        card.style.flexDirection = 'column';
+        card.style.alignItems = 'center';
+        card.style.justifyContent = 'space-between';
+        card.style.cursor = 'pointer';
+        card.style.boxShadow = '0 8px 24px rgba(0,0,0,0.85)';
+        card.style.backdropFilter = 'blur(10px)';
+        card.style.pointerEvents = 'auto';
+        card.style.transition = 'transform 0.15s ease, border-color 0.15s ease';
+
+        let basePrice = Number(p.price) || 0;
+        let promoPrice = Number(p.promo_price || p.promotional_price) || 0;
+        if (p.promo_from && p.promo_from > basePrice) {
+          promoPrice = basePrice;
+          basePrice = Number(p.promo_from);
+        }
+        const hasPromo = promoPrice > 0 && promoPrice < basePrice;
+        const finalPrice = hasPromo ? promoPrice : basePrice;
+
+        const imgUrl = (typeof resolveSuperAppAssetUrl === 'function' ? resolveSuperAppAssetUrl(p.image_url) : (p.image_url || '')) || '';
+        const imgHtml = imgUrl ? `<img src="${imgUrl}" style="width:58px;height:58px;border-radius:10px;object-fit:cover;border:1px solid rgba(255,255,255,0.12);" onerror="this.style.display='none'">` : `<div style="width:58px;height:58px;border-radius:10px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:26px;">🍔</div>`;
+
+        let priceHtml = '';
+        if (hasPromo) {
+          priceHtml = `
+            <div style="display:flex;align-items:center;gap:4px;line-height:1.1;">
+              <span style="font-size:10.5px;color:#94a3b8;text-decoration:line-through;">R$ ${basePrice.toFixed(2)}</span>
+              <span style="font-size:12.5px;font-weight:900;color:#22c55e;">R$ ${finalPrice.toFixed(2)}</span>
+            </div>
+          `;
+        } else {
+          priceHtml = `<span style="font-size:12.5px;font-weight:900;color:#f3d87d;line-height:1.1;">R$ ${finalPrice.toFixed(2)}</span>`;
+        }
+
+        card.innerHTML = `
+          ${imgHtml}
+          <div style="font-size:11.5px;font-weight:800;color:#ffffff;text-align:center;max-height:28px;overflow:hidden;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;width:100%;margin-top:4px;">
+            ${p.name || ''}
+          </div>
+          ${priceHtml}
+        `;
+
+        card.addEventListener('click', (e) => {
+          e.stopPropagation();
+          exitKioskHighlightsMode();
+          if (typeof openProductCustomizerModal === 'function') {
+            openProductCustomizerModal(p, null, null);
+          }
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    function advanceKioskHighlightsSlide() {
+      const items = kioskHighlightsConfig.items || [];
+      if (items.length <= 1) return;
+      const prevIdx = kioskCurrentSlideIdx;
+      kioskCurrentSlideIdx = (kioskCurrentSlideIdx + 1) % items.length;
+
+      const prevSlide = document.getElementById('kioskSlide_' + prevIdx);
+      const nextSlide = document.getElementById('kioskSlide_' + kioskCurrentSlideIdx);
+
+      if (prevSlide) {
+        prevSlide.className = 'kiosk-hl-slide slide-exit';
+      }
+      if (nextSlide) {
+        nextSlide.className = 'kiosk-hl-slide slide-enter';
+        void nextSlide.offsetWidth;
+        nextSlide.className = 'kiosk-hl-slide slide-active';
+      }
+
+      setTimeout(() => {
+        if (prevSlide && prevSlide.classList.contains('slide-exit')) {
+          prevSlide.className = 'kiosk-hl-slide slide-enter';
+        }
+      }, 550);
+    }
+
+    function exitKioskHighlightsMode() {
+      if (!isKioskHighlightsActive) return;
+      isKioskHighlightsActive = false;
+
+      if (kioskSlideInterval) {
+        clearInterval(kioskSlideInterval);
+        kioskSlideInterval = null;
+      }
+
+      try {
+        if (window.Android && typeof window.Android.restoreScreenBrightness === 'function') {
+          window.Android.restoreScreenBrightness();
+        } else if (window.AndroidBridge && typeof window.AndroidBridge.restoreScreenBrightness === 'function') {
+          window.AndroidBridge.restoreScreenBrightness();
+        }
+      } catch (_) {}
+
+      const dimmer = document.getElementById('kioskHlSoftwareDimmer');
+      if (dimmer) {
+        dimmer.style.opacity = '0';
+      }
+
+      const overlay = document.getElementById('kioskHighlightsFullscreenOverlay');
+      if (overlay) {
+        overlay.style.display = 'none';
+      }
+
+      // Ao tocar: restaura brilho máximo, fecha carrossel e posiciona rolagem no topo da tela (scrollTo(0, 0)) na categoria ✨ Destaques ou na primeira categoria!
+      try {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        const waiterTab = document.getElementById('tabWaiter');
+        if (waiterTab) waiterTab.scrollTop = 0;
+        const waiterStrip = document.getElementById('waiterCategoryStrip');
+        if (waiterStrip) waiterStrip.scrollLeft = 0;
+        if (kioskHighlightsConfig.show_highlight_category !== false) {
+          selectWaiterCategory('destaques');
+        } else if (typeof selectWaiterCategory === 'function') {
+          selectWaiterCategory('ALL');
+        }
+      } catch (_) {}
+
+      resetKioskInactivityTimer();
+    }
 
     function formatSpacedPhone11(raw) {
       const digits = String(raw || '').replace(/\D/g, '').slice(0, 11);
@@ -1894,11 +2580,26 @@
       return base + (p.startsWith('/') ? p : '/' + p);
     }
 
+    function getSuperAppDeviceId() {
+      let did = '';
+      try {
+        did = localStorage.getItem('nexus_device_id') || '';
+        if (!did) {
+          did = 'dev-' + Math.random().toString(36).substring(2, 10) + '-' + Date.now().toString(36);
+          localStorage.setItem('nexus_device_id', did);
+        }
+      } catch (_) {
+        did = 'dev-temp-' + Date.now();
+      }
+      return did;
+    }
+
     async function apiFetch(path, options, _retriedHybrid) {
       const opts = Object.assign({ method: 'GET', headers: {} }, options || {});
       opts.headers = Object.assign({
         'Accept': 'application/json',
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'X-Device-ID': getSuperAppDeviceId()
       }, opts.headers || {});
       if (opts.body && typeof opts.body === 'object' && !(opts.body instanceof FormData)) {
         opts.headers['Content-Type'] = 'application/json';
@@ -1911,23 +2612,82 @@
 
       const targetUrl = resolveApiTargetUrl(path);
       const isCloudTarget = /^https:\/\//i.test(targetUrl) || (location.protocol === 'https:' && !targetUrl.startsWith('http://'));
-      const reqTimeoutMs = isCloudTarget ? 10000 : 2500;
-      const ctrl = (!opts.signal && typeof AbortController !== 'undefined') ? new AbortController() : null;
-      const tid = ctrl ? setTimeout(() => ctrl.abort(), reqTimeoutMs) : null;
-      if (ctrl) opts.signal = ctrl.signal;
 
       let res;
-      try {
-        res = await fetch(targetUrl, opts);
-        if (tid) clearTimeout(tid);
-      } catch (netErr) {
-        if (tid) clearTimeout(tid);
-        if (!_retriedHybrid) {
-          await resolveSuperAppHybridBase(true);
-          const cleanRetryOpts = Object.assign({}, options || {});
-          return apiFetch(path, cleanRetryOpts, true);
+      // Smart Dual-Path: Corrida concorrente simultânea (Promise.any) entre LAN local e Túnel Cloudflare no 4G
+      // Blindagem de Login: rotas de autenticação NUNCA concorrem em dual-path para evitar tokens concorrentes
+      const isAuthLoginRoute = String(path || '').includes('/api/auth/login') || String(path || '').includes('/api/login');
+      if (!isCloudTarget && typeof Promise.any === 'function' && !_retriedHybrid && !isAuthLoginRoute) {
+        const cached = loadStoredHybridHosts();
+        const cloudBase = (cached && (cached.subdomainTunnelUrl || cached.tunnelUrl)) ||
+          (cached && cached.storeSlug ? `https://${cached.storeSlug}.nexusistemas.app.br` : 'https://teste.nexusistemas.app.br');
+        const cleanCloudPath = cloudBase.replace(/\/+$/, '') + (path.startsWith('/') ? path : '/' + path);
+
+        const lanCtrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const lanTid = lanCtrl ? setTimeout(() => lanCtrl.abort(), 1200) : null;
+        const lanOpts = Object.assign({}, opts, lanCtrl ? { signal: lanCtrl.signal } : {});
+
+        const cloudCtrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const cloudTid = cloudCtrl ? setTimeout(() => cloudCtrl.abort(), 6000) : null;
+        const cloudOpts = Object.assign({}, opts, cloudCtrl ? { signal: cloudCtrl.signal } : {});
+
+        try {
+          const winner = await Promise.any([
+            fetch(targetUrl, lanOpts).then(r => {
+              if (lanTid) clearTimeout(lanTid);
+              if (r && r.status < 500) return { res: r, mode: 'LAN' };
+              throw new Error('LAN_FAILED');
+            }),
+            fetch(cleanCloudPath, cloudOpts).then(r => {
+              if (cloudTid) clearTimeout(cloudTid);
+              if (r && r.status < 502) return { res: r, mode: 'CLOUD_4G' };
+              throw new Error('CLOUD_FAILED');
+            })
+          ]);
+          if (lanTid) clearTimeout(lanTid);
+          if (cloudTid) clearTimeout(cloudTid);
+          if (winner.mode === 'CLOUD_4G') {
+            state.activeApiBase = cloudBase;
+            updateHybridNetworkBadge('CLOUD_4G');
+          } else {
+            updateHybridNetworkBadge('LAN');
+          }
+          res = winner.res;
+        } catch (_) {
+          if (lanTid) clearTimeout(lanTid);
+          if (cloudTid) clearTimeout(cloudTid);
         }
-        throw netErr;
+      }
+
+      if (!res) {
+        // Fallback padrão se Promise.any não resolver
+        const reqTimeoutMs = isCloudTarget ? 8000 : 1200;
+        const ctrl = (!opts.signal && typeof AbortController !== 'undefined') ? new AbortController() : null;
+        const tid = ctrl ? setTimeout(() => ctrl.abort(), reqTimeoutMs) : null;
+        if (ctrl) opts.signal = ctrl.signal;
+
+        try {
+          res = await fetch(targetUrl, opts);
+          if (tid) clearTimeout(tid);
+        } catch (netErr) {
+          if (tid) clearTimeout(tid);
+          if (!_retriedHybrid) {
+            // Se falhou na LAN local, chaveia imediatamente para o Túnel Cloudflare sem espera
+            if (!isCloudTarget) {
+              const cached = loadStoredHybridHosts();
+              const candidates = await discoverCloudTunnelCandidatesFromGitHub(cached);
+              const cloudBase = (candidates && candidates[0]) || 'https://teste.nexusistemas.app.br';
+              state.activeApiBase = cloudBase;
+              updateHybridNetworkBadge('CLOUD_4G');
+              const cleanRetryOpts = Object.assign({}, options || {});
+              return apiFetch(path, cleanRetryOpts, true);
+            }
+            await resolveSuperAppHybridBase(true);
+            const cleanRetryOpts = Object.assign({}, options || {});
+            return apiFetch(path, cleanRetryOpts, true);
+          }
+          throw netErr;
+        }
       }
 
       try {
@@ -2242,7 +3002,8 @@
           body: {
             username: username,
             password: pin,
-            pin: pin
+            pin: pin,
+            device_id: getSuperAppDeviceId()
           }
         });
         const user = (res && res.user) ? res.user : res;
@@ -2293,6 +3054,38 @@
     }
 
     function configureTabsForRole(roleUpper) {
+      const isKiosk = String(roleUpper || '').toUpperCase() === 'TABLET' || String(roleUpper || '').toUpperCase() === 'KIOSK' ||
+        new URLSearchParams(window.location.search || '').get('mode') === 'kiosk' ||
+        new URLSearchParams(window.location.search || '').get('role') === 'TABLET';
+      document.body.classList.toggle('mode-kiosk', isKiosk);
+      if (isKiosk) {
+        document.body.setAttribute('data-mode', 'kiosk');
+        initKioskInactivityMonitoring();
+        try {
+          if (window.screen && window.screen.orientation && typeof window.screen.orientation.lock === 'function') {
+            window.screen.orientation.lock('landscape').catch(() => {});
+          }
+        } catch (_) {}
+      } else {
+        document.body.removeAttribute('data-mode');
+        try {
+          if (window.screen && window.screen.orientation && typeof window.screen.orientation.unlock === 'function') {
+            window.screen.orientation.unlock();
+          }
+        } catch (_) {}
+      }
+      const topbarEl = document.getElementById('superAppTopbar');
+      if (topbarEl) {
+        topbarEl.style.display = isKiosk ? 'none' : '';
+      }
+      const topKioskSearchBtn = document.getElementById('btnTopKioskSearch');
+      if (topKioskSearchBtn) {
+        topKioskSearchBtn.style.display = isKiosk ? 'inline-flex' : 'none';
+      }
+      const topKioskBtn = document.getElementById('btnTopKioskHighlights');
+      if (topKioskBtn) {
+        topKioskBtn.style.display = isKiosk ? 'inline-flex' : 'none';
+      }
       const isMotoboy = String(roleUpper || '').toUpperCase() === 'MOTOBOY';
       const topMotoCaixaBtn = document.getElementById('btnTopMotoboyCaixa');
       if (topMotoCaixaBtn) {
@@ -2314,6 +3107,11 @@
     }
 
     function logoutSuperApp() {
+      try {
+        if (window.screen && window.screen.orientation && typeof window.screen.orientation.unlock === 'function') {
+          window.screen.orientation.unlock();
+        }
+      } catch (_) {}
       stopMotoboyQrCamera();
       stopComandaQrCamera();
       stopMotoboyGpsTracking();
@@ -2381,6 +3179,9 @@
       } else if (roleUpper !== 'MOTOBOY' && (tabName === 'motoboy' || tabName === 'motoboy-caixa')) {
         tabName = 'tables';
       }
+      if (state.activeTab !== tabName) {
+        clearStaffCustomerDataInputs(false);
+      }
       state.activeTab = tabName;
       document.querySelectorAll('.view-section').forEach(sec => {
         sec.classList.toggle('active', sec.id === 'view-' + tabName);
@@ -2419,7 +3220,8 @@
         loadTablesAndComandas(),
         loadOrdersAndDeliveries(),
         loadWaiterAlerts(),
-        loadMotoboyShiftData()
+        loadMotoboyShiftData(),
+        loadKioskHighlightsConfig()
       ]);
       if (state.activeTab === 'motoboy' || state.activeTab === 'motoboy-caixa') {
         loadMotoboySettlement();
@@ -2741,56 +3543,84 @@
     /* =========================================================================
        CATÁLOGO, MODALIDADES E CARRINHO DO GARÇOM
        ========================================================================= */
+    function applySuperAppCatalogData(rawCats) {
+      if (!Array.isArray(rawCats) || rawCats.length === 0) return;
+      const cats = [...rawCats].sort((a, b) => {
+        const sa = (typeof a.sort_order === 'number' && a.sort_order > 0) ? a.sort_order : 999999;
+        const sb = (typeof b.sort_order === 'number' && b.sort_order > 0) ? b.sort_order : 999999;
+        if (sa !== sb) return sa - sb;
+        return Number(a.id || 0) - Number(b.id || 0);
+      });
+
+      const vis = state.operational.waiter_visible_categories || [];
+      const hid = state.operational.waiter_hidden_categories || [];
+
+      const cleanCats = [];
+      const flatProducts = [];
+
+      const isSuperAppArea2Active = () => {
+        const br = (state && state.branding) ? state.branding : {};
+        if (br.module_market === false) return false;
+        if (Array.isArray(br.cashier_cards)) {
+          const c2 = br.cashier_cards.find(c => c && (c.id === 2 || c.card_id === 2 || String(c.section_key).toUpperCase() === 'MERCADO'));
+          if (c2 && c2.enabled === false) return false;
+        }
+        return br.module_market !== false;
+      };
+      const a2On = isSuperAppArea2Active();
+
+      cats.forEach((c, idx) => {
+        if (c.is_active === false) return;
+        const cSec = String(c.sector || '').toUpperCase();
+        const cNameLower = String(c.name || '').toLowerCase();
+        const isBoutiqueCat = c.id === 900 || cSec === 'MERCADO' || cNameLower.includes('boutique') || cNameLower.includes('mercado');
+        if (!a2On && isBoutiqueCat) {
+          return;
+        }
+        if (hid.length > 0 && (hid.includes(c.id) || hid.includes(String(c.id)) || hid.map(x => String(x).toLowerCase()).includes(cNameLower))) {
+          return;
+        }
+
+        const activeItems = (c.items || []).filter(p => p.active !== false);
+        if (Number(c.id) === 137 && activeItems.length === 0) return;
+
+        cleanCats.push({
+          id: c.id,
+          name: c.name,
+          icon: c.icon || (isBoutiqueCat ? '🥩' : ''),
+          sort_order: (typeof c.sort_order === 'number' && c.sort_order > 0) ? c.sort_order : (idx + 1)
+        });
+        activeItems.forEach(p => {
+          flatProducts.push(Object.assign({}, p, {
+            category_id: c.id,
+            category_name: p.category_name || c.name,
+            category_sort_order: (typeof c.sort_order === 'number' && c.sort_order > 0) ? c.sort_order : (idx + 1)
+          }));
+        });
+      });
+
+      state.categories = cleanCats;
+      state.products = flatProducts;
+      renderWaiterCategoryStrip();
+      renderWaiterCatalog();
+    }
+
     async function loadCatalogProducts() {
+      // Stale-While-Revalidate: renderiza imediatamente o catálogo salvo localmente sem esperar rede no 4G
+      try {
+        const cachedStr = localStorage.getItem('superapp_cached_catalog');
+        if (cachedStr && (!state.products || state.products.length === 0)) {
+          const cached = JSON.parse(cachedStr);
+          applySuperAppCatalogData(cached);
+        }
+      } catch (_) {}
+
       try {
         const rawCats = await apiFetch('/api/catalog');
-        if (!Array.isArray(rawCats)) return;
-        const cats = [...rawCats].sort((a, b) => {
-          const sa = (typeof a.sort_order === 'number' && a.sort_order > 0) ? a.sort_order : 999999;
-          const sb = (typeof b.sort_order === 'number' && b.sort_order > 0) ? b.sort_order : 999999;
-          if (sa !== sb) return sa - sb;
-          return Number(a.id || 0) - Number(b.id || 0);
-        });
-
-        const vis = state.operational.waiter_visible_categories || [];
-        const hid = state.operational.waiter_hidden_categories || [];
-
-        const cleanCats = [];
-        const flatProducts = [];
-
-        cats.forEach((c, idx) => {
-          if (c.is_active === false) return;
-          const cSec = String(c.sector || '').toUpperCase();
-          const cNameLower = String(c.name || '').toLowerCase();
-          if (c.id === 900 || cSec === 'MERCADO' || cNameLower.includes('boutique') || cNameLower.includes('mercado')) {
-            return;
-          }
-          if (hid.length > 0 && (hid.includes(c.id) || hid.includes(String(c.id)) || hid.map(x => String(x).toLowerCase()).includes(cNameLower))) {
-            return;
-          }
-
-          const activeItems = (c.items || []).filter(p => p.active !== false);
-          if (Number(c.id) === 137 && activeItems.length === 0) return;
-
-          cleanCats.push({
-            id: c.id,
-            name: c.name,
-            icon: c.icon || '',
-            sort_order: (typeof c.sort_order === 'number' && c.sort_order > 0) ? c.sort_order : (idx + 1)
-          });
-          activeItems.forEach(p => {
-            flatProducts.push(Object.assign({}, p, {
-              category_id: c.id,
-              category_name: p.category_name || c.name,
-              category_sort_order: (typeof c.sort_order === 'number' && c.sort_order > 0) ? c.sort_order : (idx + 1)
-            }));
-          });
-        });
-
-        state.categories = cleanCats;
-        state.products = flatProducts;
-        renderWaiterCategoryStrip();
-        renderWaiterCatalog();
+        if (Array.isArray(rawCats) && rawCats.length > 0) {
+          try { localStorage.setItem('superapp_cached_catalog', JSON.stringify(rawCats)); } catch (_) {}
+          applySuperAppCatalogData(rawCats);
+        }
       } catch (_) {}
     }
 
@@ -2968,6 +3798,9 @@
     }
 
     function setWaiterLauncherMode(mode) {
+      if (state.launcherMode !== mode) {
+        clearStaffCustomerDataInputs(false);
+      }
       state.launcherMode = mode;
       const mapBtn = {
         'MESA': 'btnModeMesa',
@@ -2995,14 +3828,189 @@
       updateFloatingCartBar();
     }
 
+    let saPanoramicSlideTimer = null;
+    let saPanoramicSlideIdx = 0;
+
+    function renderSuperAppHighlightsCategoryView(grid) {
+      const banners = (kioskHighlightsConfig && Array.isArray(kioskHighlightsConfig.items)) ? kioskHighlightsConfig.items : [];
+      const featIds = (kioskHighlightsConfig && Array.isArray(kioskHighlightsConfig.featured_product_ids)) ? kioskHighlightsConfig.featured_product_ids : [];
+
+      let featProducts = [];
+      featIds.forEach(id => {
+        const numId = Number(id);
+        const p = (state.products || []).find(prod => Number(prod.id) === numId);
+        if (p && !isSuperAppArea2CatOrProd(p)) featProducts.push(p);
+      });
+
+      if (featProducts.length === 0 && Array.isArray(state.products)) {
+        state.products.forEach(p => {
+          if (featProducts.length < 15 && p.active !== false && !isSuperAppArea2CatOrProd(p) && (p.promo_from > p.price || p.promo_discount_percent > 0 || p.category_id === 137)) {
+            featProducts.push(p);
+          }
+        });
+      }
+
+      let bannerHtml = '';
+      if (banners.length > 0) {
+        bannerHtml = `
+          <div id="saPanoramicBannerWrap" style="position:relative;width:100%;height:clamp(135px, 28vh, 200px);border-radius:14px;overflow:hidden;border:2px solid rgba(212,175,55,0.45);box-shadow:0 12px 36px rgba(0,0,0,0.85);margin-bottom:8px;background:#050508;">
+            <div id="saPanoramicSlides" style="width:100%;height:100%;position:relative;">
+              ${banners.map((b, idx) => {
+                const bgUrl = typeof resolveSuperAppAssetUrl === 'function' ? resolveSuperAppAssetUrl(b.image_url) : (b.image_url || '');
+                return `
+                <div class="kiosk-pano-slide" id="saPanoSlide_${idx}" style="position:absolute;top:0;left:0;width:100%;height:100%;transition:opacity 0.6s ease, transform 0.6s ease;opacity:${idx === 0 ? '1' : '0'};transform:${idx === 0 ? 'scale(1)' : 'scale(1.04)'};overflow:hidden;">
+                  <!-- Fundo Ambient Blur em Alta Resolução -->
+                  <div style="position:absolute;inset:-15px;width:calc(100% + 30px);height:calc(100% + 30px);background-image:url('${bgUrl}');background-size:cover;background-position:center;filter:blur(24px) brightness(0.45);transform:scale(1.12);z-index:1;"></div>
+                  <!-- Imagem Principal em Primeiro Plano Nítida e Sem Cortes -->
+                  <div style="position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:2;padding:6px;">
+                    <img src="${bgUrl}" alt="Destaque #${idx+1}" style="max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 8px 24px rgba(0,0,0,0.85));border-radius:10px;" />
+                  </div>
+                </div>
+              `;}).join('')}
+            </div>
+            <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:3;">
+              ${banners.map((_, idx) => `
+                <div id="saPanoDot_${idx}" style="width:${idx === 0 ? '20px' : '7px'};height:7px;border-radius:4px;background:${idx === 0 ? '#f3d87d' : 'rgba(255,255,255,0.4)'};transition:all 0.3s ease;"></div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      let productsHtml = '';
+      if (featProducts.length > 0) {
+        productsHtml = `
+          <div style="width:100%;margin-bottom:12px;padding-top:2px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:4px;border-bottom:1.5px solid rgba(212,175,55,0.3);">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="font-size:18px;">🍔</span>
+                <h2 style="font-size:1.05rem;font-weight:900;color:#f3d87d;margin:0;letter-spacing:0.4px;">
+                  Produtos Recomendados
+                </h2>
+              </div>
+              <span style="font-size:11px;color:#94a3b8;font-weight:700;">Deslize para o lado ➔</span>
+            </div>
+            <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;">
+              ${featProducts.map(p => {
+                const basePrice = Number(p.price) || 0;
+                let promoFrom = Number(p.promo_from) || 0;
+                const hasPromo = promoFrom > basePrice;
+                const imgUrl = typeof resolveSuperAppAssetUrl === 'function' ? resolveSuperAppAssetUrl(p.image_url) : (p.image_url || '');
+                const featEmoji = String(p.category_name || '').toLowerCase().includes('bebida') ? '🍺' : '🍔';
+                return `
+                  <div class="kiosk-feat-card" onclick='openProductCustomizerModal(${JSON.stringify(p).replace(/'/g, "&#39;")}, null, null)' style="flex:0 0 150px;width:150px;min-height:198px;background:#14141d;border:1.5px solid rgba(212,175,55,0.35);border-radius:14px;padding:8px 8px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.5);transition:all 0.2s ease;">
+                    <div style="width:64px;height:64px;border-radius:10px;overflow:hidden;background:#0c0c10;border:1px solid rgba(255,255,255,0.08);margin-bottom:4px;display:flex;align-items:center;justify-content:center;">
+                      ${imgUrl ? `<img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'" />` : `<span style="font-size:26px;">${featEmoji}</span>`}
+                    </div>
+                    <div style="font-size:12px;font-weight:800;color:#ffffff;text-align:center;line-height:1.2;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;width:100%;">
+                      ${escapeHtml(p.name)}
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:1px;margin-bottom:4px;">
+                      ${hasPromo ? `<span style="font-size:10px;color:#94a3b8;text-decoration:line-through;">R$ ${promoFrom.toFixed(2)}</span>` : ''}
+                      <span style="font-size:13px;font-weight:900;color:${hasPromo ? '#22c55e' : '#f3d87d'};">R$ ${basePrice.toFixed(2)}</span>
+                    </div>
+                    <button type="button" class="btn" style="width:100%;height:36px;opacity:1 !important;background:linear-gradient(135deg, #f59e0b 0%, #eab308 100%) !important;border:1.5px solid #fde047 !important;color:#000000 !important;font-weight:900 !important;font-size:0.85rem !important;border-radius:8px;box-shadow:0 2px 10px rgba(245,158,11,0.35);display:flex;align-items:center;justify-content:center;cursor:pointer;letter-spacing:0.5px;">+ ADICIONAR</button>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      grid.innerHTML = `
+        <div style="grid-column:1/-1;width:100%;">
+          ${bannerHtml}
+          ${productsHtml}
+        </div>
+      `;
+
+      startSaPanoramicSlideInterval(banners.length);
+    }
+
+    function startSaPanoramicSlideInterval(numBanners) {
+      if (saPanoramicSlideTimer) {
+        clearInterval(saPanoramicSlideTimer);
+        saPanoramicSlideTimer = null;
+      }
+      if (numBanners <= 1) return;
+      saPanoramicSlideIdx = 0;
+      const durMs = Math.max(2, kioskHighlightsConfig.slide_duration_seconds || 5) * 1000;
+      saPanoramicSlideTimer = setInterval(() => {
+        const prev = saPanoramicSlideIdx;
+        saPanoramicSlideIdx = (saPanoramicSlideIdx + 1) % numBanners;
+        const prevEl = document.getElementById('saPanoSlide_' + prev);
+        const nextEl = document.getElementById('saPanoSlide_' + saPanoramicSlideIdx);
+        const prevDot = document.getElementById('saPanoDot_' + prev);
+        const nextDot = document.getElementById('saPanoDot_' + saPanoramicSlideIdx);
+        if (prevEl) {
+          prevEl.style.opacity = '0';
+          prevEl.style.transform = 'scale(1.04)';
+        }
+        if (nextEl) {
+          nextEl.style.opacity = '1';
+          nextEl.style.transform = 'scale(1)';
+        }
+        if (prevDot) {
+          prevDot.style.width = '7px';
+          prevDot.style.background = 'rgba(255,255,255,0.4)';
+        }
+        if (nextDot) {
+          nextDot.style.width = '20px';
+          nextDot.style.background = '#f3d87d';
+        }
+      }, durMs);
+    }
+
+    function isSuperAppArea2CatOrProd(obj) {
+      if (!obj) return false;
+      const cid = Number(obj.category_id !== undefined ? obj.category_id : (obj.id || 0));
+      if (cid === 900) return true;
+      const sec = String(obj.sector || obj.sector_abc || '').trim().toUpperCase();
+      if (sec === 'MERCADO' || sec.includes('MERCADO')) return true;
+      const nm = String(obj.category_name || obj.name || '').trim().toLowerCase();
+      if (nm.includes('boutique') || nm.includes('empório') || nm.includes('emporio') || nm.includes('mercado') || nm.includes('açougue') || nm.includes('acougue')) return true;
+      return false;
+    }
+
     function renderWaiterCategoryStrip() {
       const strip = document.getElementById('waiterCategoryStrip');
       if (!strip) return;
-      let html = `<button type="button" class="cat-chip ${state.selectedWaiterCategory === 'ALL' ? 'active' : ''}" onclick="selectWaiterCategory('ALL')">Todos</button>`;
-      state.categories.forEach(c => {
+      const isKiosk = document.body.classList.contains('mode-kiosk') || 
+                      document.body.classList.contains('role-tablet') || 
+                      document.body.getAttribute('data-mode') === 'kiosk' || 
+                      (state.user && (String(state.user.role).toUpperCase() === 'TABLET' || String(state.user.role).toUpperCase() === 'KIOSK'));
+      let html = '';
+      if (kioskHighlightsConfig.show_highlight_category !== false) {
+        const isDestaques = state.selectedWaiterCategory === 'destaques';
+        html += `<button type="button" class="cat-chip ${isDestaques ? 'active' : ''}" onclick="selectWaiterCategory('destaques')">✨ Destaques</button>`;
+      }
+      html += `<button type="button" class="cat-chip ${state.selectedWaiterCategory === 'ALL' ? 'active' : ''}" onclick="selectWaiterCategory('ALL')">Todos</button>`;
+
+      const area1Cats = (state.categories || []).filter(c => !isSuperAppArea2CatOrProd(c));
+      const area2Cats = (state.categories || []).filter(c => isSuperAppArea2CatOrProd(c));
+
+      area1Cats.forEach(c => {
         const active = String(state.selectedWaiterCategory) === String(c.id) ? 'active' : '';
         html += `<button type="button" class="cat-chip ${active}" onclick="selectWaiterCategory('${c.id}')">${escapeHtml(c.name)}</button>`;
       });
+
+      // No modo Kiosk/Tablet, NUNCA renderizar Área 2 nem o divisor sintético '🥩 BOUTIQUE & MERCADO'
+      if (!isKiosk) {
+        const a2On = (typeof isSuperAppArea2Active === 'function') ? isSuperAppArea2Active() : true;
+        if (area2Cats.length > 0 && a2On) {
+          html += `
+            <div style="display:inline-flex;align-items:center;padding:0 10px;margin:0 4px;border-left:1.5px solid rgba(217,119,6,0.5);border-right:1.5px solid rgba(217,119,6,0.5);background:rgba(217,119,6,0.14);border-radius:8px;font-size:11px;font-weight:900;color:#fde68a;white-space:nowrap;letter-spacing:0.5px;">
+              🥩 BOUTIQUE & MERCADO
+            </div>
+          `;
+          area2Cats.forEach(c => {
+            const active = String(state.selectedWaiterCategory) === String(c.id) ? 'active' : '';
+            html += `<button type="button" class="cat-chip ${active}" onclick="selectWaiterCategory('${c.id}')" style="border-color:#d97706;background:${active ? 'var(--gold-grad)' : 'rgba(217,119,6,0.18)'};color:${active ? '#000' : '#fde68a'};">🥩 ${escapeHtml(c.name)}</button>`;
+          });
+        }
+      }
+
       strip.innerHTML = html;
     }
 
@@ -3010,6 +4018,69 @@
       state.selectedWaiterCategory = catId;
       renderWaiterCategoryStrip();
       renderWaiterCatalog();
+    }
+
+    function openSuperAppQuickSearchModal() {
+      const existing = document.getElementById('kioskQuickSearchModal');
+      if (existing) existing.remove();
+
+      const modal = document.createElement('div');
+      modal.id = 'kioskQuickSearchModal';
+      modal.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px);';
+
+      const box = document.createElement('div');
+      box.style.cssText = 'width:100%;max-width:540px;background:#111116;border:2px solid #d4af37;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 40px rgba(0,0,0,0.8);max-height:85vh;';
+
+      box.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1e293b;padding-bottom:10px;">
+          <h3 style="margin:0;font-size:16px;color:#f3d87d;font-weight:900;">🔍 Buscar no Cardápio da Mesa</h3>
+          <button type="button" class="btn" onclick="document.getElementById('kioskQuickSearchModal').remove()" style="padding:4px 10px;font-size:12px;background:#3f1414;color:#fca5a5;border-color:#b91c1c;">✕ Fechar</button>
+        </div>
+        <div>
+          <input type="text" id="kioskQuickSearchInput" placeholder="Digite o nome do lanche, porção ou bebida..." style="width:100%;box-sizing:border-box;padding:10px 14px;border-radius:10px;background:#081018;color:#fff;border:1.5px solid #1e3a5f;font-size:14px;" />
+        </div>
+        <div id="kioskQuickSearchResults" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;max-height:50vh;padding-right:4px;"></div>
+      `;
+
+      modal.appendChild(box);
+      document.body.appendChild(modal);
+
+      const input = document.getElementById('kioskQuickSearchInput');
+      const resultsContainer = document.getElementById('kioskQuickSearchResults');
+      const area1Prods = (state.products || []).filter(p => p.active !== false && !isSuperAppArea2CatOrProd(p));
+
+      function doSearch(q) {
+        const term = (q || '').toLowerCase().trim();
+        const list = !term ? area1Prods : area1Prods.filter(p => {
+          return (p.name || '').toLowerCase().includes(term) || (p.category_name || '').toLowerCase().includes(term) || String(p.id).includes(term);
+        });
+
+        if (list.length === 0) {
+          resultsContainer.innerHTML = `<div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0;">Nenhum produto encontrado para "${escapeHtml(q)}".</div>`;
+          return;
+        }
+
+        resultsContainer.innerHTML = list.map(p => {
+          const imgUrl = typeof resolveSuperAppAssetUrl === 'function' ? resolveSuperAppAssetUrl(p.image_url) : (p.image_url || '');
+          const emoji = String(p.category_name || '').toLowerCase().includes('bebida') ? '🍺' : '🍔';
+          return `
+            <div onclick='document.getElementById("kioskQuickSearchModal").remove(); openProductCustomizerModal(${JSON.stringify(p).replace(/'/g, "&#39;")}, null, null)' style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#181822;border:1px solid #2a2a3a;border-radius:10px;cursor:pointer;transition:all 0.2s;">
+              <div style="width:42px;height:42px;border-radius:8px;background:#0c0c10;border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                ${imgUrl ? `<img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'" />` : `<span style="font-size:18px;">${emoji}</span>`}
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(p.name)}</div>
+                <div style="font-size:11px;color:#94a3b8;">${escapeHtml(p.category_name || 'Cardápio')}</div>
+              </div>
+              <div style="font-size:13px;font-weight:900;color:#f3d87d;white-space:nowrap;">R$ ${Number(p.price || 0).toFixed(2)}</div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      input.addEventListener('input', e => doSearch(e.target.value));
+      doSearch('');
+      setTimeout(() => input.focus(), 100);
     }
 
     function isModifierOptionActive(o) {
@@ -3031,21 +4102,28 @@
       const allOpts = (g.options || []).filter(Boolean);
       if (allOpts.length === 0) return false;
 
-      const isNamedVar = gLow.includes('variaç') || gLow.includes('variac') ||
-        gLow.includes('tamanho') || gLow.includes('porção') || gLow.includes('porcao') ||
-        gLow.includes('versão') || gLow.includes('versao') || gLow.includes('opção principal') ||
-        gLow === 'opções' || gLow === 'opcoes';
       const maxSel = Number(g.max_select !== undefined ? g.max_select : (g.max || 1));
+      const isNamedVar = gLow.includes('variaç') || gLow.includes('variac') ||
+        gLow.includes('tipo') || gLow.includes('tamanho') || gLow.includes('porção') || gLow.includes('porcao') ||
+        gLow.includes('versão') || gLow.includes('versao') || gLow.includes('sabor') ||
+        gLow.includes('com gás') || gLow.includes('com gas') ||
+        gLow.includes('opção principal') || gLow.includes('opcao principal') ||
+        gLow === 'opções' || gLow === 'opcoes';
 
       if (isNamedVar && maxSel <= 1 && allOpts.some(o => Number(o.price || 0) > 0 || Number(o.original_price || 0) > 0)) {
         return true;
       }
 
-      const baseP = Number(prodBasePrice || 0);
-      if (baseP > 0) {
-        const maxOptPrice = Math.max(...allOpts.map(o => Number(o.price || 0)));
-        if (maxOptPrice > 0 && maxOptPrice < baseP * 0.7) {
-          return false;
+      const isReq = Boolean(g.required) || Number(g.min_select !== undefined ? g.min_select : (g.min || 0)) >= 1;
+      if ((isReq || maxSel <= 1) && maxSel <= 1 && allOpts.length > 1 && allOpts.every(o => Number(o.original_price || o.price || 0) > 0)) {
+        const baseP = Number(prodBasePrice || 0);
+        if (baseP > 0) {
+          const maxOptPrice = Math.max(...allOpts.map(o => Number(o.price || 0)));
+          if (maxOptPrice >= baseP * 0.7) {
+            return true;
+          }
+        } else {
+          return true;
         }
       }
 
@@ -3059,7 +4137,7 @@
       const activeP = Number(prod.price || 0);
       const clonedGroups = rawGroups.map(g => {
         const rawOpts = Array.isArray(g.options) ? g.options : [];
-        const isVar = isVariationModifierGroup(g);
+        const isVar = isVariationModifierGroup(g, activeP);
         if (!isVar) return Object.assign({}, g, { _isVariation: false, options: rawOpts });
 
         const hasPerVarPromo = rawOpts.some(o => o && (o.promo_active === true || o.promo_active === false || Number(o.original_price || 0) > Number(o.price || 0) + 0.005));
@@ -3106,6 +4184,18 @@
       if (!grid) return;
 
       const q = (document.getElementById('waiterProductSearch')?.value || '').trim().toLowerCase();
+
+      // Categoria Especial Fixa ✨ Destaques
+      if (!q && state.selectedWaiterCategory === 'destaques') {
+        renderSuperAppHighlightsCategoryView(grid);
+        return;
+      }
+
+      if (saPanoramicSlideTimer) {
+        clearInterval(saPanoramicSlideTimer);
+        saPanoramicSlideTimer = null;
+      }
+
       const filtered = state.products.filter(p => {
         if (state.launcherMode === 'DELIVERY' && p.hide_in_delivery) return false;
         if (state.selectedWaiterCategory !== 'ALL' && String(p.category_id) !== String(state.selectedWaiterCategory)) {
@@ -3124,8 +4214,8 @@
 
       grid.innerHTML = filtered.map(rawP => {
         const p = normalizeProductVariationsForSuperApp(rawP);
-        const img = p.image_url ? `<img src="${escapeHtml(p.image_url)}" class="prod-img" alt="" onerror="this.style.display='none'" />` : '';
-        const varGroups = (p.modifier_groups || []).filter(g => Boolean(g._isVariation) || isVariationModifierGroup(g));
+        const img = p.image_url ? `<div class="prod-img-wrap" onclick="event.stopPropagation(); openSaPhotoLightbox('${escapeHtml(p.image_url)}', '${escapeHtml(p.name || '').replace(/'/g, "\\'")}')"><img src="${escapeHtml(p.image_url)}" class="prod-img" alt="" onerror="this.closest('.prod-img-wrap').style.display='none'" /></div>` : '';
+        const varGroups = (p.modifier_groups || []).filter(g => Boolean(g._isVariation) || isVariationModifierGroup(g, p.price));
         let activeVarPrices = [];
         varGroups.forEach(vg => {
           (vg.options || []).forEach(vo => {
@@ -3250,7 +4340,7 @@
         if (groups.length > 0) {
           htmlParts.push(groups.map((g, gIdx) => {
             const rawOpts = Array.isArray(g.options) ? g.options : [];
-            const isVarGrp = Boolean(g._isVariation) || isVariationModifierGroup(g);
+            const isVarGrp = Boolean(g._isVariation) || isVariationModifierGroup(g, prod.price);
             const minSel = isVarGrp ? 1 : Number(g.min_select !== undefined ? g.min_select : (g.min || 0));
             const maxSel = isVarGrp ? 1 : Number(g.max_select !== undefined ? g.max_select : (g.max || 1));
             const isReq = isVarGrp || Boolean(g.required) || minSel >= 1;
@@ -3429,7 +4519,7 @@
       const groups = Array.isArray(prod.modifier_groups) ? prod.modifier_groups : [];
       Object.keys(state.customizingMods).forEach(gIdx => {
         const grp = groups[Number(gIdx)];
-        const isVar = grp ? (Boolean(grp._isVariation) || isVariationModifierGroup(grp)) : false;
+        const isVar = grp ? (Boolean(grp._isVariation) || isVariationModifierGroup(grp, prod.price)) : false;
         const list = state.customizingMods[gIdx] || [];
         list.forEach(opt => {
           const optP = Number(opt.price || 0);
@@ -3476,7 +4566,7 @@
       const groups = Array.isArray(prod.modifier_groups) ? prod.modifier_groups : [];
       for (let i = 0; i < groups.length; i++) {
         const g = groups[i];
-        const isVarGrp = Boolean(g._isVariation) || isVariationModifierGroup(g);
+        const isVarGrp = Boolean(g._isVariation) || isVariationModifierGroup(g, prod.price);
         const minSel = isVarGrp ? 1 : Number(g.min_select !== undefined ? g.min_select : (g.min || 0));
         const isReq = isVarGrp || Boolean(g.required) || minSel >= 1;
         const chosen = (state.customizingMods[i] || []).filter(isModifierOptionActive);
@@ -3560,6 +4650,22 @@
       updateFloatingCartBar();
     }
 
+    function openSaPhotoLightbox(url, title) {
+      const modal = document.getElementById('saPhotoLightboxModal');
+      const img = document.getElementById('saLightboxProductImg');
+      const titleEl = document.getElementById('saLightboxProductTitle');
+      if (!modal || !img) return;
+      img.src = url;
+      if (titleEl) titleEl.textContent = title || 'Foto do Produto';
+      modal.style.display = 'flex';
+    }
+
+    function closeSaPhotoLightbox() {
+      const modal = document.getElementById('saPhotoLightboxModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    let lastKnownSaCartCount = 0;
     function updateFloatingCartBar() {
       const bar = document.getElementById('floatingCartBar');
       if (!bar) return;
@@ -3569,32 +4675,57 @@
 
       if (count <= 0 || String(state.user?.role || '').toUpperCase() === 'MOTOBOY') {
         bar.classList.remove('visible');
+        bar.classList.remove('anim-enter');
+        lastKnownSaCartCount = 0;
         return;
       }
 
+      const isKiosk = document.body.classList.contains('mode-kiosk');
+      const wasHidden = (!bar.classList.contains('visible') || lastKnownSaCartCount === 0);
       bar.classList.add('visible');
+      if (isKiosk && wasHidden) {
+        bar.classList.add('anim-enter');
+      }
+      lastKnownSaCartCount = count;
+
       const titleEl = document.getElementById('floatingCartTitle');
       const targetEl = document.getElementById('floatingCartTargetLabel');
       const totalEl = document.getElementById('floatingCartTotal');
 
-      if (titleEl) titleEl.textContent = `🛒 ${count} ${count === 1 ? 'item selecionado' : 'itens selecionados'}`;
-      if (totalEl) totalEl.textContent = formatBRL(sum);
-
-      let targetText = 'Destino: ';
-      if (state.launcherMode === 'MESA') {
-        const tbl = document.getElementById('waiterTargetTableSelect')?.value || state.selectedTableId || 15;
-        const openCmds = getOpenComandasForTable(tbl);
-        const custStr = openCmds[0]?.customer_name ? ` (${openCmds[0].customer_name})` : '';
-        targetText += `Mesa ${String(tbl).padStart(2, '0')}${custStr}`;
-      } else if (state.launcherMode === 'COMANDA') {
-        const cmdSel = document.getElementById('waiterTargetComandaSelect');
-        targetText += cmdSel && cmdSel.options[cmdSel.selectedIndex] ? cmdSel.options[cmdSel.selectedIndex].text : 'Comanda Individual';
-      } else if (state.launcherMode === 'RETIRADA') {
-        targetText += 'Retirada no Balcão';
+      if (isKiosk) {
+        if (targetEl) targetEl.style.display = 'none';
+        if (titleEl) {
+          titleEl.textContent = `🛒 Enviar / Editar Pedido (${count}) • ${formatBRL(sum)}`;
+          titleEl.style.fontSize = '14px';
+        }
+        if (totalEl) totalEl.style.display = 'none';
       } else {
-        targetText += 'Entrega (Delivery)';
+        if (targetEl) targetEl.style.display = '';
+        if (titleEl) {
+          titleEl.textContent = `🛒 ${count} ${count === 1 ? 'item selecionado' : 'itens selecionados'}`;
+          titleEl.style.fontSize = '';
+        }
+        if (totalEl) {
+          totalEl.style.display = '';
+          totalEl.textContent = formatBRL(sum);
+        }
+
+        let targetText = 'Destino: ';
+        if (state.launcherMode === 'MESA') {
+          const tbl = document.getElementById('waiterTargetTableSelect')?.value || state.selectedTableId || 15;
+          const openCmds = getOpenComandasForTable(tbl);
+          const custStr = openCmds[0]?.customer_name ? ` (${openCmds[0].customer_name})` : '';
+          targetText += `Mesa ${String(tbl).padStart(2, '0')}${custStr}`;
+        } else if (state.launcherMode === 'COMANDA') {
+          const cmdSel = document.getElementById('waiterTargetComandaSelect');
+          targetText += cmdSel && cmdSel.options[cmdSel.selectedIndex] ? cmdSel.options[cmdSel.selectedIndex].text : 'Comanda Individual';
+        } else if (state.launcherMode === 'RETIRADA') {
+          targetText += 'Balcão / Retirada';
+        } else {
+          targetText += 'Entrega (Delivery)';
+        }
+        if (targetEl) targetEl.textContent = targetText;
       }
-      if (targetEl) targetEl.textContent = targetText;
     }
 
     function openCartReviewModal() {
@@ -3642,34 +4773,209 @@
       updateFloatingCartBar();
     }
 
+    function clearStaffCustomerDataInputs(clearCartToo) {
+      const topName = document.getElementById('waiterCustomerName');
+      if (topName) topName.value = '';
+      const topPhone = document.getElementById('waiterCustomerPhone');
+      if (topPhone) topPhone.value = '';
+      const topStreet = document.getElementById('waiterDeliveryStreet');
+      if (topStreet) topStreet.value = '';
+      const topNumber = document.getElementById('waiterDeliveryNumber');
+      if (topNumber) topNumber.value = '';
+      const topNeigh = document.getElementById('waiterDeliveryNeighborhood');
+      if (topNeigh) topNeigh.value = '';
+      const topComp = document.getElementById('waiterDeliveryComplement');
+      if (topComp) topComp.value = '';
+
+      const qName = document.getElementById('quickFillCustomerName');
+      if (qName) qName.value = '';
+      const qPhone = document.getElementById('quickFillCustomerPhone');
+      if (qPhone) qPhone.value = '';
+      const qStreet = document.getElementById('quickFillDeliveryStreet');
+      if (qStreet) qStreet.value = '';
+      const qNum = document.getElementById('quickFillDeliveryNumber');
+      if (qNum) qNum.value = '';
+      const qNeigh = document.getElementById('quickFillDeliveryNeighborhood');
+      if (qNeigh) qNeigh.value = '';
+      const qComp = document.getElementById('quickFillDeliveryComplement');
+      if (qComp) qComp.value = '';
+
+      if (clearCartToo) {
+        state.cart = [];
+        const notesInp = document.getElementById('cartGeneralNotesInput');
+        if (notesInp) notesInp.value = '';
+        updateFloatingCartBar();
+      }
+    }
+
     function clearActiveCart() {
-      state.cart = [];
+      clearStaffCustomerDataInputs(true);
       closeModal('modalCartReview');
       updateFloatingCartBar();
     }
 
+    let isSubmittingStaffOrder = false;
+
+    function openStaffQuickFillModal(mode) {
+      const curName = (document.getElementById('waiterCustomerName')?.value || '').trim();
+      const curPhone = (document.getElementById('waiterCustomerPhone')?.value || '').trim();
+      const nameInp = document.getElementById('quickFillCustomerName');
+      const phoneInp = document.getElementById('quickFillCustomerPhone');
+      if (nameInp) nameInp.value = curName;
+      if (phoneInp) phoneInp.value = curPhone;
+
+      const titleEl = document.getElementById('quickFillModalTitle');
+      const bannerEl = document.getElementById('quickFillNoticeBanner');
+      const alertEl = document.getElementById('quickFillInlineAlert');
+      const delivBox = document.getElementById('quickFillDeliveryFields');
+      if (alertEl) {
+        alertEl.style.display = 'none';
+        alertEl.textContent = '';
+      }
+
+      if (mode === 'DELIVERY') {
+        if (titleEl) titleEl.textContent = '🛵 Dados para Entrega (Delivery)';
+        if (bannerEl) {
+          bannerEl.innerHTML = '⚠️ <strong>Dados de Entrega:</strong> Informe <strong>Nome</strong>, <strong>Rua</strong> e <strong>Número da Casa</strong> para enviar o pedido.';
+        }
+        if (delivBox) delivBox.style.display = 'flex';
+
+        const curStreet = (document.getElementById('waiterDeliveryStreet')?.value || '').trim();
+        const curNumber = (document.getElementById('waiterDeliveryNumber')?.value || '').trim();
+        const curNeigh = (document.getElementById('waiterDeliveryNeighborhood')?.value || '').trim();
+        const curComp = (document.getElementById('waiterDeliveryComplement')?.value || '').trim();
+        const curPay = document.getElementById('waiterPaymentMethod')?.value || 'PIX';
+        const curFee = document.getElementById('waiterDeliveryFeeInput')?.value || (state.operational?.default_delivery_fee || '');
+
+        const streetInp = document.getElementById('quickFillDeliveryStreet');
+        const numInp = document.getElementById('quickFillDeliveryNumber');
+        const neighInp = document.getElementById('quickFillDeliveryNeighborhood');
+        const compInp = document.getElementById('quickFillDeliveryComplement');
+        const paySel = document.getElementById('quickFillPaymentMethod');
+        const feeInp = document.getElementById('quickFillDeliveryFee');
+        if (streetInp) streetInp.value = curStreet;
+        if (numInp) numInp.value = curNumber;
+        if (neighInp) neighInp.value = curNeigh;
+        if (compInp) compInp.value = curComp;
+        if (paySel) paySel.value = curPay;
+        if (feeInp) feeInp.value = curFee;
+
+        openModal('modalStaffQuickFill');
+        setTimeout(() => {
+          if (!curName && nameInp) nameInp.focus();
+          else if (!curStreet && streetInp) streetInp.focus();
+          else if (!curNumber && numInp) numInp.focus();
+        }, 120);
+      } else {
+        // BALCÃO / RETIRADA
+        if (titleEl) titleEl.textContent = '🛍️ Dados do Cliente • Balcão / Retirada';
+        if (bannerEl) {
+          bannerEl.innerHTML = '⚠️ <strong>Nome do Cliente Pendente:</strong> Informe o <strong>Nome do Cliente</strong> para identificar o pedido de <strong>Balcão / Retirada</strong> na Cozinha e no Caixa.';
+        }
+        if (delivBox) delivBox.style.display = 'none';
+
+        openModal('modalStaffQuickFill');
+        setTimeout(() => {
+          if (nameInp) nameInp.focus();
+        }, 120);
+      }
+    }
+
+    function confirmQuickFillAndSubmitOrder() {
+      const mode = state.launcherMode;
+      const cName = (document.getElementById('quickFillCustomerName')?.value || '').trim();
+      const cPhone = (document.getElementById('quickFillCustomerPhone')?.value || '').trim();
+      const alertEl = document.getElementById('quickFillInlineAlert');
+
+      if (!cName) {
+        if (alertEl) {
+          alertEl.style.display = 'block';
+          alertEl.textContent = '⚠️ Informe obrigatoriamente o Nome do Cliente!';
+        }
+        document.getElementById('quickFillCustomerName')?.focus();
+        return;
+      }
+
+      // Sincroniza com os campos do cabeçalho
+      const topName = document.getElementById('waiterCustomerName');
+      if (topName) topName.value = cName;
+      const topPhone = document.getElementById('waiterCustomerPhone');
+      if (topPhone) topPhone.value = cPhone;
+
+      if (mode === 'DELIVERY') {
+        const street = (document.getElementById('quickFillDeliveryStreet')?.value || '').trim();
+        const number = (document.getElementById('quickFillDeliveryNumber')?.value || '').trim();
+        const neigh = (document.getElementById('quickFillDeliveryNeighborhood')?.value || '').trim();
+        const comp = (document.getElementById('quickFillDeliveryComplement')?.value || '').trim();
+
+        if (!street) {
+          if (alertEl) {
+            alertEl.style.display = 'block';
+            alertEl.textContent = '⚠️ Informe obrigatoriamente a Rua / Logradouro de Entrega!';
+          }
+          document.getElementById('quickFillDeliveryStreet')?.focus();
+          return;
+        }
+        if (!number) {
+          if (alertEl) {
+            alertEl.style.display = 'block';
+            alertEl.textContent = '⚠️ Informe obrigatoriamente o Número da Casa!';
+          }
+          document.getElementById('quickFillDeliveryNumber')?.focus();
+          return;
+        }
+
+        const topStreet = document.getElementById('waiterDeliveryStreet');
+        if (topStreet) topStreet.value = street;
+        const topNumber = document.getElementById('waiterDeliveryNumber');
+        if (topNumber) topNumber.value = number;
+        const topNeigh = document.getElementById('waiterDeliveryNeighborhood');
+        if (topNeigh) topNeigh.value = neigh;
+        const topComp = document.getElementById('waiterDeliveryComplement');
+        if (topComp) topComp.value = comp;
+
+        const pay = document.getElementById('quickFillPaymentMethod')?.value || 'PIX';
+        const topPay = document.getElementById('waiterPaymentMethod');
+        if (topPay) topPay.value = pay;
+
+        const fee = document.getElementById('quickFillDeliveryFee')?.value || '';
+        const topFee = document.getElementById('waiterDeliveryFeeInput');
+        if (topFee && fee !== '') topFee.value = fee;
+      }
+
+      if (alertEl) alertEl.style.display = 'none';
+      closeModal('modalStaffQuickFill');
+      submitActiveCartOrder();
+    }
+
     async function submitActiveCartOrder() {
+      if (isSubmittingStaffOrder) return;
       if (state.cart.length === 0) return;
 
       const btn = document.getElementById('btnSubmitOrderNow');
       const generalNotes = (document.getElementById('cartGeneralNotesInput')?.value || '').trim();
 
       const itemsPayload = state.cart.map(it => {
-        const mods = Array.isArray(it.selected_modifiers) ? [...it.selected_modifiers] : [];
+        const rawMods = Array.isArray(it.selected_modifiers) ? [...it.selected_modifiers] : [];
         if (it.notes) {
-          mods.push({ group_name: 'Observação', option_name: it.notes, price: 0 });
+          rawMods.push({ group_name: 'Observação', option_name: it.notes, price: 0 });
         }
+        const cleanMods = rawMods.map(m => ({
+          group_name: String(m.group_name || ''),
+          option_name: String(m.option_name || ''),
+          price: Number(m.price || 0)
+        }));
         return {
-          product_id: it.product_id,
-          product_name: it.product_name,
-          category_id: it.category_id || 0,
-          category_name: it.category_name || '',
-          sector_abc: it.sector_abc || 'HAMBURGUERIA',
-          quantity: it.quantity,
-          unit_price: it.unit_price,
-          total_price: it.total_price,
-          notes: it.notes || '',
-          selected_modifiers: mods
+          product_id: Number(it.product_id || 0),
+          product_name: String(it.product_name || ''),
+          category_id: Number(it.category_id || 0),
+          category_name: String(it.category_name || ''),
+          sector_abc: String(it.sector_abc || 'HAMBURGUERIA'),
+          quantity: Number(it.quantity || 1),
+          unit_price: Number(it.unit_price || 0),
+          total_price: Number(it.total_price || 0),
+          notes: String(it.notes || ''),
+          selected_modifiers: cleanMods
         };
       });
 
@@ -3678,6 +4984,7 @@
       const waiterId = state.user ? Number(state.user.id || 3) : 3;
 
       let orderBody = {
+        client_order_uid: 'STAFF-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9),
         waiter_id: waiterId,
         waiter_name: waiterName,
         notes: generalNotes,
@@ -3744,34 +5051,44 @@
         const cName = (document.getElementById('waiterCustomerName')?.value || '').trim();
         const cPhone = (document.getElementById('waiterCustomerPhone')?.value || '').trim();
         if (!cName) {
-          showSaAlert('Informe o nome do cliente para o pedido de Retirada.');
+          openStaffQuickFillModal('RETIRADA');
           return;
         }
         orderBody.origin_type = 'RETIRADA';
-        orderBody.header_tag = `[RETIRADA BALCÃO - ${cName.toUpperCase()}]`;
+        orderBody.header_tag = `[BALCÃO / RETIRADA - ${cName.toUpperCase()}]`;
         orderBody.customer_name = cName;
         orderBody.customer_phone = cPhone;
+        orderBody.address_text = 'Retirada no Balcão';
         orderBody.payment_method = 'A_DEFINIR';
       } else if (state.launcherMode === 'DELIVERY') {
         const cName = (document.getElementById('waiterCustomerName')?.value || '').trim();
         const cPhone = (document.getElementById('waiterCustomerPhone')?.value || '').trim();
-        const addr = (document.getElementById('waiterDeliveryAddress')?.value || '').trim();
+        const street = (document.getElementById('waiterDeliveryStreet')?.value || '').trim();
+        const number = (document.getElementById('waiterDeliveryNumber')?.value || '').trim();
+        const neigh = (document.getElementById('waiterDeliveryNeighborhood')?.value || '').trim();
+        const comp = (document.getElementById('waiterDeliveryComplement')?.value || '').trim();
         const pay = document.getElementById('waiterPaymentMethod')?.value || 'PIX';
         const delivFee = Math.max(0, Number(document.getElementById('waiterDeliveryFeeInput')?.value || state.operational.default_delivery_fee || 0));
-        if (!cName || !addr) {
-          showSaAlert('Informe o Nome do Cliente e o Endereço Completo para lançar a Entrega.');
+
+        if (!cName || !street || !number) {
+          openStaffQuickFillModal('DELIVERY');
           return;
         }
+        let fullAddr = `${street}, ${number}`;
+        if (neigh) fullAddr += ` - ${neigh}`;
+        if (comp) fullAddr += ` (${comp})`;
+
         orderBody.origin_type = 'DELIVERY';
         orderBody.header_tag = `[ENTREGA DELIVERY - ${cName.toUpperCase()}]`;
         orderBody.customer_name = cName;
         orderBody.customer_phone = cPhone;
-        orderBody.address_text = addr;
+        orderBody.address_text = fullAddr;
         orderBody.payment_method = pay;
         orderBody.delivery_fee = delivFee;
         orderBody.total = Math.round((subTotal + delivFee) * 100) / 100;
       }
 
+      isSubmittingStaffOrder = true;
       if (btn) {
         btn.disabled = true;
         btn.textContent = '⏳ Enviando p/ Cozinha...';
@@ -3794,25 +5111,26 @@
           }).catch(() => {});
         }
 
-        state.cart = [];
-        const notesInp = document.getElementById('cartGeneralNotesInput');
-        if (notesInp) notesInp.value = '';
+        clearStaffCustomerDataInputs(true);
         closeModal('modalCartReview');
         updateFloatingCartBar();
         playNotificationBeep(1200, 180);
 
-        await Promise.allSettled([
-          loadTablesAndComandas(),
-          loadOrdersAndDeliveries()
-        ]);
-
+        // Feedback instantâneo no mesmo milissegundo em que o servidor devolve 200 OK
         showSaAlert(
           `✅ Pedido #${(created && (created.order_code || created.id)) || 'OK'} enviado com sucesso para produção e impressão!`,
           '🚀 Pedido Lançado'
         );
+
+        // Sincronização de mesas, comandas e entregas 100% assíncrona desacoplada da UI
+        Promise.allSettled([
+          loadTablesAndComandas(),
+          loadOrdersAndDeliveries()
+        ]).catch(() => {});
       } catch (err) {
         showSaAlert(err.message || 'Falha ao enviar o pedido.');
       } finally {
+        isSubmittingStaffOrder = false;
         if (btn) {
           btn.disabled = false;
           btn.textContent = '🚀 ENVIAR PEDIDO P/ COZINHA';
@@ -3840,9 +5158,12 @@
         badge.textContent = String(openCmds.length);
       }
 
-      const q = (document.getElementById('comandaSearchInput')?.value || '').trim().toLowerCase();
+      const rawQ = (document.getElementById('comandaSearchInput')?.value || '').trim();
+      const q = rawQ.toLowerCase();
+      const normSearch = normalizeComandaTokenOrQr(rawQ);
       const filtered = openCmds.filter(c => {
         if (!q) return true;
+        if (normSearch && normSearch.code && String(c.comanda_code || '').toUpperCase() === normSearch.code) return true;
         return String(c.comanda_code || '').toLowerCase().includes(q) ||
           String(c.customer_name || '').toLowerCase().includes(q) ||
           String(c.customer_phone || '').toLowerCase().includes(q) ||
@@ -4125,8 +5446,9 @@
             if (codes && codes.length > 0 && codes[0].rawValue) {
               const raw = String(codes[0].rawValue).trim();
               stopComandaQrCamera();
+              const normObj = normalizeComandaTokenOrQr(raw);
               const inp = document.getElementById('newComandaCodeInput');
-              if (inp) inp.value = raw;
+              if (inp) inp.value = (normObj && normObj.code) ? normObj.code : raw;
               playNotificationBeep(1120, 120);
             }
           } catch (_) {}
@@ -4169,8 +5491,11 @@
         return;
       }
 
+      const normCmd = normalizeComandaTokenOrQr(code);
+      const effectiveCode = (normCmd && normCmd.code) ? normCmd.code : code;
+
       if (mode === 'qr_code') {
-        if (!code) {
+        if (!effectiveCode) {
           showSaAlert('💳 Leia o QR Code do Cartão na câmera ou digite o Nº do Cartão (Ex: CMD-001 ou 1 a 500).');
           return;
         }
@@ -4201,7 +5526,7 @@
           body: {
             action: 'OPEN',
             table_id: tblId,
-            comanda_code: mode === 'qr_code' ? code : '',
+            comanda_code: mode === 'qr_code' ? effectiveCode : '',
             comanda_type: mode === 'qr_code' ? 'QR_TABLET' : 'NOME_CELULAR',
             entry_mode: mode,
             customer_name: customer,
@@ -5491,9 +6816,7 @@
             selectedComandaId: state.selectedComandaId || 0,
             launcherMode: state.launcherMode || 'MESA',
             selectedWaiterCategory: state.selectedWaiterCategory || 'ALL',
-            cart: Array.isArray(state.cart) ? state.cart : [],
-            customerName: document.getElementById('waiterCustomerName')?.value || '',
-            customerPhone: document.getElementById('waiterCustomerPhone')?.value || ''
+            cart: Array.isArray(state.cart) ? state.cart : []
           }));
         } catch (_) {}
         showSaHotReloadBanner('🔄 Atualização aplicada! Recarregando sistema...', true);
@@ -5590,6 +6913,12 @@
             } else if (evName === 'operational_settings_updated' || evName === 'catalog_updated' || evName === 'categories_updated' || evName === 'categories_reordered' || evName === 'weekly_promotions_updated') {
               loadBrandingAndHealth();
               loadCatalogProducts();
+            } else if (evName === 'kiosk_highlights_updated') {
+              if (msg.data) {
+                applyKioskHighlightsConfig(msg.data);
+              } else {
+                loadKioskHighlightsConfig();
+              }
             }
           } catch (_) {}
         };
@@ -5629,6 +6958,7 @@
       connectSuperAppWebSocket();
       await loadBrandingAndHealth();
       await loadCatalogProducts();
+      await loadKioskHighlightsConfig();
 
       window.addEventListener('online', async () => {
         await resolveSuperAppHybridBase(true);
@@ -5684,12 +7014,6 @@
           if (pendingHotSnap.launcherMode) state.launcherMode = pendingHotSnap.launcherMode;
           if (pendingHotSnap.selectedWaiterCategory) state.selectedWaiterCategory = pendingHotSnap.selectedWaiterCategory;
           if (Array.isArray(pendingHotSnap.cart)) state.cart = pendingHotSnap.cart;
-          if (pendingHotSnap.customerName && document.getElementById('waiterCustomerName')) {
-            document.getElementById('waiterCustomerName').value = pendingHotSnap.customerName;
-          }
-          if (pendingHotSnap.customerPhone && document.getElementById('waiterCustomerPhone')) {
-            document.getElementById('waiterCustomerPhone').value = pendingHotSnap.customerPhone;
-          }
           if (pendingHotSnap.activeTab && state.user) {
             switchSuperAppTab(pendingHotSnap.activeTab);
           }
