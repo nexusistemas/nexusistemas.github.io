@@ -81,7 +81,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
       font-size: 14px;
       line-height: 1.4;
-      overflow-x: hidden;
+      overflow-x: clip;
       user-select: none;
     }
 
@@ -526,6 +526,73 @@
     }
 
     /* CATEGORY CHIPS & PRODUCT LIST */
+    .waiter-cat-sticky-bar {
+      position: relative;
+      z-index: 85;
+      background: var(--bg-main);
+      padding: 4px 0 6px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid transparent;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .waiter-cat-sticky-bar.is-stuck {
+      position: fixed;
+      left: 0;
+      right: 0;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 8px 12px 6px 12px;
+      z-index: 86;
+      background: var(--bg-main);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.78);
+    }
+
+    .dest-mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .dest-mode-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 18px 12px;
+      border-radius: 14px;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: center;
+    }
+
+    .dest-mode-btn:active {
+      transform: scale(0.96);
+      border-color: var(--primary);
+      background: rgba(212, 175, 55, 0.12);
+    }
+
+    .dest-mode-btn .dest-ico {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .dest-mode-btn .dest-lbl {
+      font-size: 13.5px;
+      font-weight: 900;
+      color: var(--secondary);
+    }
+
+    .dest-mode-btn .dest-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
     .cat-strip {
       display: flex;
       gap: 7px;
@@ -1198,79 +1265,27 @@
     </section>
 
     <!-- =======================================================================
-         ABA 2: LANÇAR PEDIDO (GARÇOM: MESA / COMANDA / RETIRADA / ENTREGA)
+         ABA 2: LANÇAR PEDIDO (GARÇOM: MONTAGEM LIVRE + BARRA STICKY + DESTINO NO ENVIO)
          ======================================================================= -->
     <section class="view-section" id="view-waiter">
-      <div class="sa-card">
-        <div class="sa-card-header" style="flex-wrap:wrap;">
-          <div>
-            <div class="sa-title">➕ Lançamento Rápido de Pedido</div>
-            <div class="sa-subtitle">Escolha o destino (Mesa, Comanda Individual, Balcão / Retirada ou Entrega) e adicione os itens.</div>
-          </div>
-        </div>
-
-        <!-- SELETOR DE MODALIDADE DO LANÇAMENTO -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">
-          <button type="button" class="sa-btn sa-btn-primary" id="btnModeMesa" style="padding:9px 4px;font-size:11px;" onclick="setWaiterLauncherMode('MESA')">🍽️ Mesa</button>
-          <button type="button" class="sa-btn sa-btn-outline" id="btnModeComanda" style="padding:9px 4px;font-size:11px;" onclick="setWaiterLauncherMode('COMANDA')">🏷️ Comanda</button>
-          <button type="button" class="sa-btn sa-btn-outline" id="btnModeRetirada" style="padding:9px 4px;font-size:11px;" onclick="setWaiterLauncherMode('RETIRADA')">🛍️ Balcão / Retirada</button>
-          <button type="button" class="sa-btn sa-btn-outline" id="btnModeDelivery" style="padding:9px 4px;font-size:11px;" onclick="setWaiterLauncherMode('DELIVERY')">🛵 Entrega</button>
-        </div>
-
-        <!-- CAMPOS DINÂMICOS POR MODALIDADE -->
-        <div id="launcherTargetMesaBox" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <div>
-            <label style="font-size:11px;color:var(--text-muted);font-weight:700;">Número da Mesa *</label>
-            <select id="waiterTargetTableSelect" class="sa-select" onchange="onWaiterTableSelectChange()"></select>
-          </div>
-          <div>
-            <label style="font-size:11px;color:var(--text-muted);font-weight:700;">Comanda / Cliente da Mesa *</label>
-            <input type="text" id="waiterTargetTableCustomer" class="sa-input" placeholder="Abra a mesa p/ identificar" readonly onclick="handleTapMesaCustomerField()" style="cursor:pointer;" />
-          </div>
-          <div id="waiterMesaOpenStatusBanner" style="grid-column:1/-1;margin-top:2px;"></div>
-        </div>
-
-        <div id="launcherTargetComandaBox" style="display:none;grid-template-columns:1fr auto;gap:8px;align-items:end;">
-          <div>
-            <label style="font-size:11px;color:var(--text-muted);font-weight:700;">Selecionar Comanda Aberta *</label>
-            <select id="waiterTargetComandaSelect" class="sa-select"></select>
-          </div>
-          <button type="button" class="sa-btn sa-btn-green" onclick="openNewComandaModal()">➕ Nova</button>
-        </div>
-
-        <div id="launcherTargetCustomerBox" style="display:none;flex-direction:column;gap:8px;margin-top:4px;">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <input type="text" id="waiterCustomerName" class="sa-input" placeholder="👤 Nome do Cliente *" autocomplete="off" />
-            <input type="tel" id="waiterCustomerPhone" class="sa-input" placeholder="📱 00 0 0000 0000" maxlength="14" inputmode="numeric" oninput="applyPhoneMaskSpaced11(this)" autocomplete="off" />
-          </div>
-          <div id="launcherDeliveryAddressWrap" style="display:none;flex-direction:column;gap:8px;">
-            <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">
-              <input type="text" id="waiterDeliveryStreet" class="sa-input" placeholder="📍 Rua / Logradouro *" autocomplete="off" />
-              <input type="text" id="waiterDeliveryNumber" class="sa-input" placeholder="🔢 Nº da Casa *" autocomplete="off" />
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-              <input type="text" id="waiterDeliveryNeighborhood" class="sa-input" placeholder="🏘️ Bairro (Opcional)" autocomplete="off" />
-              <input type="text" id="waiterDeliveryComplement" class="sa-input" placeholder="Complemento / Ref. (Opcional)" autocomplete="off" />
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-              <select id="waiterPaymentMethod" class="sa-select">
-                <option value="PIX">💠 PIX</option>
-                <option value="CARTAO">💳 Cartão (Maquininha)</option>
-                <option value="DINHEIRO">💵 Dinheiro</option>
-              </select>
-              <input type="number" step="0.01" id="waiterDeliveryFeeInput" class="sa-input" placeholder="Taxa Entrega (R$)" autocomplete="off" />
-            </div>
-          </div>
-        </div>
+      <!-- Banner discreto exibido APENAS quando o garçom entrou por atalho direto de dentro de 🍽️ Mesas ou 🏷️ Comandas -->
+      <div id="waiterExplicitTargetBanner" style="display:none;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;margin-bottom:10px;background:rgba(16,185,129,0.14);border:1.5px solid rgba(16,185,129,0.55);border-radius:12px;font-size:12.5px;">
+        <div id="waiterExplicitTargetBannerText" style="font-weight:800;color:#86efac;"></div>
+        <button type="button" class="sa-btn sa-btn-outline" style="padding:5px 10px;font-size:11px;flex-shrink:0;" onclick="clearExplicitWaiterTarget()">✕ Trocar / Livre</button>
       </div>
 
-      <!-- BUSCA + CATEGORIAS + PRODUTOS (STICKY AO ROLAR) -->
-      <div class="waiter-sticky-search-cats" style="position:sticky;top:52px;z-index:85;background:rgba(9,9,12,0.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:8px 0 4px;margin-bottom:8px;border-bottom:1px solid var(--border-subtle);">
-        <div style="margin-bottom:8px;">
-          <input type="search" id="waiterProductSearch" class="sa-input" placeholder="🔎 Buscar lanche, porção, bebida ou código..." oninput="renderWaiterCatalog()" />
-        </div>
-        <div class="cat-strip" id="waiterCategoryStrip" style="margin-bottom:2px;"></div>
+      <!-- Busca no topo (rola normalmente com a página) -->
+      <div id="waiterSearchBoxWrap" style="margin-bottom:8px;">
+        <input type="search" id="waiterProductSearch" class="sa-input" placeholder="🔍 Buscar lanche, porção, bebida ou código..." oninput="renderWaiterCatalog()" />
       </div>
+
+      <!-- Sentinela + Espaçador anti-pulo + Barra de Categorias Sticky Fluida -->
+      <div id="waiterCatStickySentinel" style="height:1px;width:100%;pointer-events:none;"></div>
+      <div id="waiterCatStickySpacer" style="display:none;height:0;"></div>
+      <div id="waiterCatStickyBar" class="waiter-cat-sticky-bar">
+        <div class="cat-strip" id="waiterCategoryStrip" style="margin-bottom:0;"></div>
+      </div>
+
       <div class="products-grid" id="waiterProductsGrid"></div>
     </section>
 
@@ -1437,7 +1452,7 @@
   <div class="floating-cart-bar" id="floatingCartBar" onclick="openCartReviewModal()">
     <div>
       <div style="font-size:13px;font-weight:900;" id="floatingCartTitle">🛒 0 itens selecionados</div>
-      <div style="font-size:11px;font-weight:700;opacity:0.88;" id="floatingCartTargetLabel">Destino: Mesa 01</div>
+      <div style="font-size:11px;font-weight:700;opacity:0.88;" id="floatingCartTargetLabel">Destino: Escolher ao enviar ➔</div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <span style="font-size:16px;font-weight:900;" id="floatingCartTotal">R$ 0,00</span>
@@ -1454,7 +1469,7 @@
       <span>Mesas</span>
       <span class="nav-badge" id="badgeTablesAlert" style="display:none;">0</span>
     </button>
-    <button type="button" class="nav-tab" data-tab="waiter" onclick="switchSuperAppTab('waiter')">
+    <button type="button" class="nav-tab" data-tab="waiter" onclick="switchSuperAppTab('waiter', { resetTarget: true })">
       <span class="tab-ico">➕</span>
       <span>Lançar</span>
     </button>
@@ -1586,13 +1601,30 @@
   </div>
 
   <!-- =========================================================================
+       MODAL 3A: ESCOLHA GUIADA DO DESTINO DO PEDIDO (MESA / COMANDA / RETIRADA / ENTREGA)
+       ========================================================================= -->
+  <div class="modal-backdrop" id="modalChooseOrderDestination" style="z-index:1100;">
+    <div class="modal-sheet" style="max-width:520px;border:1.5px solid var(--primary);box-shadow:0 20px 60px rgba(0,0,0,0.92);">
+      <div class="modal-head">
+        <h3 id="chooseDestModalTitle">🎯 Onde lançar este pedido?</h3>
+        <button type="button" class="btn-icon-top" onclick="closeOrderDestinationModal()">✕</button>
+      </div>
+      <div class="modal-body" id="chooseDestModalBody" style="display:flex;flex-direction:column;gap:12px;"></div>
+      <div class="modal-foot" id="chooseDestModalFoot" style="display:flex;gap:8px;">
+        <button type="button" class="sa-btn sa-btn-outline" id="btnChooseDestBack" style="display:none;" onclick="backOrderDestinationStep()">⬅️ Voltar</button>
+        <button type="button" class="sa-btn sa-btn-outline" style="flex:1;" onclick="closeOrderDestinationModal()">✕ Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
        MODAL 3B: PREENCHIMENTO RÁPIDO DE DADOS DO CLIENTE (BALCÃO / RETIRADA & ENTREGA)
        ========================================================================= -->
   <div class="modal-backdrop" id="modalStaffQuickFill" style="z-index:1200;">
     <div class="modal-sheet" style="max-width:480px;border:1.5px solid var(--primary);box-shadow:0 20px 60px rgba(0,0,0,0.9);">
       <div class="modal-head">
         <h3 id="quickFillModalTitle">🛍️ Dados do Cliente • Balcão / Retirada</h3>
-        <button type="button" class="btn-icon-top" onclick="closeModal('modalStaffQuickFill')">✕</button>
+        <button type="button" class="btn-icon-top" onclick="closeStaffQuickFillModal()">✕</button>
       </div>
       <div class="modal-body" style="display:flex;flex-direction:column;gap:12px;">
         <div id="quickFillNoticeBanner" style="font-size:12.5px;color:#fde68a;background:rgba(245,158,11,0.14);border:1.5px solid #f59e0b;padding:10px 12px;border-radius:10px;line-height:1.4;">
@@ -1650,7 +1682,7 @@
         </div>
       </div>
       <div class="modal-foot">
-        <button type="button" class="sa-btn sa-btn-outline" onclick="closeModal('modalStaffQuickFill')">Voltar</button>
+        <button type="button" class="sa-btn sa-btn-outline" onclick="closeStaffQuickFillModal()">Voltar</button>
         <button type="button" class="sa-btn sa-btn-green" style="flex:1;font-size:14px;font-weight:900;" id="btnQuickFillConfirm" onclick="confirmQuickFillAndSubmitOrder()">
           ✅ Confirmar Dados e Enviar p/ Cozinha
         </button>
@@ -1661,7 +1693,7 @@
   <!-- =========================================================================
        MODAL 4: ABRIR MESA / NOVA COMANDA INDIVIDUAL (OBRIGATÓRIO NOME+CELULAR OU CARTÃO QR)
        ========================================================================= -->
-  <div class="modal-backdrop" id="modalNewComanda">
+  <div class="modal-backdrop" id="modalNewComanda" style="z-index:1250;">
     <div class="modal-sheet">
       <div class="modal-head">
         <h3 id="modalNewComandaTitle">🔓 Abrir Mesa / Comanda Individual</h3>
@@ -1722,7 +1754,7 @@
   <!-- =========================================================================
        MODAL 5: DETALHE DA COMANDA INDIVIDUAL
        ========================================================================= -->
-  <div class="modal-backdrop" id="modalComandaDetail">
+  <div class="modal-backdrop" id="modalComandaDetail" style="z-index:1250;">
     <div class="modal-sheet">
       <div class="modal-head">
         <h3 id="modalComandaDetailTitle">🏷️ Comanda #101</h3>
@@ -1756,7 +1788,7 @@
   <!-- =========================================================================
        MODAL 5B: MIGRAR / TROCAR MESA DA COMANDA INDIVIDUAL
        ========================================================================= -->
-  <div class="modal-backdrop" id="modalMigrateComandaTable" style="z-index:175;">
+  <div class="modal-backdrop" id="modalMigrateComandaTable" style="z-index:1300;">
     <div class="modal-sheet">
       <div class="modal-head">
         <h3 id="modalMigrateComandaTitle">🔄 Migrar / Trocar Mesa</h3>
@@ -1810,7 +1842,7 @@
   <!-- =========================================================================
        MODAL 7: ALERTA / FEEDBACK RÁPIDO (SUBSTITUI ALERT NATIVO)
        ========================================================================= -->
-  <div class="modal-backdrop" id="modalSaAlert" style="z-index:180;">
+  <div class="modal-backdrop" id="modalSaAlert" style="z-index:2500;">
     <div class="modal-sheet" style="max-width:400px;">
       <div class="modal-head">
         <h3 id="saAlertTitle">💡 Aviso do Sistema</h3>
@@ -1922,9 +1954,14 @@
       motoboyShifts: [],
       waiterAlerts: [],
       selectedWaiterCategory: 'ALL',
-      launcherMode: 'MESA',
-      selectedTableId: 15,
+      launcherMode: '',
+      selectedTableId: 0,
       selectedComandaId: 0,
+      confirmedTableComandaId: 0,
+      explicitLaunchContext: false,
+      destinationReadyToSubmit: false,
+      pendingDestinationNewComanda: false,
+      pendingQuickFillData: null,
       newComandaEntryMode: 'name_phone',
       openComandaRedirectToWaiter: false,
       pendingProductIdAfterOpen: null,
@@ -3170,9 +3207,131 @@
     }
 
     /* =========================================================================
-       NAVEGAÇÃO DE ABAS E SINCRONIZAÇÃO GERAL
+       NAVEGAÇÃO DE ABAS, STICKY CATEGORIAS E SINCRONIZAÇÃO GERAL
        ========================================================================= */
-    function switchSuperAppTab(tabName) {
+    let waiterStickyBound = false;
+    function initWaiterStickyListener() {
+      if (waiterStickyBound) return;
+      waiterStickyBound = true;
+      window.addEventListener('scroll', syncWaiterCatStickyState, { passive: true });
+      window.addEventListener('resize', syncWaiterCatStickyState, { passive: true });
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', syncWaiterCatStickyState, { passive: true });
+      }
+    }
+
+    function syncWaiterCatStickyState() {
+      const waiterView = document.getElementById('view-waiter');
+      const stickyBar = document.getElementById('waiterCatStickyBar');
+      const sentinel = document.getElementById('waiterCatStickySentinel');
+      const spacer = document.getElementById('waiterCatStickySpacer');
+      if (!stickyBar || !sentinel || !spacer) return;
+
+      if (!waiterView || !waiterView.classList.contains('active')) {
+        stickyBar.classList.remove('is-stuck');
+        stickyBar.style.top = '';
+        spacer.style.display = 'none';
+        spacer.style.height = '0px';
+        return;
+      }
+
+      let topLimit = 0;
+      const topbar = document.getElementById('superAppTopbar');
+      if (topbar && getComputedStyle(topbar).display !== 'none') {
+        const tbRect = topbar.getBoundingClientRect();
+        if (tbRect.height > 0 && tbRect.bottom > 0) {
+          topLimit = Math.max(topLimit, Math.round(tbRect.bottom));
+        }
+      }
+      const alarm = document.getElementById('waiterAlarmBanner');
+      if (alarm && alarm.classList.contains('active') && getComputedStyle(alarm).display !== 'none') {
+        const alRect = alarm.getBoundingClientRect();
+        if (alRect.height > 0 && alRect.bottom > 0) {
+          topLimit = Math.max(topLimit, Math.round(alRect.bottom));
+        }
+      }
+
+      const sentRect = sentinel.getBoundingClientRect();
+      if (sentRect.top <= topLimit) {
+        if (!stickyBar.classList.contains('is-stuck')) {
+          stickyBar.classList.add('is-stuck');
+        }
+        stickyBar.style.top = topLimit + 'px';
+        const barH = stickyBar.offsetHeight || 58;
+        spacer.style.height = (barH + 8) + 'px';
+        spacer.style.display = 'block';
+      } else {
+        if (stickyBar.classList.contains('is-stuck')) {
+          stickyBar.classList.remove('is-stuck');
+          stickyBar.style.top = '';
+          spacer.style.display = 'none';
+          spacer.style.height = '0px';
+        }
+      }
+    }
+
+    function resetWaiterLaunchTargetState() {
+      const isKioskRole = document.body.classList.contains('mode-kiosk') && Number(state.user?.table_number || 0) > 0;
+      if (isKioskRole) {
+        state.launcherMode = 'MESA';
+        state.selectedTableId = Number(state.user.table_number);
+        state.explicitLaunchContext = true;
+      } else {
+        state.launcherMode = '';
+        state.selectedTableId = 0;
+        state.selectedComandaId = 0;
+        state.confirmedTableComandaId = 0;
+        state.explicitLaunchContext = false;
+      }
+      state.destinationReadyToSubmit = false;
+      state.pendingDestinationNewComanda = false;
+      state.pendingQuickFillData = null;
+      state.pendingProductIdAfterOpen = null;
+      clearStaffCustomerDataInputs(false);
+      renderWaiterExplicitTargetBanner();
+      if (typeof updateFloatingCartBar === 'function') updateFloatingCartBar();
+    }
+
+    function clearExplicitWaiterTarget() {
+      resetWaiterLaunchTargetState();
+      renderWaiterExplicitTargetBanner();
+      updateFloatingCartBar();
+    }
+
+    function renderWaiterExplicitTargetBanner() {
+      const banner = document.getElementById('waiterExplicitTargetBanner');
+      const txtEl = document.getElementById('waiterExplicitTargetBannerText');
+      if (!banner || !txtEl) return;
+      const isKioskRole = document.body.classList.contains('mode-kiosk');
+      if (isKioskRole || !state.explicitLaunchContext || !state.launcherMode) {
+        banner.style.display = 'none';
+        return;
+      }
+      let msg = '';
+      if (state.launcherMode === 'MESA' && state.selectedTableId > 0) {
+        const openCmds = getOpenComandasForTable(state.selectedTableId);
+        const cmd = openCmds.find(c => Number(c.id) === Number(state.selectedComandaId)) || openCmds[0];
+        if (cmd) {
+          msg = `🎯 Lançando para Mesa ${String(state.selectedTableId).padStart(2, '0')} • #${cmd.comanda_code} (${cmd.customer_name || 'Cliente'})`;
+        } else {
+          msg = `🎯 Lançando para Mesa ${String(state.selectedTableId).padStart(2, '0')}`;
+        }
+      } else if (state.launcherMode === 'COMANDA' && state.selectedComandaId > 0) {
+        const cmd = state.comandas.find(c => Number(c.id) === Number(state.selectedComandaId));
+        if (cmd) {
+          const tStr = Number(cmd.table_number || cmd.table_id || 0) > 0 ? ` • Mesa ${String(cmd.table_number || cmd.table_id).padStart(2, '0')}` : '';
+          msg = `🎯 Lançando para Comanda #${cmd.comanda_code} (${cmd.customer_name || 'Cliente'})${tStr}`;
+        }
+      }
+      if (!msg) {
+        banner.style.display = 'none';
+        return;
+      }
+      txtEl.textContent = msg;
+      banner.style.display = 'flex';
+    }
+
+    function switchSuperAppTab(tabName, opts) {
       const roleUpper = String(state.user?.role || 'GARCOM').toUpperCase();
       if (roleUpper === 'MOTOBOY' && tabName !== 'motoboy' && tabName !== 'motoboy-caixa') {
         tabName = 'motoboy';
@@ -3181,6 +3340,10 @@
       }
       if (state.activeTab !== tabName) {
         clearStaffCustomerDataInputs(false);
+      }
+      const keepTarget = Boolean(opts && opts.keepTarget === true);
+      if (tabName === 'waiter' && !keepTarget) {
+        resetWaiterLaunchTargetState();
       }
       state.activeTab = tabName;
       document.querySelectorAll('.view-section').forEach(sec => {
@@ -3201,14 +3364,21 @@
       if (tabName === 'tables') {
         loadTablesAndComandas();
       } else if (tabName === 'waiter') {
+        initWaiterStickyListener();
+        renderWaiterExplicitTargetBanner();
         populateLauncherSelects();
         renderWaiterCatalog();
+        window.scrollTo({ top: 0, behavior: 'auto' });
+        requestAnimationFrame(() => syncWaiterCatStickyState());
       } else if (tabName === 'comandas') {
         loadTablesAndComandas();
       } else if (tabName === 'motoboy' || tabName === 'motoboy-caixa') {
         loadOrdersAndDeliveries();
         loadMotoboySettlement();
         loadMotoboyShiftData();
+      }
+      if (tabName !== 'waiter') {
+        requestAnimationFrame(() => syncWaiterCatStickyState());
       }
       updateFloatingCartBar();
     }
@@ -3242,13 +3412,14 @@
         ]);
         state.tables = Array.isArray(tablesRes) ? tablesRes : (tablesRes && tablesRes.tables ? tablesRes.tables : []);
         state.comandas = Array.isArray(comandasRes) ? comandasRes : (comandasRes && comandasRes.comandas ? comandasRes.comandas : []);
-        const vis = getVisibleTablesForStaff();
-        if (vis.length > 0 && !vis.some(t => Number(t.number || t.id) === Number(state.selectedTableId))) {
-          state.selectedTableId = Number(vis[0].number || vis[0].id);
-        }
         renderTablesGrid();
         renderComandasList();
         populateLauncherSelects();
+        renderWaiterExplicitTargetBanner();
+        updateFloatingCartBar();
+        if (document.getElementById('modalChooseOrderDestination')?.classList.contains('open')) {
+          renderOrderDestinationCurrentStep();
+        }
       } catch (_) {}
     }
 
@@ -3451,12 +3622,11 @@
       state.selectedTableId = num;
       state.selectedComandaId = Number(comandaId);
       state.confirmedTableComandaId = Number(comandaId);
+      state.explicitLaunchContext = true;
+      state.launcherMode = 'MESA';
       closeModal('modalTableDetail');
-      setWaiterLauncherMode('MESA');
-      switchSuperAppTab('waiter');
-      const sel = document.getElementById('waiterTargetTableSelect');
-      if (sel) sel.value = String(num);
-      syncSelectedMesaComandaUI();
+      switchSuperAppTab('waiter', { keepTarget: true });
+      renderWaiterExplicitTargetBanner();
       updateFloatingCartBar();
       if (state.pendingProductIdAfterOpen) {
         const prodId = state.pendingProductIdAfterOpen;
@@ -3629,25 +3799,21 @@
       const newCmdTableSel = document.getElementById('newComandaTableSelect');
       const sortedTables = getVisibleTablesForStaff();
 
-      if (sortedTables.length > 0 && !sortedTables.some(t => Number(t.number || t.id) === Number(state.selectedTableId))) {
-        state.selectedTableId = Number(sortedTables[0].number || sortedTables[0].id);
-      }
-
       if (tableSel) {
-        const curVal = String(state.selectedTableId || (sortedTables[0] ? (sortedTables[0].number || sortedTables[0].id) : 15));
+        const curVal = state.selectedTableId ? String(state.selectedTableId) : '';
         tableSel.innerHTML = sortedTables.map(t => {
           const num = Number(t.number || t.id);
           const openCmds = getOpenComandasForTable(num);
           const stLabel = openCmds.length > 0 ? `OCUPADA (${openCmds.length} comanda${openCmds.length === 1 ? '' : 's'})` : (t.status || 'LIVRE');
           return `<option value="${num}">Mesa ${String(num).padStart(2, '0')} — ${stLabel}</option>`;
         }).join('');
-        tableSel.value = curVal;
+        if (curVal) tableSel.value = curVal;
       }
 
       if (newCmdTableSel) {
         const curNewTbl = newCmdTableSel.value && sortedTables.some(t => String(t.number || t.id) === String(newCmdTableSel.value))
           ? newCmdTableSel.value
-          : String(state.selectedTableId || (sortedTables[0] ? (sortedTables[0].number || sortedTables[0].id) : 15));
+          : String(state.selectedTableId || (sortedTables[0] ? (sortedTables[0].number || sortedTables[0].id) : 1));
         newCmdTableSel.innerHTML = sortedTables.map(t => {
           const num = Number(t.number || t.id);
           const openCmds = getOpenComandasForTable(num);
@@ -3670,15 +3836,13 @@
           cmdSel.innerHTML = `<option value="0">Nenhuma comanda aberta — clique em + Nova</option>`;
         } else {
           const hasSelected = openCmds.some(c => Number(c.id) === Number(state.selectedComandaId));
-          const curCmd = hasSelected ? String(state.selectedComandaId) : String(openCmds[0].id);
-          state.selectedComandaId = Number(curCmd);
           cmdSel.innerHTML = openCmds.map(c => {
             const tNum = Number(c.table_number || c.table_id || 0);
             const tblTxt = tNum > 0 ? ` [Mesa ${String(tNum).padStart(2, '0')}]` : '';
             const phoneTxt = c.customer_phone ? ` • ${escapeHtml(c.customer_phone)}` : '';
             return `<option value="${c.id}">#${escapeHtml(c.comanda_code)} — ${escapeHtml(c.customer_name || 'Cliente')}${phoneTxt}${tblTxt}</option>`;
           }).join('');
-          cmdSel.value = curCmd;
+          if (hasSelected) cmdSel.value = String(state.selectedComandaId);
         }
       }
 
@@ -3688,12 +3852,13 @@
     function syncSelectedMesaComandaUI() {
       const custInp = document.getElementById('waiterTargetTableCustomer');
       const banner = document.getElementById('waiterMesaOpenStatusBanner');
+      if (!custInp && !banner) return;
       const num = Number(state.selectedTableId || 0);
+      if (!num) return;
       const openCmds = getOpenComandasForTable(num);
 
       if (openCmds.length > 0) {
         let activeCmd = openCmds.find(c => Number(c.id) === Number(state.selectedComandaId)) || openCmds[0];
-        state.selectedComandaId = activeCmd.id;
         const isClosed = isComandaClosedOrClosing(activeCmd);
         if (custInp) {
           const phonePart = activeCmd.customer_phone ? ` (${activeCmd.customer_phone})` : '';
@@ -3773,6 +3938,7 @@
 
     function handleTapMesaCustomerField() {
       const num = Number(state.selectedTableId || 0);
+      if (!num) return;
       const openCmds = getOpenComandasForTable(num);
       if (openCmds.length > 0) {
         openTableDetailModal(num);
@@ -3784,7 +3950,7 @@
     function onWaiterTableSelectChange() {
       const sel = document.getElementById('waiterTargetTableSelect');
       if (!sel) return;
-      state.selectedTableId = Number(sel.value || 15);
+      state.selectedTableId = Number(sel.value || 0);
       state.confirmedTableComandaId = null;
       const openCmds = getOpenComandasForTable(state.selectedTableId);
       if (openCmds.length > 1) {
@@ -3801,7 +3967,7 @@
       if (state.launcherMode !== mode) {
         clearStaffCustomerDataInputs(false);
       }
-      state.launcherMode = mode;
+      state.launcherMode = mode || '';
       const mapBtn = {
         'MESA': 'btnModeMesa',
         'COMANDA': 'btnModeComanda',
@@ -3825,6 +3991,7 @@
       if (addrWrap) addrWrap.style.display = (mode === 'DELIVERY') ? 'flex' : 'none';
 
       populateLauncherSelects();
+      renderWaiterExplicitTargetBanner();
       updateFloatingCartBar();
     }
 
@@ -4012,6 +4179,9 @@
       }
 
       strip.innerHTML = html;
+      requestAnimationFrame(() => {
+        if (typeof syncWaiterCatStickyState === 'function') syncWaiterCatStickyState();
+      });
     }
 
     function selectWaiterCategory(catId) {
@@ -4259,37 +4429,39 @@
       const prod = state.products.find(p => Number(p.id) === Number(productId));
       if (!prod) return;
 
-      // TRAVA OBRIGATÓRIA IGUAL AO APK NATIVO:
-      // Em modo MESA ou COMANDA, exige que a mesa/comanda esteja aberta com Nome+Celular ou Cartão QR antes de adicionar itens!
-      if (state.launcherMode === 'MESA') {
-        const tableNum = Number(document.getElementById('waiterTargetTableSelect')?.value || state.selectedTableId || 0);
-        const openCmds = getOpenComandasForTable(tableNum);
-        if (openCmds.length === 0) {
-          state.pendingProductIdAfterOpen = Number(productId);
-          openNewComandaModal(tableNum, true);
-          return;
-        }
-        if (openCmds.length > 1 && (!state.confirmedTableComandaId || !openCmds.some(c => Number(c.id) === Number(state.confirmedTableComandaId)))) {
-          state.pendingProductIdAfterOpen = Number(productId);
-          openTableDetailModal(tableNum);
-          return;
-        }
-        const activeCmd = openCmds.find(c => Number(c.id) === Number(state.selectedComandaId)) || openCmds[0];
-        if (isComandaClosedOrClosing(activeCmd)) {
-          openComandaDetailModal(activeCmd.id);
-          return;
-        }
-      } else if (state.launcherMode === 'COMANDA') {
-        const cmdId = Number(document.getElementById('waiterTargetComandaSelect')?.value || 0);
-        const cmdObj = state.comandas.find(c => Number(c.id) === cmdId && String(c.status || '').toUpperCase() !== 'PAGA');
-        if (!cmdObj) {
-          state.pendingProductIdAfterOpen = Number(productId);
-          openNewComandaModal(state.selectedTableId, true);
-          return;
-        }
-        if (isComandaClosedOrClosing(cmdObj)) {
-          openComandaDetailModal(cmdObj.id);
-          return;
+      // No modo livre (sem atalho explícito de Mesa/Comanda), permite montar o pedido livremente sem pré-seleção!
+      const isKioskRole = document.body.classList.contains('mode-kiosk') && Number(state.user?.table_number || 0) > 0;
+      if (state.explicitLaunchContext || isKioskRole) {
+        if (state.launcherMode === 'MESA') {
+          const tableNum = Number(state.selectedTableId || 0);
+          const openCmds = getOpenComandasForTable(tableNum);
+          if (openCmds.length === 0) {
+            state.pendingProductIdAfterOpen = Number(productId);
+            openNewComandaModal(tableNum, true);
+            return;
+          }
+          if (openCmds.length > 1 && (!state.confirmedTableComandaId || !openCmds.some(c => Number(c.id) === Number(state.confirmedTableComandaId)))) {
+            state.pendingProductIdAfterOpen = Number(productId);
+            openTableDetailModal(tableNum);
+            return;
+          }
+          const activeCmd = openCmds.find(c => Number(c.id) === Number(state.selectedComandaId)) || openCmds[0];
+          if (isComandaClosedOrClosing(activeCmd)) {
+            openComandaDetailModal(activeCmd.id);
+            return;
+          }
+        } else if (state.launcherMode === 'COMANDA') {
+          const cmdId = Number(state.selectedComandaId || 0);
+          const cmdObj = state.comandas.find(c => Number(c.id) === cmdId && String(c.status || '').toUpperCase() !== 'PAGA');
+          if (!cmdObj) {
+            state.pendingProductIdAfterOpen = Number(productId);
+            openNewComandaModal(state.selectedTableId, true);
+            return;
+          }
+          if (isComandaClosedOrClosing(cmdObj)) {
+            openComandaDetailModal(cmdObj.id);
+            return;
+          }
         }
       }
 
@@ -4710,19 +4882,18 @@
           totalEl.textContent = formatBRL(sum);
         }
 
-        let targetText = 'Destino: ';
-        if (state.launcherMode === 'MESA') {
-          const tbl = document.getElementById('waiterTargetTableSelect')?.value || state.selectedTableId || 15;
+        let targetText = '';
+        if (state.explicitLaunchContext && state.launcherMode === 'MESA' && state.selectedTableId > 0) {
+          const tbl = state.selectedTableId;
           const openCmds = getOpenComandasForTable(tbl);
-          const custStr = openCmds[0]?.customer_name ? ` (${openCmds[0].customer_name})` : '';
-          targetText += `Mesa ${String(tbl).padStart(2, '0')}${custStr}`;
-        } else if (state.launcherMode === 'COMANDA') {
-          const cmdSel = document.getElementById('waiterTargetComandaSelect');
-          targetText += cmdSel && cmdSel.options[cmdSel.selectedIndex] ? cmdSel.options[cmdSel.selectedIndex].text : 'Comanda Individual';
-        } else if (state.launcherMode === 'RETIRADA') {
-          targetText += 'Balcão / Retirada';
+          const cmd = openCmds.find(c => Number(c.id) === Number(state.selectedComandaId)) || openCmds[0];
+          const custStr = cmd?.customer_name ? ` (#${cmd.comanda_code} • ${cmd.customer_name})` : '';
+          targetText = `Destino: Mesa ${String(tbl).padStart(2, '0')}${custStr}`;
+        } else if (state.explicitLaunchContext && state.launcherMode === 'COMANDA' && state.selectedComandaId > 0) {
+          const cmd = state.comandas.find(c => Number(c.id) === Number(state.selectedComandaId));
+          targetText = cmd ? `Destino: Comanda #${cmd.comanda_code} (${cmd.customer_name || 'Cliente'})` : 'Destino: Comanda Individual';
         } else {
-          targetText += 'Entrega (Delivery)';
+          targetText = 'Destino: Escolher ao enviar ➔';
         }
         if (targetEl) targetEl.textContent = targetText;
       }
@@ -4774,31 +4945,18 @@
     }
 
     function clearStaffCustomerDataInputs(clearCartToo) {
-      const topName = document.getElementById('waiterCustomerName');
-      if (topName) topName.value = '';
-      const topPhone = document.getElementById('waiterCustomerPhone');
-      if (topPhone) topPhone.value = '';
-      const topStreet = document.getElementById('waiterDeliveryStreet');
-      if (topStreet) topStreet.value = '';
-      const topNumber = document.getElementById('waiterDeliveryNumber');
-      if (topNumber) topNumber.value = '';
-      const topNeigh = document.getElementById('waiterDeliveryNeighborhood');
-      if (topNeigh) topNeigh.value = '';
-      const topComp = document.getElementById('waiterDeliveryComplement');
-      if (topComp) topComp.value = '';
+      state.pendingQuickFillData = null;
 
-      const qName = document.getElementById('quickFillCustomerName');
-      if (qName) qName.value = '';
-      const qPhone = document.getElementById('quickFillCustomerPhone');
-      if (qPhone) qPhone.value = '';
-      const qStreet = document.getElementById('quickFillDeliveryStreet');
-      if (qStreet) qStreet.value = '';
-      const qNum = document.getElementById('quickFillDeliveryNumber');
-      if (qNum) qNum.value = '';
-      const qNeigh = document.getElementById('quickFillDeliveryNeighborhood');
-      if (qNeigh) qNeigh.value = '';
-      const qComp = document.getElementById('quickFillDeliveryComplement');
-      if (qComp) qComp.value = '';
+      ['waiterCustomerName', 'waiterCustomerPhone', 'waiterDeliveryStreet', 'waiterDeliveryNumber',
+       'waiterDeliveryNeighborhood', 'waiterDeliveryComplement', 'quickFillCustomerName',
+       'quickFillCustomerPhone', 'quickFillDeliveryStreet', 'quickFillDeliveryNumber',
+       'quickFillDeliveryNeighborhood', 'quickFillDeliveryComplement', 'quickFillDeliveryFee'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+
+      const qPay = document.getElementById('quickFillPaymentMethod');
+      if (qPay) qPay.value = 'PIX';
 
       if (clearCartToo) {
         state.cart = [];
@@ -4810,19 +4968,333 @@
 
     function clearActiveCart() {
       clearStaffCustomerDataInputs(true);
+      resetWaiterLaunchTargetState();
+      closeModal('modalChooseOrderDestination');
+      closeModal('modalStaffQuickFill');
       closeModal('modalCartReview');
       updateFloatingCartBar();
     }
 
     let isSubmittingStaffOrder = false;
 
+    const destModalState = {
+      step: 'CHOOSE_MODE',
+      tableNum: 0,
+      comandaFilter: ''
+    };
+
+    function openOrderDestinationModal(initialStep = 'CHOOSE_MODE') {
+      destModalState.step = initialStep || 'CHOOSE_MODE';
+      destModalState.tableNum = 0;
+      destModalState.comandaFilter = '';
+      renderOrderDestinationCurrentStep();
+      openModal('modalChooseOrderDestination');
+    }
+
+    function closeOrderDestinationModal() {
+      closeModal('modalChooseOrderDestination');
+      if (!state.explicitLaunchContext) {
+        state.destinationReadyToSubmit = false;
+      }
+    }
+
+    function backOrderDestinationStep() {
+      if (destModalState.step === 'PICK_TABLE_COMANDA') {
+        destModalState.step = 'PICK_TABLE';
+      } else {
+        destModalState.step = 'CHOOSE_MODE';
+      }
+      renderOrderDestinationCurrentStep();
+    }
+
+    function selectOrderDestinationMode(mode) {
+      if (mode === 'MESA') {
+        destModalState.step = 'PICK_TABLE';
+        destModalState.tableNum = 0;
+        renderOrderDestinationCurrentStep();
+      } else if (mode === 'COMANDA') {
+        destModalState.step = 'PICK_COMANDA';
+        destModalState.comandaFilter = '';
+        renderOrderDestinationCurrentStep();
+      } else if (mode === 'RETIRADA' || mode === 'DELIVERY') {
+        clearStaffCustomerDataInputs(false);
+        state.launcherMode = mode;
+        closeModal('modalChooseOrderDestination');
+        openStaffQuickFillModal(mode);
+      }
+    }
+
+    function pickDestinationTableInModal(tableNum) {
+      destModalState.tableNum = Number(tableNum || 0);
+      destModalState.step = 'PICK_TABLE_COMANDA';
+      renderOrderDestinationCurrentStep();
+    }
+
+    function confirmDestinationTableComanda(tableNum, comandaId) {
+      const cmd = state.comandas.find(c => Number(c.id) === Number(comandaId));
+      if (!cmd) return;
+      if (isComandaClosedOrClosing(cmd)) {
+        showSaAlert('🔒 Esta comanda está com conta solicitada / fechada. Reabra-a antes de lançar novos itens.', 'Comanda Bloqueada');
+        return;
+      }
+      state.launcherMode = 'MESA';
+      state.selectedTableId = Number(tableNum);
+      state.selectedComandaId = Number(comandaId);
+      state.confirmedTableComandaId = Number(comandaId);
+      state.destinationReadyToSubmit = true;
+      closeModal('modalChooseOrderDestination');
+      submitActiveCartOrder();
+    }
+
+    function confirmDestinationStandaloneComanda(comandaId) {
+      const cmd = state.comandas.find(c => Number(c.id) === Number(comandaId));
+      if (!cmd) return;
+      if (isComandaClosedOrClosing(cmd)) {
+        showSaAlert('🔒 Esta comanda está com conta solicitada / fechada. Reabra-a antes de lançar novos itens.', 'Comanda Bloqueada');
+        return;
+      }
+      state.launcherMode = 'COMANDA';
+      state.selectedComandaId = Number(comandaId);
+      const tNum = Number(cmd.table_number || cmd.table_id || 0);
+      if (tNum > 0) state.selectedTableId = tNum;
+      state.destinationReadyToSubmit = true;
+      closeModal('modalChooseOrderDestination');
+      submitActiveCartOrder();
+    }
+
+    function openNewComandaFromDestModal(tableNum) {
+      state.pendingDestinationNewComanda = true;
+      openNewComandaModal(tableNum, false);
+    }
+
+    async function reopenComandaInsideDestModal(comandaId, tableNum) {
+      try {
+        await apiFetch('/api/comandas', {
+          method: 'POST',
+          body: {
+            action: 'REOPEN',
+            origin_type: 'GARCOM',
+            operator_role: (state.user && state.user.role) ? state.user.role : 'GARCOM',
+            comanda_id: Number(comandaId || 0),
+            table_id: Number(tableNum || 0)
+          }
+        });
+        playNotificationBeep(1080, 130);
+        await loadTablesAndComandas();
+        renderOrderDestinationCurrentStep();
+        showSaAlert('🔓 Comanda reaberta! Toque nela para enviar o pedido.', '✅ Reaberta');
+      } catch (err) {
+        showSaAlert(err.message || 'Erro ao reabrir comanda.');
+      }
+    }
+
+    function renderOrderDestinationCurrentStep() {
+      const titleEl = document.getElementById('chooseDestModalTitle');
+      const bodyEl = document.getElementById('chooseDestModalBody');
+      const backBtn = document.getElementById('btnChooseDestBack');
+      if (!bodyEl) return;
+
+      const count = state.cart.reduce((acc, it) => acc + Number(it.quantity || 1), 0);
+      const sum = state.cart.reduce((acc, it) => acc + Number(it.total_price || 0), 0);
+
+      if (destModalState.step === 'CHOOSE_MODE') {
+        if (titleEl) titleEl.textContent = '🎯 Escolha o Destino do Pedido';
+        if (backBtn) backBtn.style.display = 'none';
+        bodyEl.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:rgba(212,175,55,0.1);border:1px solid var(--border);border-radius:10px;font-size:12.5px;">
+            <span>🛒 <strong>${count}</strong> ${count === 1 ? 'item pronto' : 'itens prontos'} p/ enviar</span>
+            <strong style="color:var(--primary);font-size:15px;">${formatBRL(sum)}</strong>
+          </div>
+          <div class="dest-mode-grid">
+            <button type="button" class="dest-mode-btn" onclick="selectOrderDestinationMode('MESA')">
+              <span class="dest-ico">🍽️</span>
+              <span class="dest-lbl">Mesa</span>
+              <span class="dest-sub">Selecionar mesa e comanda</span>
+            </button>
+            <button type="button" class="dest-mode-btn" onclick="selectOrderDestinationMode('COMANDA')">
+              <span class="dest-ico">🏷️</span>
+              <span class="dest-lbl">Comanda</span>
+              <span class="dest-sub">Cartão ou comanda aberta</span>
+            </button>
+            <button type="button" class="dest-mode-btn" onclick="selectOrderDestinationMode('RETIRADA')">
+              <span class="dest-ico">🛍️</span>
+              <span class="dest-lbl">Balcão / Retirada</span>
+              <span class="dest-sub">Nome do cliente p/ retirada</span>
+            </button>
+            <button type="button" class="dest-mode-btn" onclick="selectOrderDestinationMode('DELIVERY')">
+              <span class="dest-ico">🛵</span>
+              <span class="dest-lbl">Entrega</span>
+              <span class="dest-sub">Cliente, endereço e entrega</span>
+            </button>
+          </div>
+        `;
+      } else if (destModalState.step === 'PICK_TABLE') {
+        if (titleEl) titleEl.textContent = '🍽️ Em qual Mesa o cliente está?';
+        if (backBtn) backBtn.style.display = 'inline-flex';
+        const sortedTables = getVisibleTablesForStaff();
+        const tilesHtml = sortedTables.map(t => {
+          const num = Number(t.number || t.id);
+          const openCmds = getOpenComandasForTable(num);
+          const rawSt = String(t.status || 'LIVRE').toUpperCase();
+          const calling = Boolean(t.waiter_call);
+          let tileClass = 'status-LIVRE';
+          let statusLabel = 'LIVRE';
+          if (calling) {
+            tileClass = 'status-CHAMANDO';
+            statusLabel = '🔔 CHAMANDO';
+          } else if (rawSt === 'FECHAMENTO' || rawSt === 'CONTA' || openCmds.some(c => isComandaClosedOrClosing(c))) {
+            tileClass = 'status-FECHAMENTO';
+            statusLabel = '🧾 CONTA';
+          } else if (rawSt !== 'LIVRE' || Number(t.current_total || 0) > 0 || openCmds.length > 0) {
+            tileClass = 'status-OCUPADA';
+            statusLabel = `${openCmds.length} COMANDA${openCmds.length === 1 ? '' : 'S'}`;
+          }
+          let comp = (t.complement || '').trim();
+          if (!comp && openCmds.length > 0) {
+            comp = openCmds.map(c => c.customer_name || c.comanda_code).filter(Boolean).join(', ');
+          }
+          return `
+            <div class="table-tile ${tileClass}" style="min-height:86px;padding:8px 6px;" onclick="pickDestinationTableInModal(${num})">
+              <div>
+                <div class="t-num" style="font-size:14px;">MESA ${String(num).padStart(2, '0')}</div>
+                ${comp ? `<div class="t-comp">${escapeHtml(comp)}</div>` : '<div class="t-comp" style="opacity:0.4;">Sem cliente</div>'}
+              </div>
+              <span class="t-badge">${statusLabel}</span>
+            </div>
+          `;
+        }).join('');
+        bodyEl.innerHTML = `
+          <div style="font-size:12px;color:var(--text-muted);">Toque na mesa desejada para escolher ou abrir uma comanda:</div>
+          <div class="tables-grid" style="max-height:52vh;overflow-y:auto;padding-right:2px;">
+            ${tilesHtml || '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted);">Nenhuma mesa ativa encontrada.</div>'}
+          </div>
+        `;
+      } else if (destModalState.step === 'PICK_TABLE_COMANDA') {
+        const num = Number(destModalState.tableNum || 0);
+        const pad = String(num).padStart(2, '0');
+        if (titleEl) titleEl.textContent = `🪪 Comandas da Mesa ${pad}`;
+        if (backBtn) backBtn.style.display = 'inline-flex';
+        const tableCmds = getOpenComandasForTable(num);
+
+        let cmdListHtml = '';
+        if (tableCmds.length === 0) {
+          cmdListHtml = `
+            <div style="padding:14px;background:var(--amber-bg);border:1.5px solid rgba(245,158,11,0.55);border-radius:12px;text-align:center;">
+              <div style="font-size:13.5px;font-weight:900;color:var(--amber);margin-bottom:4px;">🔒 Mesa ${pad} está LIVRE</div>
+              <div style="font-size:12px;color:var(--text-main);">Nenhuma comanda aberta nesta mesa ainda. Crie uma nova comanda abaixo (Nome + Celular ou Cartão QR) para enviar o pedido.</div>
+            </div>
+          `;
+        } else {
+          cmdListHtml = tableCmds.map(c => {
+            const isClosed = isComandaClosedOrClosing(c);
+            if (isClosed) {
+              return `
+                <div style="padding:11px 12px;background:var(--bg-input);border:1.5px solid var(--red);border-radius:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+                  <div>
+                    <div style="font-size:13.5px;font-weight:900;color:#fca5a5;">🔒 #${escapeHtml(c.comanda_code)} — ${escapeHtml(c.customer_name || 'Cliente')}</div>
+                    <div style="font-size:11px;color:#fca5a5;">Conta Solicitada / Fechada (Bloqueada p/ novos itens)</div>
+                  </div>
+                  <button type="button" class="sa-btn sa-btn-green" style="padding:7px 11px;font-size:11.5px;" onclick="reopenComandaInsideDestModal(${c.id}, ${num})">
+                    🔓 Reabrir Comanda
+                  </button>
+                </div>
+              `;
+            }
+            return `
+              <div style="padding:12px;background:var(--bg-input);border:1.5px solid rgba(16,185,129,0.55);border-radius:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;" onclick="confirmDestinationTableComanda(${num}, ${c.id})">
+                <div style="min-width:0;flex:1;">
+                  <div style="font-size:14px;font-weight:900;color:var(--primary);">🏷️ #${escapeHtml(c.comanda_code)} — ${escapeHtml(c.customer_name || 'Cliente')}</div>
+                  <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">
+                    ${c.customer_phone ? `📱 ${escapeHtml(c.customer_phone)} • ` : ''}${(c.items || []).length} item(ns) • <strong style="color:var(--text-main);">${formatBRL(c.total || c.subtotal || 0)}</strong>
+                  </div>
+                </div>
+                <span class="sa-btn sa-btn-green" style="padding:8px 12px;font-size:12px;flex-shrink:0;">🚀 Enviar ➔</span>
+              </div>
+            `;
+          }).join('');
+        }
+
+        bodyEl.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="font-size:12.5px;font-weight:800;color:var(--secondary);">🍽️ Mesa ${pad} • ${tableCmds.length} comanda(s)</span>
+            <button type="button" class="sa-btn sa-btn-primary" style="padding:8px 12px;font-size:12px;" onclick="openNewComandaFromDestModal(${num})">
+              ➕ Nova Comanda nesta Mesa
+            </button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow-y:auto;">
+            ${cmdListHtml}
+          </div>
+        `;
+      } else if (destModalState.step === 'PICK_COMANDA') {
+        if (titleEl) titleEl.textContent = '🏷️ Selecionar Comanda Individual';
+        if (backBtn) backBtn.style.display = 'inline-flex';
+        const visibleTableNums = new Set(getVisibleTablesForStaff().map(t => Number(t.number || t.id)));
+        const activeCmds = state.comandas.filter(c => {
+          const st = String(c.status || '').toUpperCase();
+          if (st === 'PAGA') return false;
+          const tNum = Number(c.table_number || c.table_id || 0);
+          return tNum <= 0 || visibleTableNums.has(tNum);
+        });
+        const q = (destModalState.comandaFilter || '').trim().toLowerCase();
+        const filtered = !q ? activeCmds : activeCmds.filter(c =>
+          String(c.comanda_code || '').toLowerCase().includes(q) ||
+          String(c.customer_name || '').toLowerCase().includes(q) ||
+          String(c.customer_phone || '').toLowerCase().includes(q) ||
+          String(c.table_number || c.table_id || '').includes(q)
+        );
+        const listHtml = filtered.length === 0
+          ? `<div style="text-align:center;padding:18px;color:var(--text-muted);background:var(--bg-input);border-radius:10px;">Nenhuma comanda encontrada. Crie uma nova abaixo!</div>`
+          : filtered.map(c => {
+              const isClosed = isComandaClosedOrClosing(c);
+              const tNum = Number(c.table_number || c.table_id || 0);
+              const tBadge = tNum > 0 ? `<span style="font-size:10px;padding:2px 6px;border-radius:999px;background:var(--blue-bg);color:#93c5fd;font-weight:800;margin-left:6px;">Mesa ${String(tNum).padStart(2, '0')}</span>` : '';
+              if (isClosed) {
+                return `
+                  <div style="padding:11px 12px;background:var(--bg-input);border:1.5px solid var(--red);border-radius:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <div>
+                      <div style="font-size:13.5px;font-weight:900;color:#fca5a5;">🔒 #${escapeHtml(c.comanda_code)} — ${escapeHtml(c.customer_name || 'Cliente')}${tBadge}</div>
+                      <div style="font-size:11px;color:#fca5a5;">Conta Solicitada / Fechada</div>
+                    </div>
+                    <button type="button" class="sa-btn sa-btn-green" style="padding:7px 11px;font-size:11.5px;" onclick="reopenComandaInsideDestModal(${c.id}, ${tNum})">
+                      🔓 Reabrir
+                    </button>
+                  </div>
+                `;
+              }
+              return `
+                <div style="padding:11px 12px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;" onclick="confirmDestinationStandaloneComanda(${c.id})">
+                  <div style="min-width:0;flex:1;">
+                    <div style="font-size:14px;font-weight:900;color:var(--primary);">🏷️ #${escapeHtml(c.comanda_code)} — ${escapeHtml(c.customer_name || 'Cliente')}${tBadge}</div>
+                    <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">
+                      ${c.customer_phone ? `📱 ${escapeHtml(c.customer_phone)} • ` : ''}${formatBRL(c.total || c.subtotal || 0)}
+                    </div>
+                  </div>
+                  <span class="sa-btn sa-btn-green" style="padding:7px 11px;font-size:12px;flex-shrink:0;">🚀 Enviar ➔</span>
+                </div>
+              `;
+            }).join('');
+
+        bodyEl.innerHTML = `
+          <div style="display:flex;gap:8px;">
+            <input type="search" class="sa-input" placeholder="🔍 Filtrar por nº, nome ou mesa..." value="${escapeHtml(destModalState.comandaFilter || '')}" oninput="destModalState.comandaFilter=this.value;renderOrderDestinationCurrentStep();" />
+            <button type="button" class="sa-btn sa-btn-primary" style="flex-shrink:0;" onclick="openNewComandaFromDestModal(0)">➕ Nova</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow-y:auto;">
+            ${listHtml}
+          </div>
+        `;
+      }
+    }
+
     function openStaffQuickFillModal(mode) {
-      const curName = (document.getElementById('waiterCustomerName')?.value || '').trim();
-      const curPhone = (document.getElementById('waiterCustomerPhone')?.value || '').trim();
+      // Nunca reaproveita dados do cliente anterior
+      clearStaffCustomerDataInputs(false);
+      state.launcherMode = mode;
+
       const nameInp = document.getElementById('quickFillCustomerName');
       const phoneInp = document.getElementById('quickFillCustomerPhone');
-      if (nameInp) nameInp.value = curName;
-      if (phoneInp) phoneInp.value = curPhone;
+      if (nameInp) nameInp.value = '';
+      if (phoneInp) phoneInp.value = '';
 
       const titleEl = document.getElementById('quickFillModalTitle');
       const bannerEl = document.getElementById('quickFillNoticeBanner');
@@ -4840,37 +5312,32 @@
         }
         if (delivBox) delivBox.style.display = 'flex';
 
-        const curStreet = (document.getElementById('waiterDeliveryStreet')?.value || '').trim();
-        const curNumber = (document.getElementById('waiterDeliveryNumber')?.value || '').trim();
-        const curNeigh = (document.getElementById('waiterDeliveryNeighborhood')?.value || '').trim();
-        const curComp = (document.getElementById('waiterDeliveryComplement')?.value || '').trim();
-        const curPay = document.getElementById('waiterPaymentMethod')?.value || 'PIX';
-        const curFee = document.getElementById('waiterDeliveryFeeInput')?.value || (state.operational?.default_delivery_fee || '');
-
         const streetInp = document.getElementById('quickFillDeliveryStreet');
         const numInp = document.getElementById('quickFillDeliveryNumber');
         const neighInp = document.getElementById('quickFillDeliveryNeighborhood');
         const compInp = document.getElementById('quickFillDeliveryComplement');
         const paySel = document.getElementById('quickFillPaymentMethod');
         const feeInp = document.getElementById('quickFillDeliveryFee');
-        if (streetInp) streetInp.value = curStreet;
-        if (numInp) numInp.value = curNumber;
-        if (neighInp) neighInp.value = curNeigh;
-        if (compInp) compInp.value = curComp;
-        if (paySel) paySel.value = curPay;
-        if (feeInp) feeInp.value = curFee;
+        if (streetInp) streetInp.value = '';
+        if (numInp) numInp.value = '';
+        if (neighInp) neighInp.value = '';
+        if (compInp) compInp.value = '';
+        if (paySel) paySel.value = 'PIX';
+        const defFee = Number(state.operational?.default_delivery_fee || 0);
+        if (feeInp) {
+          feeInp.value = defFee > 0 ? defFee.toFixed(2) : '';
+          feeInp.readOnly = state.operational?.allow_staff_edit_delivery_fee === false;
+        }
 
         openModal('modalStaffQuickFill');
         setTimeout(() => {
-          if (!curName && nameInp) nameInp.focus();
-          else if (!curStreet && streetInp) streetInp.focus();
-          else if (!curNumber && numInp) numInp.focus();
+          if (nameInp) nameInp.focus();
         }, 120);
       } else {
         // BALCÃO / RETIRADA
         if (titleEl) titleEl.textContent = '🛍️ Dados do Cliente • Balcão / Retirada';
         if (bannerEl) {
-          bannerEl.innerHTML = '⚠️ <strong>Nome do Cliente Pendente:</strong> Informe o <strong>Nome do Cliente</strong> para identificar o pedido de <strong>Balcão / Retirada</strong> na Cozinha e no Caixa.';
+          bannerEl.innerHTML = '⚠️ <strong>Nome do Cliente:</strong> Informe o <strong>Nome do Cliente</strong> para identificar o pedido de <strong>Balcão / Retirada</strong> na Cozinha e no Caixa.';
         }
         if (delivBox) delivBox.style.display = 'none';
 
@@ -4878,6 +5345,15 @@
         setTimeout(() => {
           if (nameInp) nameInp.focus();
         }, 120);
+      }
+    }
+
+    function closeStaffQuickFillModal() {
+      closeModal('modalStaffQuickFill');
+      if (!state.explicitLaunchContext) {
+        state.launcherMode = '';
+        state.destinationReadyToSubmit = false;
+        openOrderDestinationModal('CHOOSE_MODE');
       }
     }
 
@@ -4896,11 +5372,16 @@
         return;
       }
 
-      // Sincroniza com os campos do cabeçalho
-      const topName = document.getElementById('waiterCustomerName');
-      if (topName) topName.value = cName;
-      const topPhone = document.getElementById('waiterCustomerPhone');
-      if (topPhone) topPhone.value = cPhone;
+      const payloadData = {
+        name: cName,
+        phone: cPhone,
+        street: '',
+        number: '',
+        neighborhood: '',
+        complement: '',
+        payment: 'A_DEFINIR',
+        delivery_fee: 0
+      };
 
       if (mode === 'DELIVERY') {
         const street = (document.getElementById('quickFillDeliveryStreet')?.value || '').trim();
@@ -4925,32 +5406,33 @@
           return;
         }
 
-        const topStreet = document.getElementById('waiterDeliveryStreet');
-        if (topStreet) topStreet.value = street;
-        const topNumber = document.getElementById('waiterDeliveryNumber');
-        if (topNumber) topNumber.value = number;
-        const topNeigh = document.getElementById('waiterDeliveryNeighborhood');
-        if (topNeigh) topNeigh.value = neigh;
-        const topComp = document.getElementById('waiterDeliveryComplement');
-        if (topComp) topComp.value = comp;
-
-        const pay = document.getElementById('quickFillPaymentMethod')?.value || 'PIX';
-        const topPay = document.getElementById('waiterPaymentMethod');
-        if (topPay) topPay.value = pay;
-
-        const fee = document.getElementById('quickFillDeliveryFee')?.value || '';
-        const topFee = document.getElementById('waiterDeliveryFeeInput');
-        if (topFee && fee !== '') topFee.value = fee;
+        payloadData.street = street;
+        payloadData.number = number;
+        payloadData.neighborhood = neigh;
+        payloadData.complement = comp;
+        payloadData.payment = document.getElementById('quickFillPaymentMethod')?.value || 'PIX';
+        const rawFee = document.getElementById('quickFillDeliveryFee')?.value;
+        payloadData.delivery_fee = Math.max(0, Number(rawFee !== '' && rawFee !== undefined ? rawFee : (state.operational?.default_delivery_fee || 0)));
       }
 
       if (alertEl) alertEl.style.display = 'none';
+      state.pendingQuickFillData = payloadData;
+      state.destinationReadyToSubmit = true;
       closeModal('modalStaffQuickFill');
+      closeModal('modalChooseOrderDestination');
       submitActiveCartOrder();
     }
 
     async function submitActiveCartOrder() {
       if (isSubmittingStaffOrder) return;
       if (state.cart.length === 0) return;
+
+      // Interceptação de segurança: se não veio de atalho explícito de Mesa/Comanda e ainda não escolheu destino nesta finalização, abre o modal guiado!
+      const isKioskRole = document.body.classList.contains('mode-kiosk') && Number(state.user?.table_number || 0) > 0;
+      if (!isKioskRole && !state.explicitLaunchContext && !state.destinationReadyToSubmit) {
+        openOrderDestinationModal('CHOOSE_MODE');
+        return;
+      }
 
       const btn = document.getElementById('btnSubmitOrderNow');
       const generalNotes = (document.getElementById('cartGeneralNotesInput')?.value || '').trim();
@@ -4995,17 +5477,20 @@
         items: itemsPayload
       };
 
-      if (state.launcherMode === 'MESA') {
-        const tableNum = Number(document.getElementById('waiterTargetTableSelect')?.value || state.selectedTableId || 0);
+      const activeMode = isKioskRole ? 'MESA' : state.launcherMode;
+
+      if (activeMode === 'MESA') {
+        const tableNum = Number((isKioskRole ? state.user.table_number : state.selectedTableId) || 0);
         const vis = getVisibleTablesForStaff();
-        if (!vis.some(t => Number(t.number || t.id) === tableNum)) {
-          showSaAlert('🔒 Selecione uma mesa visível e ativa antes de enviar o pedido.');
+        if (!tableNum || !vis.some(t => Number(t.number || t.id) === tableNum)) {
+          openOrderDestinationModal('PICK_TABLE');
           return;
         }
         const openCmds = getOpenComandasForTable(tableNum);
         if (openCmds.length === 0) {
-          closeModal('modalCartReview');
-          openNewComandaModal(tableNum, true);
+          openOrderDestinationModal('PICK_TABLE_COMANDA');
+          destModalState.tableNum = tableNum;
+          renderOrderDestinationCurrentStep();
           return;
         }
         const activeCmd = openCmds.find(c => Number(c.id) === Number(state.selectedComandaId)) || openCmds[0];
@@ -5022,12 +5507,11 @@
         orderBody.customer_name = activeCmd.customer_name || `Mesa ${String(tableNum).padStart(2, '0')}`;
         orderBody.customer_phone = activeCmd.customer_phone || '';
         orderBody.payment_method = 'CONTA_MESA';
-      } else if (state.launcherMode === 'COMANDA') {
-        const cmdId = Number(document.getElementById('waiterTargetComandaSelect')?.value || 0);
+      } else if (activeMode === 'COMANDA') {
+        const cmdId = Number(state.selectedComandaId || 0);
         const cmdObj = state.comandas.find(c => Number(c.id) === cmdId && String(c.status || '').toUpperCase() !== 'PAGA');
         if (!cmdObj) {
-          closeModal('modalCartReview');
-          openNewComandaModal(state.selectedTableId, true);
+          openOrderDestinationModal('PICK_COMANDA');
           return;
         }
         if (isComandaClosedOrClosing(cmdObj)) {
@@ -5047,9 +5531,10 @@
         orderBody.customer_name = cmdObj.customer_name || `Comanda #${cmdObj.comanda_code}`;
         orderBody.customer_phone = cmdObj.customer_phone || '';
         orderBody.payment_method = 'CONTA_MESA';
-      } else if (state.launcherMode === 'RETIRADA') {
-        const cName = (document.getElementById('waiterCustomerName')?.value || '').trim();
-        const cPhone = (document.getElementById('waiterCustomerPhone')?.value || '').trim();
+      } else if (activeMode === 'RETIRADA') {
+        const qf = state.pendingQuickFillData;
+        const cName = (qf?.name || document.getElementById('quickFillCustomerName')?.value || '').trim();
+        const cPhone = (qf?.phone || document.getElementById('quickFillCustomerPhone')?.value || '').trim();
         if (!cName) {
           openStaffQuickFillModal('RETIRADA');
           return;
@@ -5060,15 +5545,16 @@
         orderBody.customer_phone = cPhone;
         orderBody.address_text = 'Retirada no Balcão';
         orderBody.payment_method = 'A_DEFINIR';
-      } else if (state.launcherMode === 'DELIVERY') {
-        const cName = (document.getElementById('waiterCustomerName')?.value || '').trim();
-        const cPhone = (document.getElementById('waiterCustomerPhone')?.value || '').trim();
-        const street = (document.getElementById('waiterDeliveryStreet')?.value || '').trim();
-        const number = (document.getElementById('waiterDeliveryNumber')?.value || '').trim();
-        const neigh = (document.getElementById('waiterDeliveryNeighborhood')?.value || '').trim();
-        const comp = (document.getElementById('waiterDeliveryComplement')?.value || '').trim();
-        const pay = document.getElementById('waiterPaymentMethod')?.value || 'PIX';
-        const delivFee = Math.max(0, Number(document.getElementById('waiterDeliveryFeeInput')?.value || state.operational.default_delivery_fee || 0));
+      } else if (activeMode === 'DELIVERY') {
+        const qf = state.pendingQuickFillData;
+        const cName = (qf?.name || document.getElementById('quickFillCustomerName')?.value || '').trim();
+        const cPhone = (qf?.phone || document.getElementById('quickFillCustomerPhone')?.value || '').trim();
+        const street = (qf?.street || document.getElementById('quickFillDeliveryStreet')?.value || '').trim();
+        const number = (qf?.number || document.getElementById('quickFillDeliveryNumber')?.value || '').trim();
+        const neigh = (qf?.neighborhood || document.getElementById('quickFillDeliveryNeighborhood')?.value || '').trim();
+        const comp = (qf?.complement || document.getElementById('quickFillDeliveryComplement')?.value || '').trim();
+        const pay = qf?.payment || document.getElementById('quickFillPaymentMethod')?.value || 'PIX';
+        const delivFee = Math.max(0, Number(qf ? qf.delivery_fee : (state.operational.default_delivery_fee || 0)));
 
         if (!cName || !street || !number) {
           openStaffQuickFillModal('DELIVERY');
@@ -5086,6 +5572,9 @@
         orderBody.payment_method = pay;
         orderBody.delivery_fee = delivFee;
         orderBody.total = Math.round((subTotal + delivFee) * 100) / 100;
+      } else {
+        openOrderDestinationModal('CHOOSE_MODE');
+        return;
       }
 
       isSubmittingStaffOrder = true;
@@ -5100,7 +5589,7 @@
           body: orderBody
         });
 
-        if (state.launcherMode === 'MESA' && orderBody.table_id && orderBody.customer_name && !orderBody.customer_name.startsWith('Mesa ')) {
+        if (activeMode === 'MESA' && orderBody.table_id && orderBody.customer_name && !orderBody.customer_name.startsWith('Mesa ')) {
           apiFetch('/api/tables/status', {
             method: 'POST',
             body: {
@@ -5111,7 +5600,11 @@
           }).catch(() => {});
         }
 
+        // Zera obrigatoriamente carrinho, cliente, mesa, comanda e destino após 200 OK
         clearStaffCustomerDataInputs(true);
+        resetWaiterLaunchTargetState();
+        closeModal('modalChooseOrderDestination');
+        closeModal('modalStaffQuickFill');
         closeModal('modalCartReview');
         updateFloatingCartBar();
         playNotificationBeep(1200, 180);
@@ -5398,6 +5891,7 @@
     function closeNewComandaModal() {
       stopComandaQrCamera();
       state.pendingProductIdAfterOpen = null;
+      state.pendingDestinationNewComanda = false;
       const modal = document.getElementById('modalNewComanda');
       if (modal) {
         modal.classList.remove('kb-open');
@@ -5538,7 +6032,11 @@
         state.selectedTableId = tblId;
         if (created && created.id) {
           state.selectedComandaId = created.id;
+          state.confirmedTableComandaId = created.id;
         }
+
+        const wasPendingDestSubmit = Boolean(state.pendingDestinationNewComanda);
+        state.pendingDestinationNewComanda = false;
 
         stopComandaQrCamera();
         closeNewComandaModal();
@@ -5548,12 +6046,20 @@
         const pendingProdId = state.pendingProductIdAfterOpen;
         state.pendingProductIdAfterOpen = null;
 
-        if (state.openComandaRedirectToWaiter || pendingProdId) {
-          setWaiterLauncherMode('MESA');
-          switchSuperAppTab('waiter');
-          const sel = document.getElementById('waiterTargetTableSelect');
-          if (sel) sel.value = String(tblId);
-          onWaiterTableSelectChange();
+        if (wasPendingDestSubmit && state.cart.length > 0 && created && created.id) {
+          state.launcherMode = 'MESA';
+          state.selectedTableId = tblId;
+          state.selectedComandaId = created.id;
+          state.confirmedTableComandaId = created.id;
+          state.destinationReadyToSubmit = true;
+          closeModal('modalChooseOrderDestination');
+          submitActiveCartOrder();
+        } else if (state.openComandaRedirectToWaiter || pendingProdId) {
+          state.explicitLaunchContext = true;
+          state.launcherMode = 'MESA';
+          switchSuperAppTab('waiter', { keepTarget: true });
+          renderWaiterExplicitTargetBanner();
+          updateFloatingCartBar();
           if (pendingProdId) {
             onTapCatalogProduct(pendingProdId);
           }
@@ -5670,10 +6176,11 @@
         }
       }
       closeModal('modalComandaDetail');
-      setWaiterLauncherMode('COMANDA');
-      switchSuperAppTab('waiter');
-      const sel = document.getElementById('waiterTargetComandaSelect');
-      if (sel) sel.value = String(state.selectedComandaId);
+      state.explicitLaunchContext = true;
+      state.launcherMode = 'COMANDA';
+      state.selectedComandaId = Number(cmd ? cmd.id : state.selectedComandaId);
+      switchSuperAppTab('waiter', { keepTarget: true });
+      renderWaiterExplicitTargetBanner();
       updateFloatingCartBar();
     }
 
@@ -5892,6 +6399,7 @@
 
       if (!state.user || state.user.role === 'MOTOBOY' || state.waiterAlerts.length === 0) {
         banner.classList.remove('active');
+        if (typeof syncWaiterCatStickyState === 'function') requestAnimationFrame(() => syncWaiterCatStickyState());
         return;
       }
 
@@ -5908,6 +6416,7 @@
       if (shouldBeep) {
         playNotificationBeep(880, 260);
       }
+      if (typeof syncWaiterCatStickyState === 'function') requestAnimationFrame(() => syncWaiterCatStickyState());
     }
 
     async function confirmTopWaiterAlert() {
@@ -6812,9 +7321,10 @@
           sessionStorage.setItem(SA_HOT_RELOAD_KEY, JSON.stringify({
             savedAt: Date.now(),
             activeTab: state.activeTab || 'tables',
-            selectedTableId: state.selectedTableId || 15,
+            selectedTableId: state.selectedTableId || 0,
             selectedComandaId: state.selectedComandaId || 0,
-            launcherMode: state.launcherMode || 'MESA',
+            launcherMode: state.launcherMode || '',
+            explicitLaunchContext: Boolean(state.explicitLaunchContext),
             selectedWaiterCategory: state.selectedWaiterCategory || 'ALL',
             cart: Array.isArray(state.cart) ? state.cart : []
           }));
@@ -6989,7 +7499,7 @@
       });
 
       // Máscara dinâmica espaçada (00 0 0000 0000, máx 11 dígitos) em todos os inputs de telefone
-      ['newComandaPhoneInput', 'waiterCustomerPhone'].forEach(id => {
+      ['newComandaPhoneInput', 'quickFillCustomerPhone'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
           el.addEventListener('input', () => applyPhoneMaskSpaced11(el));
@@ -7009,13 +7519,20 @@
 
       if (pendingHotSnap) {
         try {
-          if (pendingHotSnap.selectedTableId) state.selectedTableId = pendingHotSnap.selectedTableId;
-          if (pendingHotSnap.selectedComandaId) state.selectedComandaId = pendingHotSnap.selectedComandaId;
-          if (pendingHotSnap.launcherMode) state.launcherMode = pendingHotSnap.launcherMode;
+          state.explicitLaunchContext = Boolean(pendingHotSnap.explicitLaunchContext);
+          if (pendingHotSnap.explicitLaunchContext) {
+            if (pendingHotSnap.selectedTableId) state.selectedTableId = pendingHotSnap.selectedTableId;
+            if (pendingHotSnap.selectedComandaId) state.selectedComandaId = pendingHotSnap.selectedComandaId;
+            if (pendingHotSnap.launcherMode) state.launcherMode = pendingHotSnap.launcherMode;
+          } else {
+            state.selectedTableId = 0;
+            state.selectedComandaId = 0;
+            state.launcherMode = '';
+          }
           if (pendingHotSnap.selectedWaiterCategory) state.selectedWaiterCategory = pendingHotSnap.selectedWaiterCategory;
           if (Array.isArray(pendingHotSnap.cart)) state.cart = pendingHotSnap.cart;
           if (pendingHotSnap.activeTab && state.user) {
-            switchSuperAppTab(pendingHotSnap.activeTab);
+            switchSuperAppTab(pendingHotSnap.activeTab, { keepTarget: Boolean(pendingHotSnap.explicitLaunchContext) });
           }
           updateFloatingCartBar();
           showSaHotReloadBanner('✅ Nova versão carregada!', true);
