@@ -32,8 +32,8 @@
       "status": "OCUPADA",
       "waiter_call": false,
       "qr_token": "",
-      "current_total": 73.9,
-      "updated_at": "17:19"
+      "current_total": 131.9,
+      "updated_at": "17:23"
     },
     {
       "id": 2,
@@ -242,8 +242,8 @@
       "status": "CONTA",
       "waiter_call": true,
       "qr_token": "SIRBEEF-MESA-15",
-      "current_total": 13.8,
-      "updated_at": "17:19"
+      "current_total": 70.8,
+      "updated_at": "17:23"
     },
     {
       "id": 16,
@@ -471,5 +471,5 @@
       "updated_at": "17:19"
     }
   ],
-  "updated_at": "2026-11-16T17:19:46-03:00"
+  "updated_at": "2026-11-16T17:23:48-03:00"
 }
