@@ -3644,6 +3644,8 @@
     }
 
     async function requestCloseIndividualComandaStaff(comandaId) {
+      const cmdObj = (state.comandas || []).find(c => Number(c.id) === Number(comandaId));
+      const tblId = Number((cmdObj && (cmdObj.table_number || cmdObj.table_id)) || state.selectedTableId || 0);
       try {
         await apiFetch('/api/comandas', {
           method: 'POST',
@@ -3651,7 +3653,9 @@
             action: 'REQUEST_CLOSE',
             origin_type: 'GARCOM',
             operator_role: (state.user && state.user.role) ? state.user.role : 'GARCOM',
-            comanda_id: Number(comandaId)
+            table_id: tblId,
+            comanda_id: Number(comandaId),
+            comanda_code: cmdObj ? (cmdObj.comanda_code || '') : ''
           }
         });
         playNotificationBeep(880, 140);
@@ -6224,7 +6228,9 @@
               action: 'REQUEST_CLOSE',
               origin_type: 'GARCOM',
               operator_role: (state.user && state.user.role) ? state.user.role : 'GARCOM',
-              comanda_id: cmd.id
+              table_id: Number(cmd.table_number || cmd.table_id || 0),
+              comanda_id: cmd.id,
+              comanda_code: cmd.comanda_code || ''
             }
           });
           playNotificationBeep(880, 140);
