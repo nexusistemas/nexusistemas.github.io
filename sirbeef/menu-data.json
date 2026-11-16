@@ -244,7 +244,7 @@
         "waiter_call": true,
         "qr_token": "SIRBEEF-MESA-15",
         "current_total": 13.8,
-        "updated_at": "16:02"
+        "updated_at": "16:09"
       },
       {
         "id": 16,
@@ -472,7 +472,7 @@
         "updated_at": "15:59"
       }
     ],
-    "updated_at": "2026-11-16T16:02:19-03:00"
+    "updated_at": "2026-11-16T16:09:24-03:00"
   },
   "catalog": [
     {
@@ -30292,7 +30292,7 @@
       "waiter_call": true,
       "qr_token": "SIRBEEF-MESA-15",
       "current_total": 13.8,
-      "updated_at": "16:02"
+      "updated_at": "16:09"
     },
     {
       "id": 16,
