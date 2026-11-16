@@ -472,7 +472,7 @@
         "updated_at": "15:13"
       }
     ],
-    "updated_at": "2026-11-16T15:23:44-03:00"
+    "updated_at": "2026-11-16T15:26:56-03:00"
   },
   "catalog": [
     {
@@ -8307,7 +8307,7 @@
           "category_id": 145,
           "category_name": "Sobremesas e Doces",
           "sector": "HAMBURGUERIA",
-          "sector_abc": "MERCADO_BEBIDAS",
+          "sector_abc": "HAMBURGUERIA",
           "name": "Gelatos de 1kg",
           "description": "",
           "price": 40,
@@ -8322,11 +8322,11 @@
             {
               "name": "Sabores",
               "min": 1,
-              "max": 5,
+              "max": 1,
               "required": true,
               "options": [
                 {
-                  "name": "Morango",
+                  "name": "Morango 1L",
                   "description": "",
                   "price": 40,
                   "visible": true,
@@ -8334,7 +8334,7 @@
                   "available": true
                 },
                 {
-                  "name": "Chocolate Belga",
+                  "name": "Doce de leite 1L",
                   "description": "",
                   "price": 40,
                   "visible": true,
@@ -8342,7 +8342,7 @@
                   "available": true
                 },
                 {
-                  "name": "Doce de Leite",
+                  "name": "Açai 1L",
                   "description": "",
                   "price": 40,
                   "visible": true,
@@ -8350,12 +8350,21 @@
                   "available": true
                 },
                 {
-                  "name": "Açai",
+                  "name": "Fior Di Latte 1L",
                   "description": "",
                   "price": 40,
                   "visible": true,
                   "active": true,
                   "available": true
+                },
+                {
+                  "name": "Chocolate Belga 1L",
+                  "description": "",
+                  "price": 40,
+                  "visible": false,
+                  "active": false,
+                  "available": false,
+                  "disabled": true
                 }
               ]
             }
