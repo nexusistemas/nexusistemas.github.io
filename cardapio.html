@@ -2594,6 +2594,16 @@
       `;
     }
 
+    if (!bannerHtml && !productsHtml && Array.isArray(catalog) && catalog.length > 0) {
+      const fallbackCat = catalog.find(c => !isArea2CategoryOrProduct(c) && Array.isArray(c.items) && c.items.length > 0) || catalog[0];
+      if (fallbackCat) {
+        activeCatId = fallbackCat.id;
+        renderCategories();
+        renderProducts();
+        return;
+      }
+    }
+
     grid.innerHTML = `
       <div style="grid-column:1/-1;width:100%;">
         ${bannerHtml}
