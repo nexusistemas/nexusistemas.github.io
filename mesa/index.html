@@ -958,8 +958,7 @@
   let pinLng = -46.65588;
 
   const urlParams = new URLSearchParams(window.location.search);
-  const hasMesaParam = !!(urlParams.get('m') || urlParams.get('mesa') || urlParams.get('table'));
-  const isKioskModeParam = (urlParams.get('mode') || '').toLowerCase() === 'kiosk';
+  const hasMesaParam = !!(urlParams.get('m') || urlParams.get('mesa'));
   const isMesaSelfServicePage = window.location.pathname.toLowerCase().includes('/mesa') || hasMesaParam;
   const qrMesaNumParam = isMesaSelfServicePage ? (urlParams.get('m') || urlParams.get('mesa') || '15') : null;
   const qrMesaTokenParam = isMesaSelfServicePage ? (urlParams.get('token') || '') : '';
@@ -1027,13 +1026,10 @@
   const WEB_STORAGE_KIOSK_HL_KEY = 'nexus_web_kiosk_highlights_v1';
   let kioskHighlightsConfig = {
     enabled: true,
-    show_highlight_category: true,
-    show_in_delivery: false,
     slide_duration_seconds: 5,
     idle_timeout_seconds: 10,
     dimmer_brightness_percent: 15,
     items: [],
-    featured_product_ids: [],
     version: ''
   };
   let isKioskHighlightsActive = false;
@@ -1041,17 +1037,6 @@
   let kioskSlideInterval = null;
   let kioskCurrentSlideIdx = 0;
   let kioskInactivityListenersBound = false;
-
-  function isPresencialMenuScope() {
-    return isMesaSelfServicePage || isKioskModeParam || (typeof isMesaModalityActive === 'function' && isMesaModalityActive());
-  }
-
-  function shouldShowHighlightsCategory() {
-    if (isPresencialMenuScope()) {
-      return kioskHighlightsConfig.show_highlight_category !== false;
-    }
-    return kioskHighlightsConfig.show_in_delivery === true;
-  }
 
   async function loadKioskHighlightsConfig() {
     try {
@@ -1076,7 +1061,6 @@
     if (!data || typeof data !== 'object') return;
     kioskHighlightsConfig.enabled = data.enabled !== false;
     kioskHighlightsConfig.show_highlight_category = data.show_highlight_category !== false;
-    kioskHighlightsConfig.show_in_delivery = data.show_in_delivery === true;
     kioskHighlightsConfig.slide_duration_seconds = Number(data.slide_duration_seconds || data.slide_duration_sec) || 5;
     kioskHighlightsConfig.idle_timeout_seconds = Number(data.idle_timeout_seconds || data.idle_timeout_sec) || 10;
     kioskHighlightsConfig.dimmer_brightness_percent = Number(data.dimmer_brightness_percent || data.brightness_percent) || 15;
@@ -1087,14 +1071,8 @@
       localStorage.setItem(WEB_STORAGE_KIOSK_HL_KEY, JSON.stringify(kioskHighlightsConfig));
     } catch (_) {}
     resetKioskInactivityTimer();
-    if (catalog && catalog.length > 0) {
-      if (!shouldShowHighlightsCategory() && activeCatId === 'destaques') {
-        activeCatId = catalog[0].id;
-      } else if (shouldShowHighlightsCategory() && (!activeCatId || activeCatId === catalog[0].id) && isPresencialMenuScope() && !window._userSelectedCategoryManually) {
-        // mantém seleção atual ou destaques caso seja inicialização presencial
-      }
-      if (typeof renderCategories === 'function') renderCategories();
-      if (typeof renderProducts === 'function') renderProducts();
+    if (typeof renderCategories === 'function' && catalog && catalog.length > 0) {
+      renderCategories();
     }
   }
 
@@ -1387,7 +1365,7 @@
       document.body.scrollTop = 0;
       const catBar = document.getElementById('catBar');
       if (catBar) catBar.scrollLeft = 0;
-      if (shouldShowHighlightsCategory()) {
+      if (kioskHighlightsConfig.show_highlight_category !== false) {
         selectCategory('destaques');
       } else if (catalog && catalog.length > 0) {
         selectCategory(catalog[0].id);
@@ -2242,8 +2220,8 @@
       selectCustomerMode('DELIVERY');
     }
 
-    await loadKioskHighlightsConfig();
     await loadCatalog();
+    await loadKioskHighlightsConfig();
     initKioskInactivityMonitoring();
     setInterval(loadCatalog, 8000);
   }
@@ -2315,10 +2293,9 @@
       items: (c.items || []).filter(p => p.active !== false && !isBoutiqueOrMarketCategory(p) && (isMesaSelfServicePage || !p.hide_in_delivery) && (typeof p.stock_qty !== 'number' || p.stock_qty < 0 || p.stock_qty > 0))
     })).filter(c => c.items.length > 0);
 
-    const showDest = shouldShowHighlightsCategory();
-    const isDestaquesActive = activeCatId === 'destaques' && showDest;
-    if (!isDestaquesActive && catalog.length > 0 && (!activeCatId || activeCatId === 'destaques' || !catalog.some(c => c.id === activeCatId) || (!isArea2Active() && activeCatId === 900))) {
-      if (showDest) {
+    const isDestaquesActive = activeCatId === 'destaques' && kioskHighlightsConfig.show_highlight_category !== false;
+    if (!isDestaquesActive && catalog.length > 0 && (!activeCatId || !catalog.some(c => c.id === activeCatId) || (!isArea2Active() && activeCatId === 900))) {
+      if (kioskHighlightsConfig.show_highlight_category !== false) {
         activeCatId = 'destaques';
       } else {
         activeCatId = catalog[0].id;
@@ -2340,9 +2317,6 @@
             hostTablesList = mdata.tables;
             populateTableSelectors();
             if (isMesaSelfServicePage) syncSelectedTable(selectedTableNum);
-          }
-          if (mdata.kiosk_highlights) {
-            applyKioskHighlightsConfig(mdata.kiosk_highlights);
           }
           if (Array.isArray(mdata.catalog) && catalog.length === 0) {
             applyCatalogArrayToUI(mdata.catalog);
@@ -2382,9 +2356,6 @@
     }
     if (catalog.length === 0) {
       const mdata = await fetchStaticMenuDataFallback();
-      if (mdata && mdata.kiosk_highlights) {
-        applyKioskHighlightsConfig(mdata.kiosk_highlights);
-      }
       if (mdata && Array.isArray(mdata.catalog)) {
         applyCatalogArrayToUI(mdata.catalog);
       }
@@ -2426,8 +2397,9 @@
   function renderCategories() {
     const bar = document.getElementById('catBar');
     if (!bar) return;
-    const isKiosk = isPresencialMenuScope();
-    const destaquesBtn = shouldShowHighlightsCategory() ? `
+    const isKiosk = (typeof isMesaModalityActive === 'function' ? isMesaModalityActive() : false) || 
+                    new URLSearchParams(window.location.search || '').get('mode') === 'kiosk';
+    const destaquesBtn = (kioskHighlightsConfig.show_highlight_category !== false) ? `
       <button class="cat-pill ${activeCatId === 'destaques' ? 'active' : ''}" onclick="selectCategory('destaques')">
         ✨ Destaques
       </button>
@@ -2689,15 +2661,10 @@
     }
     const q = (document.getElementById('menuSearchInput').value || '').toLowerCase().trim();
 
-    // Se estiver na Categoria Fixa ✨ Destaques (permitida para o escopo atual)
+    // Se estiver na Categoria Fixa ✨ Destaques
     if (!q && activeCatId === 'destaques') {
-      if (shouldShowHighlightsCategory()) {
-        renderHighlightsCategoryView(grid);
-        return;
-      } else if (catalog.length > 0) {
-        activeCatId = catalog[0].id;
-        renderCategories();
-      }
+      renderHighlightsCategoryView(grid);
+      return;
     }
 
     if (panoramicSlideTimer) {
