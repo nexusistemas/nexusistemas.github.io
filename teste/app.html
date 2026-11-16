@@ -525,7 +525,7 @@
       color: var(--primary);
     }
 
-    /* CATEGORY CHIPS & PRODUCT LIST */
+    /* UNIFIED STICKY HEADER (BUSCA + CATEGORIAS) & PRODUCT LIST */
     .waiter-cat-sticky-bar {
       position: relative;
       z-index: 85;
@@ -542,11 +542,21 @@
       right: 0;
       max-width: 960px;
       margin: 0 auto;
-      padding: 8px 12px 6px 12px;
+      padding: 6px 12px 6px 12px;
       z-index: 86;
       background: var(--bg-main);
       border-bottom: 1px solid var(--border);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.78);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.85);
+    }
+
+    .waiter-cat-sticky-bar #waiterSearchBoxWrap {
+      margin-bottom: 6px;
+    }
+
+    .waiter-cat-sticky-bar #waiterProductSearch {
+      padding: 9px 12px;
+      font-size: 13.5px;
+      background: var(--bg-input);
     }
 
     .dest-mode-grid {
@@ -1274,15 +1284,13 @@
         <button type="button" class="sa-btn sa-btn-outline" style="padding:5px 10px;font-size:11px;flex-shrink:0;" onclick="clearExplicitWaiterTarget()">✕ Trocar / Livre</button>
       </div>
 
-      <!-- Busca no topo (rola normalmente com a página) -->
-      <div id="waiterSearchBoxWrap" style="margin-bottom:8px;">
-        <input type="search" id="waiterProductSearch" class="sa-input" placeholder="🔍 Buscar lanche, porção, bebida ou código..." oninput="renderWaiterCatalog()" />
-      </div>
-
-      <!-- Sentinela + Espaçador anti-pulo + Barra de Categorias Sticky Fluida -->
+      <!-- Sentinela + Espaçador anti-pulo + Cabeçalho Sticky Unificado (Busca + Categorias) -->
       <div id="waiterCatStickySentinel" style="height:1px;width:100%;pointer-events:none;"></div>
       <div id="waiterCatStickySpacer" style="display:none;height:0;"></div>
       <div id="waiterCatStickyBar" class="waiter-cat-sticky-bar">
+        <div id="waiterSearchBoxWrap">
+          <input type="search" id="waiterProductSearch" class="sa-input" placeholder="🔍 Buscar lanche, porção, bebida ou código..." oninput="renderWaiterCatalog()" />
+        </div>
         <div class="cat-strip" id="waiterCategoryStrip" style="margin-bottom:0;"></div>
       </div>
 
