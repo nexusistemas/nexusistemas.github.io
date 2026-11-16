@@ -45,11 +45,11 @@
         "is_kiosk": false,
         "is_custom": false,
         "active": true,
-        "status": "OCUPADA",
-        "waiter_call": false,
+        "status": "CONTA",
+        "waiter_call": true,
         "qr_token": "FOGOEBRASA-MESA-02",
-        "current_total": 534,
-        "updated_at": "15:41"
+        "current_total": 557,
+        "updated_at": "15:44"
       },
       {
         "id": 3,
@@ -472,7 +472,7 @@
         "updated_at": "15:37"
       }
     ],
-    "updated_at": "2026-11-16T15:41:14-03:00"
+    "updated_at": "2026-11-16T15:44:32-03:00"
   },
   "catalog": [
     {
@@ -2468,11 +2468,11 @@
       "is_kiosk": false,
       "is_custom": false,
       "active": true,
-      "status": "OCUPADA",
-      "waiter_call": false,
+      "status": "CONTA",
+      "waiter_call": true,
       "qr_token": "FOGOEBRASA-MESA-02",
-      "current_total": 534,
-      "updated_at": "15:41"
+      "current_total": 557,
+      "updated_at": "15:44"
     },
     {
       "id": 3,
