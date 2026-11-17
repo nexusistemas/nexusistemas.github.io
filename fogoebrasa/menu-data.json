@@ -30,11 +30,11 @@
         "is_kiosk": false,
         "is_custom": false,
         "active": true,
-        "status": "OCUPADA",
+        "status": "LIVRE",
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-01",
-        "current_total": 22,
-        "updated_at": "11:31"
+        "current_total": 0,
+        "updated_at": "12:16"
       },
       {
         "id": 2,
@@ -45,11 +45,11 @@
         "is_kiosk": false,
         "is_custom": false,
         "active": true,
-        "status": "CONTA",
-        "waiter_call": true,
+        "status": "LIVRE",
+        "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-02",
-        "current_total": 20,
-        "updated_at": "11:32"
+        "current_total": 0,
+        "updated_at": "12:16"
       },
       {
         "id": 3,
@@ -64,7 +64,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-03",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 4,
@@ -79,7 +79,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-04",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 5,
@@ -94,7 +94,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-05",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 6,
@@ -109,7 +109,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-06",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 7,
@@ -124,7 +124,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-07",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 8,
@@ -139,7 +139,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-08",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 9,
@@ -154,7 +154,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-09",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 10,
@@ -169,7 +169,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-10",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 11,
@@ -184,7 +184,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-11",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 12,
@@ -199,7 +199,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-12",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 13,
@@ -214,7 +214,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-13",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 14,
@@ -229,7 +229,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-14",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 15,
@@ -244,7 +244,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-15",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 16,
@@ -259,7 +259,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-16",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 17,
@@ -274,7 +274,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-17",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 18,
@@ -289,7 +289,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-18",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 19,
@@ -304,7 +304,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-19",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 20,
@@ -319,7 +319,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-20",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 21,
@@ -334,7 +334,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-21",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 22,
@@ -349,7 +349,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-22",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 23,
@@ -364,7 +364,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-23",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 24,
@@ -379,7 +379,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-24",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 25,
@@ -394,7 +394,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-25",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 26,
@@ -409,7 +409,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-26",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 27,
@@ -424,7 +424,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-27",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 28,
@@ -439,7 +439,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-28",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 29,
@@ -454,7 +454,7 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-29",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       },
       {
         "id": 30,
@@ -469,10 +469,10 @@
         "waiter_call": false,
         "qr_token": "FOGOEBRASA-MESA-30",
         "current_total": 0,
-        "updated_at": "00:56"
+        "updated_at": "12:15"
       }
     ],
-    "updated_at": "2026-11-17T11:32:40-03:00"
+    "updated_at": "2026-11-17T12:22:08-03:00"
   },
   "catalog": [
     {
@@ -2474,7 +2474,7 @@
     "waiter_hidden_categories": [
       900
     ],
-    "default_delivery_fee": 8,
+    "default_delivery_fee": 5,
     "allow_staff_edit_delivery_fee": true,
     "enable_service_fee": false,
     "service_fee_pct": 10,
@@ -2582,7 +2582,7 @@
     "bot_msg_ready": "🎉 *SEU PEDIDO #{pedido} ESTÁ PRONTO!*\n\nOlá, *{cliente}*! Seu pedido já foi conferido, embalado e está pronto!\n{detalhe_retirada_ou_entrega}",
     "bot_msg_dispatched": "🛵💨 *SAIU PARA ENTREGA! (PEDIDO #{pedido})*\n\n{entregador_info} e já está a caminho de:\n📍 _{endereco}_\n\n🗺️ *Acompanhe em tempo real no mapa:*\n👉 {link_rastreio}\n{alerta_pagamento}",
     "qr_session_enabled": true,
-    "qr_session_hours": 3,
+    "qr_session_hours": 6,
     "qr_session_close_on_cashier_pay": true
   },
   "tables": [
@@ -2595,11 +2595,11 @@
       "is_kiosk": false,
       "is_custom": false,
       "active": true,
-      "status": "OCUPADA",
+      "status": "LIVRE",
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-01",
-      "current_total": 22,
-      "updated_at": "11:31"
+      "current_total": 0,
+      "updated_at": "12:16"
     },
     {
       "id": 2,
@@ -2610,11 +2610,11 @@
       "is_kiosk": false,
       "is_custom": false,
       "active": true,
-      "status": "CONTA",
-      "waiter_call": true,
+      "status": "LIVRE",
+      "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-02",
-      "current_total": 20,
-      "updated_at": "11:32"
+      "current_total": 0,
+      "updated_at": "12:16"
     },
     {
       "id": 3,
@@ -2629,7 +2629,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-03",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 4,
@@ -2644,7 +2644,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-04",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 5,
@@ -2659,7 +2659,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-05",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 6,
@@ -2674,7 +2674,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-06",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 7,
@@ -2689,7 +2689,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-07",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 8,
@@ -2704,7 +2704,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-08",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 9,
@@ -2719,7 +2719,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-09",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 10,
@@ -2734,7 +2734,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-10",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 11,
@@ -2749,7 +2749,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-11",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 12,
@@ -2764,7 +2764,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-12",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 13,
@@ -2779,7 +2779,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-13",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 14,
@@ -2794,7 +2794,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-14",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 15,
@@ -2809,7 +2809,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-15",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 16,
@@ -2824,7 +2824,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-16",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 17,
@@ -2839,7 +2839,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-17",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 18,
@@ -2854,7 +2854,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-18",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 19,
@@ -2869,7 +2869,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-19",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 20,
@@ -2884,7 +2884,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-20",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 21,
@@ -2899,7 +2899,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-21",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 22,
@@ -2914,7 +2914,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-22",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 23,
@@ -2929,7 +2929,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-23",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 24,
@@ -2944,7 +2944,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-24",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 25,
@@ -2959,7 +2959,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-25",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 26,
@@ -2974,7 +2974,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-26",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 27,
@@ -2989,7 +2989,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-27",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 28,
@@ -3004,7 +3004,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-28",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 29,
@@ -3019,7 +3019,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-29",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     },
     {
       "id": 30,
@@ -3034,7 +3034,7 @@
       "waiter_call": false,
       "qr_token": "FOGOEBRASA-MESA-30",
       "current_total": 0,
-      "updated_at": "00:56"
+      "updated_at": "12:15"
     }
   ]
 }
