@@ -2,9 +2,9 @@
   "username": "nexus",
   "name": "NEXUSISTEMAS (DESENVOLVEDOR MASTER)",
   "pin_sha256": "73db762b58b01fe367e984ba9257f0d146c87d16c6246418b207b4f19c1bcad1",
-  "encrypted_auth": "o2awSJTcpqDUjWIPR8uPufPtV6ddATXyk30uPMeG/ON+DFJmo4FI++TNUzpd88H9buLn3QOq7NIR2eGZVTAkxdX1yPgJCLOHDllVp8XTdpvNPwKOOMDMJ3HQ5NSBkF7aALGyzBpY2L37cps0f6UT9/Ey5VM5UE6nOroozTh+6TraxtsBgXqvhn+e304=",
-  "updated_at": "2026-11-16T11:15:59-03:00",
-  "updated_at_unix": 1794838559,
-  "signature": "cef0109661f1df2d7791e9c4b90b446c0adad28b8f3b7205ffaefefc55a5bbd1",
-  "published_by_host": "DESKTOP-DNTB4RN"
+  "encrypted_auth": "AltDbDcHl6zZLSwY8UbGNBZq+4LSPlE0PnBoA1xp/dx1JpZx/g5Hdq5x+Upej/GqG3rUYRmh8qk6tgiF1vN7PSYhYzIWfnsWFHeDk38QlvIQiVCY4/LOWXhF7Phu5H145jh7Fm5v6pwnaMMqGeeTSN8UDJ4xF1JrT+ht9v0xruc7E42EjQecrCL0jVI=",
+  "updated_at": "2026-11-17T11:25:13-03:00",
+  "updated_at_unix": 1794925513,
+  "signature": "2e17833d30154a176f7733662db949cb7d698edcfede5959fcbcf8f81eef68fb",
+  "published_by_host": "GUI"
 }
