@@ -693,25 +693,6 @@
     </div>
   </div>
 
-  <!-- Aviso de Sessão Presencial da Mesa Encerrada / Expirada -->
-  <div id="qrSessionExpiredModal" class="modal-backdrop" style="display:none;z-index:10050;background:rgba(5,5,9,0.94);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:18px;">
-    <div style="width:100%;max-width:460px;background:linear-gradient(155deg,#18121a 0%,#0d0d14 100%);border:2px solid #f59e0b;border-radius:18px;padding:24px 20px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.85);">
-      <div style="font-size:44px;margin-bottom:8px;">⏱️</div>
-      <h3 id="qrSessionExpiredTitle" style="margin:0 0 8px;font-size:20px;font-weight:900;color:#fde68a;">
-        Atendimento Presencial Encerrado
-      </h3>
-      <p id="qrSessionExpiredDesc" style="margin:0 0 18px;font-size:13.5px;color:#e5e7eb;line-height:1.5;">
-        Sua sessão na mesa foi encerrada no caixa ou o tempo limite de leitura do QR Code expirou. Para fazer um novo pedido presencial, aponte a câmera novamente para o adesivo da mesa, ou acesse nosso Cardápio Online de Delivery e Retirada!
-      </p>
-      <a href="/cardapio" onclick="window.location.href='/cardapio';return false;" class="btn btn-gold" style="width:100%;justify-content:center;padding:13px 18px;font-size:15px;font-weight:900;text-decoration:none;border-radius:12px;margin-bottom:10px;display:inline-flex;">
-        🛵 Ir para o Cardápio Delivery / Retirada
-      </a>
-      <button type="button" class="btn" onclick="document.getElementById('qrSessionExpiredModal').style.display='none'" style="width:100%;justify-content:center;padding:9px 14px;font-size:12.5px;border-color:#374151;color:#9ca3af;">
-        Apenas visualizar cardápio (sem envio na mesa)
-      </button>
-    </div>
-  </div>
-
   <!-- Aviso de Modalidade Indisponível / Fechado no Momento -->
   <div id="closedModalityNoticeBox" style="display:none;background:linear-gradient(135deg,#2a0f14 0%,#160b0e 100%);border:2px solid var(--red);border-radius:16px;padding:24px 20px;margin-bottom:18px;text-align:center;box-shadow:0 10px 30px rgba(239,68,68,0.2);">
     <div style="font-size:34px;margin-bottom:8px;">🔒</div>
@@ -982,147 +963,7 @@
   const isMesaSelfServicePage = window.location.pathname.toLowerCase().includes('/mesa') || hasMesaParam;
   const qrMesaNumParam = isMesaSelfServicePage ? (urlParams.get('m') || urlParams.get('mesa') || '15') : null;
   const qrMesaTokenParam = isMesaSelfServicePage ? (urlParams.get('token') || '') : '';
-  const qrMesaSigParam = isMesaSelfServicePage ? (urlParams.get('k') || '') : '';
   let isMesaTokenValidated = true;
-  let isQrSessionExpiredState = false;
-
-  // Remove imediatamente a assinatura fixa &k= ou &token= da barra de endereços e do histórico
-  if (isMesaSelfServicePage && (qrMesaSigParam || qrMesaTokenParam) && typeof window.history?.replaceState === 'function') {
-    try {
-      const cleanPath = window.location.pathname || '/mesa';
-      const cleanUrl = `${cleanPath}?m=${encodeURIComponent(qrMesaNumParam || '1')}`;
-      window.history.replaceState({}, '', cleanUrl);
-    } catch (_) {}
-  }
-
-  function getCookieVal(name) {
-    try {
-      const parts = String(document.cookie || '').split(';');
-      const prefix = name + '=';
-      for (const p of parts) {
-        const t = p.trim();
-        if (t.startsWith(prefix)) {
-          return decodeURIComponent(t.slice(prefix.length));
-        }
-      }
-    } catch (_) {}
-    return '';
-  }
-
-  function setCookieVal(name, val, maxAgeSec = 86400) {
-    try {
-      document.cookie = `${name}=${encodeURIComponent(val)}; Path=/; Max-Age=${maxAgeSec}; SameSite=Lax`;
-    } catch (_) {}
-  }
-
-  function deleteCookieVal(name) {
-    try {
-      document.cookie = `${name}=; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
-    } catch (_) {}
-  }
-
-  function getOrCreateNexusDeviceId() {
-    let devId = '';
-    try { devId = localStorage.getItem('nexus_device_id') || getCookieVal('nexus_device_id') || ''; } catch (_) {}
-    if (!devId) {
-      devId = 'DEV-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
-    }
-    try { localStorage.setItem('nexus_device_id', devId); } catch (_) {}
-    setCookieVal('nexus_device_id', devId, 31536000);
-    return devId;
-  }
-
-  function syncAndGetMesaQRSessionToken() {
-    const fromCookie = getCookieVal('nexus_qr_session');
-    if (fromCookie) {
-      try {
-        localStorage.setItem('nexus_qr_session_token', fromCookie);
-        const tblC = getCookieVal('nexus_qr_session_table');
-        if (tblC) localStorage.setItem('nexus_qr_session_table', tblC);
-      } catch (_) {}
-      return fromCookie;
-    }
-    try {
-      const fromLS = localStorage.getItem('nexus_qr_session_token') || '';
-      if (fromLS) {
-        setCookieVal('nexus_qr_session', fromLS, 43200);
-      }
-      return fromLS;
-    } catch (_) {
-      return '';
-    }
-  }
-
-  function purgeMesaQRSessionState(tableNum) {
-    try {
-      localStorage.removeItem('nexus_qr_session_token');
-      localStorage.removeItem('nexus_qr_session_table');
-      localStorage.removeItem('sirbeef_my_order_ids');
-    } catch (_) {}
-    deleteCookieVal('nexus_qr_session');
-    deleteCookieVal('nexus_qr_session_table');
-    if (typeof clearMyMesaComandaBinding === 'function') {
-      clearMyMesaComandaBinding(tableNum || selectedTableNum);
-    }
-    isMyComandaClosedLock = false;
-    if (typeof renderComandaLockedBannerUI === 'function') {
-      renderComandaLockedBannerUI();
-    }
-  }
-
-  function showQrSessionExpiredModal(customMsg) {
-    isQrSessionExpiredState = true;
-    const modal = document.getElementById('qrSessionExpiredModal');
-    const desc = document.getElementById('qrSessionExpiredDesc');
-    if (desc && customMsg) {
-      desc.textContent = customMsg;
-    }
-    if (modal) {
-      modal.style.display = 'flex';
-    }
-  }
-
-  let isValidatingQrSessionNow = false;
-  async function validateMesaQRSessionNow(showModalOnFail = true) {
-    if (!isMesaSelfServicePage) return true;
-    if (isValidatingQrSessionNow) return !isQrSessionExpiredState;
-    isValidatingQrSessionNow = true;
-    try {
-      const tok = syncAndGetMesaQRSessionToken();
-      const tbl = parseInt(qrMesaNumParam || String(selectedTableNum || '1'), 10) || selectedTableNum || 1;
-      const res = await fetch(`/api/tables/qr-session/validate?m=${encodeURIComponent(tbl)}&qr_session_token=${encodeURIComponent(tok)}`, {
-        method: 'GET',
-        headers: tok ? { 'X-QR-Session-Token': tok } : {},
-        cache: 'no-store'
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data && data.valid) {
-        isQrSessionExpiredState = false;
-        isMesaTokenValidated = true;
-        if (data.token && data.token !== tok) {
-          try { localStorage.setItem('nexus_qr_session_token', data.token); } catch (_) {}
-          setCookieVal('nexus_qr_session', data.token, 43200);
-        }
-        return true;
-      }
-      if (res.status === 403 && data && (data.code === 'QR_SESSION_EXPIRED' || data.code === 'TABLE_KIOSK')) {
-        if (data.code === 'QR_SESSION_EXPIRED') {
-          purgeMesaQRSessionState(tbl);
-          cart = [];
-          if (typeof updateCartBar === 'function') updateCartBar();
-          if (showModalOnFail) {
-            showQrSessionExpiredModal(data.error);
-          }
-          return false;
-        }
-      }
-      return true;
-    } catch (_) {
-      return true;
-    } finally {
-      isValidatingQrSessionNow = false;
-    }
-  }
   let hostTablesList = [];
   window.systemBrandingConfig = {
     client_name: 'NexuSistemas',
@@ -2416,9 +2257,6 @@
         chkModeSel.disabled = true;
       }
       selectCustomerMode('MESA');
-      getOrCreateNexusDeviceId();
-      syncAndGetMesaQRSessionToken();
-      await validateMesaQRSessionNow(true);
     } else {
       // Link padrão do WhatsApp (/cardapio): bloqueia totalmente opção de Mesa
       menuModalities.MESA = false;
@@ -2485,21 +2323,12 @@
 
   function isBoutiqueOrMarketCategory(c) {
     if (!c) return false;
+    if (isArea2Active()) return false;
     const cid = Number(c.id || c.category_id || 0);
     const sec = String(c.sector || c.sector_abc || '').trim().toUpperCase();
     const nm = String(c.name || c.category_name || '').trim().toLowerCase();
     if (cid === 900 || sec === 'MERCADO' || sec.includes('MERCADO')) return true;
     if (nm.includes('boutique') || nm.includes('empório') || nm.includes('emporio') || nm.includes('mercado') || nm.includes('açougue') || nm.includes('acougue')) return true;
-    return false;
-  }
-
-  function isBoutiqueOrMarketItem(p) {
-    if (!p) return false;
-    const cid = Number(p.category_id || 0);
-    const sec = String(p.sector || p.sector_abc || '').trim().toUpperCase();
-    const catNm = String(p.category_name || '').trim().toLowerCase();
-    if (cid === 900 || sec === 'MERCADO' || sec.includes('MERCADO')) return true;
-    if (catNm.includes('boutique') || catNm.includes('empório') || catNm.includes('emporio') || catNm.includes('mercado') || catNm.includes('açougue') || catNm.includes('acougue')) return true;
     return false;
   }
 
@@ -2514,12 +2343,12 @@
     window._rawCatalogData = rawCatalog;
     catalog = sortedRaw.filter(c => c.is_active !== false && !isBoutiqueOrMarketCategory(c)).map(c => ({
       ...c,
-      items: (c.items || []).filter(p => p.active !== false && !isBoutiqueOrMarketItem(p) && (isMesaSelfServicePage || !p.hide_in_delivery) && (typeof p.stock_qty !== 'number' || p.stock_qty < 0 || p.stock_qty > 0))
+      items: (c.items || []).filter(p => p.active !== false && !isBoutiqueOrMarketCategory(p) && (isMesaSelfServicePage || !p.hide_in_delivery) && (typeof p.stock_qty !== 'number' || p.stock_qty < 0 || p.stock_qty > 0))
     })).filter(c => c.items.length > 0);
 
     const showDest = shouldShowHighlightsCategory();
     const isDestaquesActive = activeCatId === 'destaques' && showDest;
-    if (!isDestaquesActive && catalog.length > 0 && (!activeCatId || activeCatId === 'destaques' || !catalog.some(c => c.id === activeCatId) || activeCatId === 900)) {
+    if (!isDestaquesActive && catalog.length > 0 && (!activeCatId || activeCatId === 'destaques' || !catalog.some(c => c.id === activeCatId) || (!isArea2Active() && activeCatId === 900))) {
       if (showDest) {
         activeCatId = 'destaques';
       } else {
@@ -2636,12 +2465,27 @@
     ` : '';
 
     const area1Cats = catalog.filter(c => !isArea2CategoryOrProduct(c));
+    const area2Cats = catalog.filter(c => isArea2CategoryOrProduct(c));
 
     let html = destaquesBtn;
     if (area1Cats.length > 0) {
       html += area1Cats.map(c => `
         <button class="cat-pill ${c.id === activeCatId ? 'active' : ''}" onclick="selectCategory(${c.id})">
           ${getMenuCategoryIcon(c)} ${c.name} (${c.items.length})
+        </button>
+      `).join('');
+    }
+
+    // No modo Kiosk/Tablet Mesa, Área 2 é expurgada do cardápio
+    if (!isKiosk && area2Cats.length > 0 && isArea2Active()) {
+      html += `
+        <div style="display:inline-flex;align-items:center;padding:0 10px;margin:0 4px;border-left:1.5px solid rgba(217,119,6,0.5);border-right:1.5px solid rgba(217,119,6,0.5);background:rgba(217,119,6,0.14);border-radius:8px;font-size:11.5px;font-weight:900;color:#fde68a;white-space:nowrap;letter-spacing:0.5px;">
+          🥩 BOUTIQUE & MERCADO
+        </div>
+      `;
+      html += area2Cats.map(c => `
+        <button class="cat-pill ${c.id === activeCatId ? 'active' : ''}" onclick="selectCategory(${c.id})" style="border-color:#d97706;background:${c.id === activeCatId ? 'var(--gold-grad)' : 'rgba(217,119,6,0.18)'};color:${c.id === activeCatId ? '#000' : '#fde68a'};">
+          🥩 ${c.name} (${c.items.length})
         </button>
       `).join('');
     }
@@ -3746,23 +3590,15 @@
       // Privacidade estrita no /mesa: nunca baixa listagem geral de comandas de terceiros;
       // consulta apenas a comanda individual isolada deste aparelho (comanda_id / comanda_code).
       const shouldFetchComanda = isMesaScopeNow && (Number(myBinding.comanda_id) > 0 || Boolean(myBinding.comanda_code));
-      const qrSessTokNow = isMesaScopeNow ? syncAndGetMesaQRSessionToken() : '';
       const cmdQueryUrl = shouldFetchComanda
-        ? `/api/comandas?origin=MESA&self_service=1&only_active=1&table_id=${encodeURIComponent(realTblIdForFetch || selectedTableNum)}&comanda_id=${encodeURIComponent(myBinding.comanda_id || 0)}&comanda_code=${encodeURIComponent(myBinding.comanda_code || '')}&qr_session_token=${encodeURIComponent(qrSessTokNow || '')}`
+        ? `/api/comandas?origin=MESA&self_service=1&only_active=1&table_id=${encodeURIComponent(realTblIdForFetch || selectedTableNum)}&comanda_id=${encodeURIComponent(myBinding.comanda_id || 0)}&comanda_code=${encodeURIComponent(myBinding.comanda_code || '')}`
         : null;
 
       const [ordRes, cmdRes, tblRes] = await Promise.all([
         prefetchedOrders ? Promise.resolve(null) : fetch('/api/orders'),
-        prefetchedComandas ? Promise.resolve(null) : (cmdQueryUrl ? fetch(cmdQueryUrl, { headers: qrSessTokNow ? { 'X-QR-Session-Token': qrSessTokNow } : {} }) : Promise.resolve(null)),
+        prefetchedComandas ? Promise.resolve(null) : (cmdQueryUrl ? fetch(cmdQueryUrl) : Promise.resolve(null)),
         prefetchedTables ? Promise.resolve(null) : fetch('/api/tables')
       ]);
-      if (cmdRes && cmdRes.status === 403) {
-        const errCmd = await cmdRes.json().catch(() => ({}));
-        if (errCmd && errCmd.code === 'QR_SESSION_EXPIRED') {
-          purgeMesaQRSessionState(selectedTableNum);
-          return null;
-        }
-      }
       const allOrders = prefetchedOrders || (ordRes && ordRes.ok ? await ordRes.json() : null);
       const allComandas = prefetchedComandas || (cmdRes && cmdRes.ok ? await cmdRes.json() : (isMesaScopeNow ? [] : null));
       const allTables = prefetchedTables || (tblRes && tblRes.ok ? await tblRes.json() : null);
@@ -3832,10 +3668,8 @@
             setMyMesaComandaBinding(selectedTableNum, savedComandaId, savedComandaCode, myActiveOrd.customer_name, myActiveOrd.customer_phone);
             if (!prefetchedComandas) {
               try {
-                const isoRes = await fetch(`/api/comandas?origin=MESA&self_service=1&only_active=1&table_id=${encodeURIComponent(realTblIdForFetch || selectedTableNum)}&comanda_id=${encodeURIComponent(savedComandaId)}&comanda_code=${encodeURIComponent(savedComandaCode)}&qr_session_token=${encodeURIComponent(qrSessTokNow || '')}`, { headers: qrSessTokNow ? { 'X-QR-Session-Token': qrSessTokNow } : {} });
-                if (isoRes && isoRes.status === 403) {
-                  purgeMesaQRSessionState(selectedTableNum);
-                } else if (isoRes && isoRes.ok) {
+                const isoRes = await fetch(`/api/comandas?origin=MESA&self_service=1&only_active=1&table_id=${encodeURIComponent(realTblIdForFetch || selectedTableNum)}&comanda_id=${encodeURIComponent(savedComandaId)}&comanda_code=${encodeURIComponent(savedComandaCode)}`);
+                if (isoRes && isoRes.ok) {
                   const isoList = await isoRes.json();
                   if (Array.isArray(isoList)) {
                     allComandas.splice(0, allComandas.length, ...isoList);
@@ -3922,9 +3756,6 @@
 
       if (isMesa && !isMesaSelfServicePage) {
         alert('⚠️ Pedidos na mesa só podem ser feitos escaneando o QR Code exclusivo colado na sua mesa no salão.');
-        return;
-      }
-      if (isMesa && !(await validateMesaQRSessionNow(true))) {
         return;
       }
       if ((isMesa && menuModalities.MESA === false) || (isDelivery && menuModalities.DELIVERY === false) || (isRetirada && menuModalities.RETIRADA === false)) {
@@ -4028,29 +3859,18 @@
         delivery_fee: fee,
         coupon_code: (appliedWebCoupon && appliedWebCoupon.code) ? appliedWebCoupon.code : '',
         discount_amount: couponDisc,
-        qr_session_token: isMesa ? syncAndGetMesaQRSessionToken() : '',
-        device_id: getOrCreateNexusDeviceId(),
         items: sanitizedItems
       };
 
       try {
-        const sessTokHdr = isMesa ? syncAndGetMesaQRSessionToken() : '';
         const res = await fetch('/api/orders', {
           method: 'POST',
-          headers: Object.assign({ 'Content-Type': 'application/json' }, sessTokHdr ? { 'X-QR-Session-Token': sessTokHdr } : {}),
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
         const created = await res.json();
         if (!res.ok) {
           hideLoading();
-          if (res.status === 403 && created && created.code === 'QR_SESSION_EXPIRED') {
-            purgeMesaQRSessionState(tableNum);
-            cart = [];
-            updateCartBar();
-            closeCheckoutModal();
-            showQrSessionExpiredModal(created.error);
-            return;
-          }
           if (res.status === 403 && created && created.error && created.error.includes('CONTA BLOQUEADA')) {
             isMyComandaClosedLock = true;
             renderComandaLockedBannerUI();
@@ -4322,10 +4142,9 @@
         const realTblIdNow = isMesaScopeNow ? await resolveRealTableIdByNumber(selectedTableNum) : 0;
         const myBindingNow = isMesaScopeNow ? getMyMesaComandaBinding(selectedTableNum) : { comanda_id: 0, comanda_code: '' };
         const hasBoundCmd = isMesaScopeNow && (myBindingNow.comanda_id > 0 || Boolean(myBindingNow.comanda_code));
-        const mySessTokNow = isMesaScopeNow ? syncAndGetMesaQRSessionToken() : '';
         const [ordRes, cmdRes, tblRes] = await Promise.all([
           fetch('/api/orders'),
-          hasBoundCmd ? fetch(`/api/comandas?origin=MESA&self_service=1&only_active=1&table_id=${encodeURIComponent(realTblIdNow || selectedTableNum)}&comanda_id=${encodeURIComponent(myBindingNow.comanda_id || 0)}&comanda_code=${encodeURIComponent(myBindingNow.comanda_code || '')}&qr_session_token=${encodeURIComponent(mySessTokNow || '')}`, { headers: mySessTokNow ? { 'X-QR-Session-Token': mySessTokNow } : {} }) : Promise.resolve(null),
+          hasBoundCmd ? fetch(`/api/comandas?origin=MESA&self_service=1&only_active=1&table_id=${encodeURIComponent(realTblIdNow || selectedTableNum)}&comanda_id=${encodeURIComponent(myBindingNow.comanda_id || 0)}&comanda_code=${encodeURIComponent(myBindingNow.comanda_code || '')}`) : Promise.resolve(null),
           fetch('/api/tables')
         ]);
         const allOrders = ordRes.ok ? await ordRes.json() : [];
@@ -4613,27 +4432,6 @@
             } else {
               loadKioskHighlightsConfig();
             }
-          } else if (evType === 'qr_session_revoked' && msg.data && isMesaSelfServicePage) {
-            const myTok = syncAndGetMesaQRSessionToken();
-            const myBind = getMyMesaComandaBinding(selectedTableNum);
-            const revTokens = Array.isArray(msg.data.tokens) ? msg.data.tokens : [];
-            const revCmdId = Number(msg.data.comanda_id || 0);
-            const revTbl = Number(msg.data.table_number || 0);
-            const matchesTok = myTok && revTokens.includes(myTok);
-            const matchesCmd = revCmdId > 0 && Number(myBind.comanda_id || 0) === revCmdId;
-            const matchesTableClose = msg.data.reason === 'TABLE_CLOSED' && revTbl > 0 && revTbl === Number(selectedTableNum);
-            if (matchesTok || matchesCmd || matchesTableClose) {
-              purgeMesaQRSessionState(selectedTableNum);
-              cart = [];
-              if (typeof updateCartBar === 'function') updateCartBar();
-              const myOrdersEl = document.getElementById('myOrdersModal');
-              if (myOrdersEl) myOrdersEl.style.display = 'none';
-              showQrSessionExpiredModal(
-                msg.data.reason === 'TTL_EXPIRED'
-                  ? '⏱️ O tempo limite do QR Code da mesa expirou. Aponte a câmera novamente na mesa ou peça pelo Delivery!'
-                  : '💸 Sua comanda recebeu baixa no caixa e o atendimento presencial desta mesa foi encerrado!'
-              );
-            }
           } else if (evType === 'system_reset') {
             localStorage.removeItem('sirbeef_my_order_ids');
             isMyComandaClosedLock = false;
@@ -4664,15 +4462,6 @@
       window._restoreMenuHotReloadStateIfPending();
     }
   });
-
-  // Revalida sessão QR da mesa sempre que o cliente volta para a aba, reabre o navegador ou retorna do histórico (BFCache)
-  if (isMesaSelfServicePage) {
-    window.addEventListener('pageshow', () => { validateMesaQRSessionNow(true); });
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') validateMesaQRSessionNow(true);
-    });
-    window.addEventListener('focus', () => { validateMesaQRSessionNow(true); });
-  }
 
   loadWebBrandingConfig().then(() => {
     init().then(() => {
