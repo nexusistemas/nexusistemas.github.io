@@ -30,11 +30,11 @@
         "is_kiosk": false,
         "is_custom": false,
         "active": true,
-        "status": "CONTA",
-        "waiter_call": true,
+        "status": "LIVRE",
+        "waiter_call": false,
         "qr_token": "CLIENTETESTE-MESA-01",
-        "current_total": 47,
-        "updated_at": "22:31"
+        "current_total": 0,
+        "updated_at": "22:32"
       },
       {
         "id": 2,
@@ -472,7 +472,7 @@
         "updated_at": "22:26"
       }
     ],
-    "updated_at": "2026-11-16T22:31:55-03:00"
+    "updated_at": "2026-11-16T22:33:54-03:00"
   },
   "catalog": [
     {
@@ -29229,11 +29229,11 @@
       "is_kiosk": false,
       "is_custom": false,
       "active": true,
-      "status": "CONTA",
-      "waiter_call": true,
+      "status": "LIVRE",
+      "waiter_call": false,
       "qr_token": "CLIENTETESTE-MESA-01",
-      "current_total": 47,
-      "updated_at": "22:31"
+      "current_total": 0,
+      "updated_at": "22:32"
     },
     {
       "id": 2,
