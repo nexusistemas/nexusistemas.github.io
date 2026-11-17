@@ -4,11 +4,11 @@
   "apk_file_size_mb": "6.06 MB",
   "apk_timestamp": 1794886071,
   "apk_version": "10.3.9",
-  "apk_version_code": 137,
+  "apk_version_code": 138,
   "apk_version_name": "10.3.9",
-  "base_version_code": 137,
-  "build": 137,
-  "build_code": 137,
+  "base_version_code": 138,
+  "build": 138,
+  "build_code": 138,
   "built_at": "17/11/2026 00:27:51",
   "cloud_download_url": "https://teste.nexusistemas.app.br/NexuSistemas-SuperApp.apk?t=1794886071",
   "cloud_pages_url": "https://raw.githubusercontent.com/nexusistemas/nexusistemas-releases/main/apk/NexuSistemas-SuperApp.apk?t=1794886071",
@@ -28,6 +28,6 @@
   "server_build": 137,
   "server_version": "10.3.9",
   "version": "10.3.9",
-  "version_code": 137,
+  "version_code": 138,
   "version_name": "10.3.9"
 }
