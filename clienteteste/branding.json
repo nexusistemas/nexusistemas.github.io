@@ -33,7 +33,7 @@
       "waiter_call": false,
       "qr_token": "CLIENTETESTE-MESA-01",
       "current_total": 0,
-      "updated_at": "23:12"
+      "updated_at": "23:13"
     },
     {
       "id": 2,
@@ -471,5 +471,5 @@
       "updated_at": "23:12"
     }
   ],
-  "updated_at": "2026-11-16T23:12:44-03:00"
+  "updated_at": "2026-11-16T23:14:33-03:00"
 }
