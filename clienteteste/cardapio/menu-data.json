@@ -30,11 +30,11 @@
         "is_kiosk": false,
         "is_custom": false,
         "active": true,
-        "status": "LIVRE",
-        "waiter_call": false,
+        "status": "CONTA",
+        "waiter_call": true,
         "qr_token": "CLIENTETESTE-MESA-01",
-        "current_total": 0,
-        "updated_at": "22:26"
+        "current_total": 47,
+        "updated_at": "22:31"
       },
       {
         "id": 2,
@@ -472,7 +472,7 @@
         "updated_at": "22:26"
       }
     ],
-    "updated_at": "2026-11-16T22:26:58-03:00"
+    "updated_at": "2026-11-16T22:31:55-03:00"
   },
   "catalog": [
     {
@@ -29108,7 +29108,7 @@
     "waiter_hidden_categories": [
       900
     ],
-    "default_delivery_fee": 3,
+    "default_delivery_fee": 4,
     "allow_staff_edit_delivery_fee": true,
     "enable_service_fee": true,
     "service_fee_pct": 10,
@@ -29216,7 +29216,7 @@
     "bot_msg_ready": "🎉 *SEU PEDIDO #{pedido} ESTÁ PRONTO!*\n\nOlá, *{cliente}*! Seu pedido já foi conferido, embalado e está pronto!\n{detalhe_retirada_ou_entrega}",
     "bot_msg_dispatched": "🛵💨 *SAIU PARA ENTREGA! (PEDIDO #{pedido})*\n\n{entregador_info} e já está a caminho de:\n📍 _{endereco}_\n\n🗺️ *Acompanhe em tempo real no mapa:*\n👉 {link_rastreio}\n{alerta_pagamento}",
     "qr_session_enabled": true,
-    "qr_session_hours": 3,
+    "qr_session_hours": 1,
     "qr_session_close_on_cashier_pay": true
   },
   "tables": [
@@ -29229,11 +29229,11 @@
       "is_kiosk": false,
       "is_custom": false,
       "active": true,
-      "status": "LIVRE",
-      "waiter_call": false,
+      "status": "CONTA",
+      "waiter_call": true,
       "qr_token": "CLIENTETESTE-MESA-01",
-      "current_total": 0,
-      "updated_at": "22:26"
+      "current_total": 47,
+      "updated_at": "22:31"
     },
     {
       "id": 2,
