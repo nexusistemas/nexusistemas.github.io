@@ -2026,6 +2026,47 @@
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3, 7)} ${digits.slice(7, 11)}`;
   }
 
+  // Formata telefone separado por espaços ("00 0 0000 0000") na recuperação de comanda para facilitar digitação no celular,
+  // preservando códigos alfanuméricos de Cartão QR (ex: "CMD-001").
+  function formatComandaRecoveryInput(el) {
+    if (!el) return;
+    const raw = String(el.value || '');
+    if (/[a-zA-Z]/.test(raw)) return;
+    const prevSel = typeof el.selectionStart === 'number' ? el.selectionStart : raw.length;
+    const digitsBeforeCursor = raw.slice(0, prevSel).replace(/\D/g, '').length;
+    let digits = raw.replace(/\D/g, '');
+    if (digits.length > 11 && digits.startsWith('55')) {
+      digits = digits.slice(2);
+    }
+    digits = digits.slice(0, 11);
+    let formatted = '';
+    if (digits.length <= 2) {
+      formatted = digits;
+    } else if (digits.length === 3) {
+      formatted = `${digits.slice(0, 2)} ${digits.slice(2)}`;
+    } else if (digits.length <= 7) {
+      formatted = `${digits.slice(0, 2)} ${digits.slice(2, 3)} ${digits.slice(3)}`;
+    } else {
+      formatted = `${digits.slice(0, 2)} ${digits.slice(2, 3)} ${digits.slice(3, 7)} ${digits.slice(7, 11)}`;
+    }
+    if (el.value !== formatted) {
+      el.value = formatted;
+      if (typeof el.setSelectionRange === 'function') {
+        let targetPos = formatted.length;
+        let seen = 0;
+        for (let i = 0; i < formatted.length; i++) {
+          if (/\d/.test(formatted[i])) seen++;
+          if (seen >= digitsBeforeCursor) {
+            targetPos = i + 1;
+            break;
+          }
+        }
+        if (digitsBeforeCursor === 0) targetPos = 0;
+        try { el.setSelectionRange(targetPos, targetPos); } catch (_) {}
+      }
+    }
+  }
+
   document.addEventListener('input', function(e) {
     const el = e.target;
     if (el && el.tagName === 'INPUT' && (el.type === 'tel' || String(el.id || '').toLowerCase().includes('phone'))) {
@@ -4248,7 +4289,17 @@
       </div>`;
     }
 
+    const prevRecoverInp = document.getElementById('recoverMyComandaInput');
+    const prevRecoverVal = prevRecoverInp ? String(prevRecoverInp.value || '') : '';
+    const wasRecoverFocused = Boolean(prevRecoverInp && document.activeElement === prevRecoverInp);
+    const prevSelStart = (prevRecoverInp && typeof prevRecoverInp.selectionStart === 'number') ? prevRecoverInp.selectionStart : prevRecoverVal.length;
+    const prevSelEnd = (prevRecoverInp && typeof prevRecoverInp.selectionEnd === 'number') ? prevRecoverInp.selectionEnd : prevRecoverVal.length;
+
     if (!html) {
+      // Evita apagar o número digitado ou fechar o teclado durante o polling/WebSocket em segundo plano.
+      if (isMesaScope && prevRecoverInp && (wasRecoverFocused || prevRecoverVal.trim().length > 0)) {
+        return;
+      }
       html = `<div style="text-align:center;padding:20px;color:var(--muted);">
         Você ainda não possui ${isMesaScope ? 'pedidos ou comanda ativa vinculada a este aparelho nesta mesa' : 'pedidos ativos de entrega/retirada neste dispositivo'}.<br/>
         Escolha seus itens no cardápio e clique em <strong>Finalizar Pedido</strong>!
@@ -4260,7 +4311,7 @@
               🔑 Limpou o navegador ou trocou de aparelho? Recupere apenas a SUA comanda:
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <input type="text" id="recoverMyComandaInput" placeholder="Seu Celular (DDD + número) ou Cartão QR" style="flex:1;min-width:190px;padding:8px 10px;border-radius:8px;background:#141722;color:#fff;border:1px solid #334155;font-size:12.5px;" />
+              <input type="text" id="recoverMyComandaInput" autocomplete="tel" placeholder="Celular: 00 0 0000 0000 ou Cartão QR" oninput="formatComandaRecoveryInput(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();recoverMyIsolatedComandaOnMesa();}" style="flex:1;min-width:190px;padding:8px 10px;border-radius:8px;background:#141722;color:#fff;border:1px solid #334155;font-size:12.5px;" />
               <button type="button" class="btn btn-gold" style="padding:8px 14px;font-size:12px;" onclick="recoverMyIsolatedComandaOnMesa()">🔍 Recuperar Minha Comanda</button>
             </div>
           </div>
@@ -4269,6 +4320,16 @@
     }
 
     box.innerHTML = html;
+    const nextRecoverInp = document.getElementById('recoverMyComandaInput');
+    if (nextRecoverInp && (prevRecoverVal || wasRecoverFocused)) {
+      if (prevRecoverVal) nextRecoverInp.value = prevRecoverVal;
+      if (wasRecoverFocused) {
+        try {
+          nextRecoverInp.focus();
+          nextRecoverInp.setSelectionRange(prevSelStart, prevSelEnd);
+        } catch (_) {}
+      }
+    }
   }
 
   async function recoverMyIsolatedComandaOnMesa() {
