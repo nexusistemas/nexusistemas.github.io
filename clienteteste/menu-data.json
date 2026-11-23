@@ -472,7 +472,7 @@
         "updated_at": "15:34"
       }
     ],
-    "updated_at": "2026-11-22T15:37:05-03:00"
+    "updated_at": "2026-11-23T00:18:14-03:00"
   },
   "catalog": [
     {
@@ -29178,7 +29178,7 @@
     },
     "is_open_now": true,
     "closed_reason_message": "",
-    "today_hours_label": "Domingo: 18:00 às 23:30",
+    "today_hours_label": "Segunda-feira: Fechado",
     "ai_order_bot_enabled": false,
     "ai_enabled": false,
     "ai_provider": "GEMINI_2_5_FLASH",
