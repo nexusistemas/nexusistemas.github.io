@@ -15285,6 +15285,146 @@
           4
         ],
         "active": true
+      },
+      {
+        "id": 868,
+        "external_id": 0,
+        "category_id": 181,
+        "category_name": "Churrasco",
+        "sector": "HAMBURGUERIA",
+        "sector_abc": "HAMBURGUERIA",
+        "name": "Linguiça suína fina Camari",
+        "description": "",
+        "price": 12,
+        "cost_price": 5,
+        "ean13": "",
+        "is_weighted": false,
+        "ncm": "21069090",
+        "cest": "1709900",
+        "cfop": "5102",
+        "image_url": "data:image/jpeg;base64,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",
+        "modifier_groups": [
+          {
+            "name": "Opções / Tamanho",
+            "min": 1,
+            "max": 1,
+            "required": true,
+            "options": [
+              {
+                "name": "180g linguça sem pimenta",
+                "description": "",
+                "price": 12,
+                "visible": true,
+                "active": true,
+                "available": true
+              },
+              {
+                "name": "180g linguça com pimenta",
+                "description": "",
+                "price": 12,
+                "visible": true,
+                "active": true,
+                "available": true
+              }
+            ]
+          },
+          {
+            "id": 6,
+            "name": "Churrasco",
+            "min": 1,
+            "max": 1,
+            "required": true,
+            "options": [
+              {
+                "name": "Porção de Arroz",
+                "description": "",
+                "price": 5,
+                "visible": true,
+                "active": true,
+                "available": true
+              }
+            ]
+          }
+        ],
+        "stock_qty": -1,
+        "min_stock": 5,
+        "track_stock": true,
+        "hide_in_delivery": false,
+        "visible_days": [
+          3,
+          4
+        ],
+        "active": true
+      },
+      {
+        "id": 869,
+        "external_id": 0,
+        "category_id": 181,
+        "category_name": "Churrasco",
+        "sector": "HAMBURGUERIA",
+        "sector_abc": "HAMBURGUERIA",
+        "name": "Pão de Alho",
+        "description": "",
+        "price": 6,
+        "cost_price": 16.5,
+        "ean13": "",
+        "is_weighted": false,
+        "ncm": "21069090",
+        "cest": "1709900",
+        "cfop": "5102",
+        "image_url": "/api/products/image?id=869",
+        "modifier_groups": [
+          {
+            "name": "Opções / Tamanho",
+            "min": 1,
+            "max": 1,
+            "required": true,
+            "options": [
+              {
+                "name": "1 Pão de Alho",
+                "description": "",
+                "price": 6,
+                "visible": true,
+                "active": true,
+                "available": true
+              },
+              {
+                "name": "Pct  Pão de Alho",
+                "description": "",
+                "price": 25,
+                "visible": true,
+                "active": true,
+                "available": true
+              }
+            ]
+          },
+          {
+            "id": 6,
+            "name": "Churrasco",
+            "min": 1,
+            "max": 1,
+            "required": true,
+            "options": [
+              {
+                "name": "Porção de Arroz",
+                "description": "",
+                "price": 5,
+                "visible": true,
+                "active": true,
+                "available": true
+              }
+            ]
+          }
+        ],
+        "stock_qty": -1,
+        "min_stock": 5,
+        "track_stock": true,
+        "hide_in_delivery": false,
+        "visible_days": [
+          3,
+          4
+        ],
+        "active": true
       }
     ]
   },
