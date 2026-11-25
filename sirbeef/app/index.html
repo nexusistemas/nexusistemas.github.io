@@ -2969,9 +2969,23 @@
       } catch (_) {}
     }
 
+    function clearStaleAppVersionCacheStorage() {
+      try {
+        ['apk_version', 'apk_version_code', 'nexus_apk_version_cache', 'sirbeef_apk_version_cache'].forEach((k) => {
+          localStorage.removeItem(k);
+        });
+      } catch (_) {}
+      if ('caches' in window) {
+        caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))).catch(() => {});
+      }
+    }
+
     function setupPwaServiceWorker() {
+      clearStaleAppVersionCacheStorage();
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/superapp-sw.js').catch(() => {});
+        navigator.serviceWorker.register('/superapp-sw.js', { updateViaCache: 'none' }).then((reg) => {
+          if (reg && typeof reg.update === 'function') reg.update().catch(() => {});
+        }).catch(() => {});
       }
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
@@ -7398,7 +7412,13 @@
             }
             const evName = String((msg && (msg.type || msg.event)) || '').toLowerCase();
             if (evName === 'server_restarting_ota') {
+              clearStaleAppVersionCacheStorage();
               onSuperAppServerRestartingOTA();
+              return;
+            }
+            if (evName === 'apk_update_available') {
+              clearStaleAppVersionCacheStorage();
+              if (typeof loadBrandingAndHealth === 'function') loadBrandingAndHealth();
               return;
             }
             if (evName === 'branding_init' || evName === 'branding_updated') {
