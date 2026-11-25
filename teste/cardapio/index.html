@@ -2544,6 +2544,12 @@
     return false;
   }
 
+  function isProductVisibleTodayWeb(p) {
+    if (!p || !Array.isArray(p.visible_days) || p.visible_days.length === 0 || p.visible_days.length >= 7) return true;
+    const today = new Date().getDay(); // 0=Dom..6=Sáb
+    return p.visible_days.map(Number).includes(today);
+  }
+
   function applyCatalogArrayToUI(rawCatalog) {
     if (!Array.isArray(rawCatalog) || rawCatalog.length === 0) return;
     const sortedRaw = [...rawCatalog].sort((a, b) => {
@@ -2555,7 +2561,7 @@
     window._rawCatalogData = rawCatalog;
     catalog = sortedRaw.filter(c => c.is_active !== false && !isBoutiqueOrMarketCategory(c)).map(c => ({
       ...c,
-      items: (c.items || []).filter(p => p.active !== false && !isBoutiqueOrMarketItem(p) && (isMesaSelfServicePage || !p.hide_in_delivery) && (typeof p.stock_qty !== 'number' || p.stock_qty < 0 || p.stock_qty > 0))
+      items: (c.items || []).filter(p => p.active !== false && isProductVisibleTodayWeb(p) && !isBoutiqueOrMarketItem(p) && (isMesaSelfServicePage || !p.hide_in_delivery) && (typeof p.stock_qty !== 'number' || p.stock_qty < 0 || p.stock_qty > 0))
     })).filter(c => c.items.length > 0);
 
     const showDest = shouldShowHighlightsCategory();
