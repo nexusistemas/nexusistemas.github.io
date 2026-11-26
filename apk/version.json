@@ -71,11 +71,11 @@
     "prod_version": "10.5.9",
     "prod_version_code": 164,
     "promoted": true,
-    "promoted_at": "26/11/2026 10:53:54",
+    "promoted_at": "",
     "release_notes": "v10.5.9 (Build Homologacao #164): SuperApp NexuSistemas (Teste / Staging).",
     "sha256": "d0efc0c1a8ca75fc5e1a8243151c7639084e671d9c209029443ff586c1381bf2",
     "staging_cloud_error": "",
-    "staging_cloud_uploaded": false,
+    "staging_cloud_uploaded": true,
     "version": "10.5.9",
     "version_code": 164,
     "version_name": "10.5.9"
