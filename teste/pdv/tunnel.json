@@ -3,15 +3,15 @@
   "subdomain_tunnel_url": "https://teste.nexusistemas.app.br",
   "custom_domain": "https://teste.nexusistemas.app.br",
   "store_slug": "teste",
-  "lan_url": "http://10.0.0.104:8080",
-  "lan_no_port_url": "http://10.0.0.104",
-  "lan_ip": "10.0.0.104",
+  "lan_url": "http://192.168.0.197:8080",
+  "lan_no_port_url": "http://192.168.0.197",
+  "lan_ip": "192.168.0.197",
   "lan_ips": [
-    "10.0.0.104",
+    "192.168.0.197",
     "192.168.18.53"
   ],
   "lan_urls": [
-    "http://10.0.0.104:8080",
+    "http://192.168.0.197:8080",
     "http://192.168.18.53:8080"
   ],
   "hostname_url": "http://gui:8080",
@@ -24,5 +24,5 @@
   "apk_direct_url": "https://raw.githubusercontent.com/nexusistemas/nexusistemas.github.io/main/NexuSistemas-SuperApp.apk",
   "apk_version_code": 153,
   "apk_version_name": "10.5.5",
-  "updated_at": "2026-11-26T08:35:49-03:00"
+  "updated_at": "2026-11-26T09:01:07-03:00"
 }
