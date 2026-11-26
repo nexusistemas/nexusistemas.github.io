@@ -615,6 +615,21 @@
       box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
       pointer-events: auto;
     }
+
+    /* Foco Visual de Alto Contraste para Navegação por Teclado (Oculto com Mouse) */
+    body:not(.kb-nav-active) *:focus:not(input):not(textarea):not(select) {
+      outline: none;
+    }
+    body.kb-nav-active .kb-focus-ring,
+    body.kb-nav-active :is(button, a, select, input, textarea, [tabindex="0"], .prod-card):focus-visible,
+    .kb-focus-ring {
+      outline: 2.5px solid var(--gold, #d4af37) !important;
+      outline-offset: 2px !important;
+      box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.30), 0 6px 16px rgba(0, 0, 0, 0.45) !important;
+      position: relative;
+      z-index: 5;
+      scroll-margin: 18px;
+    }
   </style>
 </head>
 <body>
@@ -2026,6 +2041,47 @@
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3, 7)} ${digits.slice(7, 11)}`;
   }
 
+  // Formata telefone separado por espaços ("00 0 0000 0000") na recuperação de comanda para facilitar digitação no celular,
+  // preservando códigos alfanuméricos de Cartão QR (ex: "CMD-001").
+  function formatComandaRecoveryInput(el) {
+    if (!el) return;
+    const raw = String(el.value || '');
+    if (/[a-zA-Z]/.test(raw)) return;
+    const prevSel = typeof el.selectionStart === 'number' ? el.selectionStart : raw.length;
+    const digitsBeforeCursor = raw.slice(0, prevSel).replace(/\D/g, '').length;
+    let digits = raw.replace(/\D/g, '');
+    if (digits.length > 11 && digits.startsWith('55')) {
+      digits = digits.slice(2);
+    }
+    digits = digits.slice(0, 11);
+    let formatted = '';
+    if (digits.length <= 2) {
+      formatted = digits;
+    } else if (digits.length === 3) {
+      formatted = `${digits.slice(0, 2)} ${digits.slice(2)}`;
+    } else if (digits.length <= 7) {
+      formatted = `${digits.slice(0, 2)} ${digits.slice(2, 3)} ${digits.slice(3)}`;
+    } else {
+      formatted = `${digits.slice(0, 2)} ${digits.slice(2, 3)} ${digits.slice(3, 7)} ${digits.slice(7, 11)}`;
+    }
+    if (el.value !== formatted) {
+      el.value = formatted;
+      if (typeof el.setSelectionRange === 'function') {
+        let targetPos = formatted.length;
+        let seen = 0;
+        for (let i = 0; i < formatted.length; i++) {
+          if (/\d/.test(formatted[i])) seen++;
+          if (seen >= digitsBeforeCursor) {
+            targetPos = i + 1;
+            break;
+          }
+        }
+        if (digitsBeforeCursor === 0) targetPos = 0;
+        try { el.setSelectionRange(targetPos, targetPos); } catch (_) {}
+      }
+    }
+  }
+
   document.addEventListener('input', function(e) {
     const el = e.target;
     if (el && el.tagName === 'INPUT' && (el.type === 'tel' || String(el.id || '').toLowerCase().includes('phone'))) {
@@ -2503,6 +2559,12 @@
     return false;
   }
 
+  function isProductVisibleTodayWeb(p) {
+    if (!p || !Array.isArray(p.visible_days) || p.visible_days.length === 0 || p.visible_days.length >= 7) return true;
+    const today = new Date().getDay(); // 0=Dom..6=Sáb
+    return p.visible_days.map(Number).includes(today);
+  }
+
   function applyCatalogArrayToUI(rawCatalog) {
     if (!Array.isArray(rawCatalog) || rawCatalog.length === 0) return;
     const sortedRaw = [...rawCatalog].sort((a, b) => {
@@ -2514,7 +2576,7 @@
     window._rawCatalogData = rawCatalog;
     catalog = sortedRaw.filter(c => c.is_active !== false && !isBoutiqueOrMarketCategory(c)).map(c => ({
       ...c,
-      items: (c.items || []).filter(p => p.active !== false && !isBoutiqueOrMarketItem(p) && (isMesaSelfServicePage || !p.hide_in_delivery) && (typeof p.stock_qty !== 'number' || p.stock_qty < 0 || p.stock_qty > 0))
+      items: (c.items || []).filter(p => p.active !== false && isProductVisibleTodayWeb(p) && !isBoutiqueOrMarketItem(p) && (isMesaSelfServicePage || !p.hide_in_delivery) && (typeof p.stock_qty !== 'number' || p.stock_qty < 0 || p.stock_qty > 0))
     })).filter(c => c.items.length > 0);
 
     const showDest = shouldShowHighlightsCategory();
@@ -4248,7 +4310,17 @@
       </div>`;
     }
 
+    const prevRecoverInp = document.getElementById('recoverMyComandaInput');
+    const prevRecoverVal = prevRecoverInp ? String(prevRecoverInp.value || '') : '';
+    const wasRecoverFocused = Boolean(prevRecoverInp && document.activeElement === prevRecoverInp);
+    const prevSelStart = (prevRecoverInp && typeof prevRecoverInp.selectionStart === 'number') ? prevRecoverInp.selectionStart : prevRecoverVal.length;
+    const prevSelEnd = (prevRecoverInp && typeof prevRecoverInp.selectionEnd === 'number') ? prevRecoverInp.selectionEnd : prevRecoverVal.length;
+
     if (!html) {
+      // Evita apagar o número digitado ou fechar o teclado durante o polling/WebSocket em segundo plano.
+      if (isMesaScope && prevRecoverInp && (wasRecoverFocused || prevRecoverVal.trim().length > 0)) {
+        return;
+      }
       html = `<div style="text-align:center;padding:20px;color:var(--muted);">
         Você ainda não possui ${isMesaScope ? 'pedidos ou comanda ativa vinculada a este aparelho nesta mesa' : 'pedidos ativos de entrega/retirada neste dispositivo'}.<br/>
         Escolha seus itens no cardápio e clique em <strong>Finalizar Pedido</strong>!
@@ -4260,7 +4332,7 @@
               🔑 Limpou o navegador ou trocou de aparelho? Recupere apenas a SUA comanda:
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <input type="text" id="recoverMyComandaInput" placeholder="Seu Celular (DDD + número) ou Cartão QR" style="flex:1;min-width:190px;padding:8px 10px;border-radius:8px;background:#141722;color:#fff;border:1px solid #334155;font-size:12.5px;" />
+              <input type="text" id="recoverMyComandaInput" autocomplete="tel" placeholder="Celular: 00 0 0000 0000 ou Cartão QR" oninput="formatComandaRecoveryInput(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();recoverMyIsolatedComandaOnMesa();}" style="flex:1;min-width:190px;padding:8px 10px;border-radius:8px;background:#141722;color:#fff;border:1px solid #334155;font-size:12.5px;" />
               <button type="button" class="btn btn-gold" style="padding:8px 14px;font-size:12px;" onclick="recoverMyIsolatedComandaOnMesa()">🔍 Recuperar Minha Comanda</button>
             </div>
           </div>
@@ -4269,6 +4341,16 @@
     }
 
     box.innerHTML = html;
+    const nextRecoverInp = document.getElementById('recoverMyComandaInput');
+    if (nextRecoverInp && (prevRecoverVal || wasRecoverFocused)) {
+      if (prevRecoverVal) nextRecoverInp.value = prevRecoverVal;
+      if (wasRecoverFocused) {
+        try {
+          nextRecoverInp.focus();
+          nextRecoverInp.setSelectionRange(prevSelStart, prevSelEnd);
+        } catch (_) {}
+      }
+    }
   }
 
   async function recoverMyIsolatedComandaOnMesa() {
@@ -4690,5 +4772,251 @@
   <img src="/assets/nexus/nexus-full.png" alt="NexuSistemas" onerror="this.style.display='none'" style="height:24px;width:auto;object-fit:contain;background:transparent;" />
   <span style="font-size:11.5px;font-weight:800;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;">Tecnologia NexuSistemas</span>
 </footer>
+<script id="nexus-menu-keyboard-nav">
+  (function () {
+    'use strict';
+
+    var OVERLAY_SELECTOR = '.modal-backdrop, #qrSessionExpiredModal, #productPhotoLightboxModal, #itemModal, #checkoutModal, #myOrdersModal';
+    var FOCUSABLE_SELECTOR = 'button, a[href], select, textarea, input:not([type="hidden"]), .prod-card, #cartBar, [tabindex]:not([tabindex="-1"]), [onclick]:not(.modal-backdrop):not(.modal-box):not(.lightbox-box)';
+    var currentRingEl = null;
+    var overlayStack = [];
+    var prevTop = null;
+    var lastOrigin = null;
+    var lastMx = -1;
+    var lastMy = -1;
+    var lastScrollTs = 0;
+
+    function clearRing() {
+      if (currentRingEl && currentRingEl.classList) currentRingEl.classList.remove('kb-focus-ring');
+      currentRingEl = null;
+      document.querySelectorAll('.kb-focus-ring').forEach(function (n) { n.classList.remove('kb-focus-ring'); });
+    }
+
+    function setKbMode(on) {
+      if (!document.body) return;
+      if (on) document.body.classList.add('kb-nav-active');
+      else {
+        document.body.classList.remove('kb-nav-active');
+        clearRing();
+      }
+    }
+
+    function applyRing(el) {
+      clearRing();
+      if (el && el.classList && document.body && document.body.classList.contains('kb-nav-active')) {
+        el.classList.add('kb-focus-ring');
+        currentRingEl = el;
+      }
+    }
+
+    function isEditable(el) {
+      if (!el || !el.tagName) return false;
+      if (el.isContentEditable) return true;
+      var t = el.tagName.toUpperCase();
+      if (t === 'TEXTAREA' || t === 'SELECT') return true;
+      if (t === 'INPUT') {
+        var tp = String(el.type || 'text').toLowerCase();
+        return ['button', 'submit', 'reset', 'checkbox', 'radio', 'file', 'color', 'range'].indexOf(tp) === -1;
+      }
+      return false;
+    }
+
+    function isSearchBox(el) {
+      return el && el.tagName && el.tagName.toUpperCase() === 'INPUT' &&
+        (/search/i.test(el.id || '') || /buscar|pesquis/i.test(el.placeholder || ''));
+    }
+
+    function getTopOverlay() {
+      var all = Array.from(document.querySelectorAll(OVERLAY_SELECTOR));
+      var open = [];
+      for (var i = 0; i < all.length; i++) {
+        var cs = window.getComputedStyle(all[i]);
+        if (!cs || cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) === 0) continue;
+        var r = all[i].getBoundingClientRect();
+        if (r.width < 10 || r.height < 10) continue;
+        open.push({ el: all[i], z: parseInt(cs.zIndex, 10) || 0, idx: i });
+      }
+      open.sort(function (a, b) { return b.z !== a.z ? b.z - a.z : b.idx - a.idx; });
+      return open.length > 0 ? open[0].el : null;
+    }
+
+    function isVisible(el, boundary) {
+      if (!el || !el.isConnected || el.disabled) return false;
+      var oc = String((el.getAttribute && el.getAttribute('onclick')) || '').trim();
+      if (/^(?:event|ev|e)\.stopPropagation\(\)\s*;?$/.test(oc)) return false;
+      var cur = el;
+      while (cur && cur.nodeType === 1) {
+        var cs = window.getComputedStyle(cur);
+        if (!cs || cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) === 0) return false;
+        if (boundary && cur === boundary) break;
+        cur = cur.parentElement;
+      }
+      var r = el.getBoundingClientRect();
+      return el.getClientRects().length > 0 && r.width >= 6 && r.height >= 6;
+    }
+
+    function collect(scope) {
+      var root = scope || document;
+      var nodes = Array.from(root.querySelectorAll(FOCUSABLE_SELECTOR));
+      var out = [];
+      var seen = new Set();
+      for (var i = 0; i < nodes.length; i++) {
+        var el = nodes[i];
+        if (seen.has(el)) continue;
+        if (!scope && el.closest(OVERLAY_SELECTOR)) continue;
+        if (!isVisible(el, scope)) continue;
+        if (!el.hasAttribute('tabindex') && el.tagName.toUpperCase() !== 'BUTTON' && el.tagName.toUpperCase() !== 'A' &&
+            el.tagName.toUpperCase() !== 'INPUT' && el.tagName.toUpperCase() !== 'SELECT' && el.tagName.toUpperCase() !== 'TEXTAREA') {
+          el.setAttribute('tabindex', '0');
+        }
+        seen.add(el);
+        out.push(el);
+      }
+      return out;
+    }
+
+    function focusTarget(el) {
+      if (!el) return;
+      setKbMode(true);
+      lastScrollTs = Date.now();
+      try { el.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (_e) {}
+      try { el.focus({ preventScroll: true }); } catch (_e2) { try { el.focus(); } catch (_e3) {} }
+      applyRing(el);
+    }
+
+    function findNeighbor(fromEl, dir, list) {
+      var rA = fromEl.getBoundingClientRect();
+      var ax = rA.left + rA.width / 2;
+      var ay = rA.top + rA.height / 2;
+      var isHoriz = (dir === 'ArrowLeft' || dir === 'ArrowRight');
+      var best = null;
+      var bestScore = Infinity;
+
+      for (var i = 0; i < list.length; i++) {
+        var cand = list[i];
+        if (cand === fromEl) continue;
+        if (!isHoriz && (fromEl.contains(cand) || cand.contains(fromEl))) continue;
+        var rB = cand.getBoundingClientRect();
+        var bx = rB.left + rB.width / 2;
+        var by = rB.top + rB.height / 2;
+        var pd = 0, sd = 0, gap = 0, ov = 0;
+        if (dir === 'ArrowRight') {
+          pd = bx - ax; if (pd <= 4) continue;
+          gap = Math.max(0, rB.left - rA.right);
+          ov = Math.max(0, Math.min(rA.bottom, rB.bottom) - Math.max(rA.top, rB.top));
+          sd = Math.abs(by - ay);
+        } else if (dir === 'ArrowLeft') {
+          pd = ax - bx; if (pd <= 4) continue;
+          gap = Math.max(0, rA.left - rB.right);
+          ov = Math.max(0, Math.min(rA.bottom, rB.bottom) - Math.max(rA.top, rB.top));
+          sd = Math.abs(by - ay);
+        } else if (dir === 'ArrowDown') {
+          pd = by - ay; if (pd <= 4) continue;
+          gap = Math.max(0, rB.top - rA.bottom);
+          ov = Math.max(0, Math.min(rA.right, rB.right) - Math.max(rA.left, rB.left));
+          sd = Math.abs(bx - ax);
+        } else if (dir === 'ArrowUp') {
+          pd = ay - by; if (pd <= 4) continue;
+          gap = Math.max(0, rA.top - rB.bottom);
+          ov = Math.max(0, Math.min(rA.right, rB.right) - Math.max(rA.left, rB.left));
+          sd = Math.abs(bx - ax);
+        }
+        var span = isHoriz ? Math.max(rA.height, rB.height) : Math.max(rA.width, rB.width);
+        var aligned = ov > 2 || sd <= span * 0.72;
+        var score = gap * 1.15 + pd * 0.85 + (aligned ? sd * 1.4 : sd * 4.2 + 220) - (ov > 0 ? 40 : 0);
+        if (score < bestScore) { bestScore = score; best = cand; }
+      }
+      return best;
+    }
+
+    function syncStack() {
+      var top = getTopOverlay();
+      if (top && top !== prevTop && !overlayStack.some(function (x) { return x.overlay === top; })) {
+        overlayStack.push({ overlay: top, origin: (document.activeElement && !top.contains(document.activeElement)) ? document.activeElement : lastOrigin });
+      } else if (!top && prevTop) {
+        overlayStack = [];
+      }
+      prevTop = top;
+      return top;
+    }
+
+    document.addEventListener('pointerdown', function (ev) {
+      setKbMode(false);
+      var t = ev.target && ev.target.closest ? (ev.target.closest(FOCUSABLE_SELECTOR) || ev.target) : ev.target;
+      if (!syncStack() && t && !t.closest(OVERLAY_SELECTOR)) lastOrigin = t;
+    }, true);
+
+    document.addEventListener('mousemove', function (ev) {
+      if (lastMx < 0) { lastMx = ev.clientX; lastMy = ev.clientY; return; }
+      var d = Math.hypot(ev.clientX - lastMx, ev.clientY - lastMy);
+      lastMx = ev.clientX; lastMy = ev.clientY;
+      if (d > 6 && (Date.now() - lastScrollTs > 260)) setKbMode(false);
+    }, { passive: true });
+
+    window.addEventListener('keydown', function (e) {
+      if (e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey) return;
+      var k = String(e.key || '');
+      var top = syncStack();
+      var activeEl = document.activeElement;
+
+      if (k === 'Tab') { setKbMode(true); return; }
+
+      if (k === 'Escape' && top && top.id !== 'qrSessionExpiredModal') {
+        e.preventDefault();
+        top.click();
+        var item = overlayStack.pop();
+        prevTop = getTopOverlay();
+        setTimeout(function () {
+          var orig = item && item.origin;
+          if (orig && orig.isConnected && isVisible(orig, getTopOverlay())) focusTarget(orig);
+        }, 35);
+        return;
+      }
+
+      if (k === 'ArrowUp' || k === 'ArrowDown' || k === 'ArrowLeft' || k === 'ArrowRight') {
+        if (top && activeEl && activeEl !== document.body && !top.contains(activeEl)) activeEl = null;
+        if (isEditable(activeEl)) {
+          if (k === 'ArrowLeft' || k === 'ArrowRight') return;
+          var aTag = activeEl.tagName.toUpperCase();
+          var aTp = String(activeEl.type || '').toLowerCase();
+          if (aTag === 'TEXTAREA' || aTag === 'SELECT' || aTp === 'number') return;
+          var list = collect(top);
+          if (isSearchBox(activeEl) && k === 'ArrowDown') {
+            var card = list.find(function (c) { return c.classList && c.classList.contains('prod-card'); }) || findNeighbor(activeEl, 'ArrowDown', list);
+            if (card) { e.preventDefault(); focusTarget(card); }
+            return;
+          }
+          var mv = findNeighbor(activeEl, k, list);
+          if (mv) { e.preventDefault(); focusTarget(mv); }
+          return;
+        }
+        e.preventDefault();
+        setKbMode(true);
+        var cands = collect(top);
+        if (cands.length === 0) return;
+        var start = (activeEl && cands.indexOf(activeEl) !== -1) ? activeEl : currentRingEl;
+        if (!start || cands.indexOf(start) === -1) {
+          var initEl = top ? cands[0] : (cands.find(function (c) { return c.classList && c.classList.contains('prod-card'); }) || cands[0]);
+          if (initEl) focusTarget(initEl);
+          return;
+        }
+        var nx = findNeighbor(start, k, cands);
+        if (nx) focusTarget(nx); else applyRing(start);
+        return;
+      }
+
+      if (k === 'Enter' && !e.repeat) {
+        if (isEditable(activeEl)) return;
+        if (!activeEl || activeEl === document.body || activeEl === document.documentElement) return;
+        if (top && !top.contains(activeEl)) return;
+        if (!isVisible(activeEl, top)) return;
+        if (!top) lastOrigin = activeEl;
+        e.preventDefault();
+        e.stopPropagation();
+        activeEl.click();
+      }
+    });
+  })();
+</script>
 </body>
 </html>
